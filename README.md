@@ -38,8 +38,8 @@
 Explore our comprehensive documentation for setup, configuration, and advanced usage:
 
 - 📖 **[Full Documentation](https://agentr1.github.io/Claw-R1/)**
-- 🚀 [Installation Guide](https://agentr1.github.io/Claw-R1/Installation/) (Web) or [Local MD](docs/Installation.md)
-- 🛠️ [Architecture Overview](https://agentr1.github.io/Claw-R1/Architecture/)
+- 🚀 [Installation Guide](docs/Installation.md)
+- 🛠️ [Architecture Overview](https://agentr1.github.io/Claw-R1/components/)
 
 ## Contributors
 

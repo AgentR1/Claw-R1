@@ -1,0 +1,58 @@
+# Async Agent PPO Trainer configuration
+# Extends the synchronous agent_ppo_trainer config with async-specific settings.
+
+defaults:
+  - ppo_trainer
+  - /overrides/rollout@actor_rollout_ref.rollout
+  - _self_
+
+hydra:
+  searchpath:
+    - pkg://verl.trainer.config
+
+# -- Async training settings -----------------------------------------------
+
+async_training:
+
+  # Maximum samples staleness threshold (fraction of param versions behind)
+  staleness_threshold: 0.1
+
+  # How many trainer steps between weight syncs to the Rollouter
+  trigger_parameter_sync_step: 4
+
+  # Number of ppo_mini_batches the AsyncTrainer fetches at once
+  require_batches: 1
+
+  # Whether to interrupt Rollouter for partial rollout during sync
+  partial_rollout: false
+
+  # Reuse rollout log-probs as old_log_probs (skip recompute, faster but
+  # slightly stale in async mode)
+  use_rollout_log_probs: true
+
+  # Maximum unconsumed prompt groups in DataPool before oldest are dropped
+  # null = unlimited (only for testing; production should set a limit)
+  max_queue_size: null
+
+  # Checkpoint engine for accelerating parameter synchronization
+  checkpoint_engine:
+    enable: true
+    device_buffer_size_M: 4096
+
+# -- Rollout GPU pool (separate from trainer pool) -------------------------
+
+rollout:
+  nnodes: 1
+  n_gpus_per_node: 4
+  total_epochs: 10
+  test_freq: 1
+
+# -- Actor config: propagate rollout log-probs flag ------------------------
+
+actor_rollout_ref:
+  hybrid_engine: false
+
+  actor:
+    use_rollout_log_probs: ${oc.select:async_training.use_rollout_log_probs, true}
+
+  checkpoint_engine: ${oc.select:async_training.checkpoint_engine, null}

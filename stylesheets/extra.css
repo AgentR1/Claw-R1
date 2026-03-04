@@ -1,0 +1,6 @@
+/* Custom theme color: #cd785c (terracotta/coral) */
+:root > * {
+  --md-primary-fg-color: #cd785c;
+  --md-primary-fg-color--light: #e8a88a;
+  --md-primary-fg-color--dark: #a85a3d;
+}

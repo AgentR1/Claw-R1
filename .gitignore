@@ -129,3 +129,6 @@ logs
 log
 outputs
 .history
+
+# MkDocs build output
+site/

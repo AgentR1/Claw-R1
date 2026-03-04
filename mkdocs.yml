@@ -1,0 +1,126 @@
+site_name: Claw-R1
+site_url: https://AgentR1.github.io/Claw-R1/
+site_description: "Empowering OpenClaw with Advanced Agentic RL — A Middleware-based Training Framework"
+site_author: "Claw-R1 Team, USTC"
+copyright: "Copyright &copy; 2025 Claw-R1 Team · State Key Laboratory of Cognitive Intelligence, USTC"
+
+repo_name: AgentR1/Claw-R1
+repo_url: https://github.com/AgentR1/Claw-R1
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  logo: assets/logo.jpeg
+  favicon: assets/logo.jpeg
+  palette:
+    - scheme: default
+      primary: red
+      accent: deep-orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: red
+      accent: deep-orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - announce.dismiss
+
+plugins:
+  - search:
+      lang: en
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.snippets
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AgentR1/Claw-R1
+      name: Claw-R1 on GitHub
+  analytics:
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback!
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - Concepts:
+    - concepts/index.md
+    - Base URL Integration: concepts/base-url-integration.md
+    - Middleware Layer: concepts/middleware-layer.md
+    - Production Scenario: concepts/production-scenario.md
+  - Components:
+    - components/index.md
+    - Gateway Server: components/gateway.md
+    - DataPool: components/datapool.md
+    - Agent Flow: components/agent-flow.md
+    - Async Training: components/async-training.md
+    - Reward System: components/reward-system.md
+  - Configuration:
+    - configuration/index.md
+  - API Reference:
+    - api/index.md
+    - Gateway API: api/gateway.md
+  - Contributing: contributing.md
+  - Design Notes (CN): test-doc.md

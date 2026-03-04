@@ -1,4 +1,4 @@
-<h1 align="center"> Claw-R1: Agentic RL for Modern Agents </h1>
+<h1 align="center"> Claw-R1: Empowering OpenClaw Agents with Advanced RL. </h1>
 
 <p align="center">
   <a href="https://github.com/AgentR1/Claw-R1/stargazers"><img src="https://img.shields.io/github/stars/AgentR1/Claw-R1" alt="GitHub Repo stars"></a>

@@ -15,8 +15,6 @@
         <link rel="canonical" href="https://AgentR1.github.io/Claw-R1/test-doc/">
       
       
-        <link rel="prev" href="../contributing/">
-      
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Design Notes (CN) - Claw-R1</title>
+        <title>Claw-R1 三大核心设计解读 - Claw-R1</title>
       
     
     
@@ -115,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Design Notes (CN)
+              Claw-R1 三大核心设计解读
             
           </span>
         </div>
@@ -363,27 +361,6 @@
     
   
   Contributing
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
-        
-  
-  
-    
-  
-  Design Notes (CN)
 
       </a>
     </li>
@@ -1199,265 +1176,6 @@
   
 
     
-      
-      
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Design Notes (CN)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Design Notes (CN)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        引言
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#base_url" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        一、base_url 即接入：最低侵入的黑盒集成
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="一、base_url 即接入：最低侵入的黑盒集成">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        问题从哪里来
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#url" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        机制：为什么改一个 URL 就够了
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sdk-hook" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        为什么这比 SDK Hook 更彻底
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#datapool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        二、DataPool 异步缓冲：解耦服务与训练的关键
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="二、DataPool 异步缓冲：解耦服务与训练的关键">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        同步训练的根本缺陷
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#datapool-middleware-layer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DataPool 的角色：Middleware Layer 的核心组件
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rllm-datapool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        与 rLLM DataPool 的区别
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rewarddatapool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reward：DataPool 中轨迹的奖励标注
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#production-agent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        三、真实 Production Agent 场景：从"训练时"到"部署即训练"
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="三、真实 Production Agent 场景：从&#34;训练时&#34;到&#34;部署即训练&#34;">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        现有框架的隐性假设
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#claw-r1-agent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Claw-R1 的核心场景：个人 Agent 的持续自我进化
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        "边服务边训练"的系统含义
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        四、三点结合：为什么缺一不可
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -2040,28 +1758,6 @@
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../contributing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Contributing">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Contributing
-              </div>
-            </div>
-          </a>
-        
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">

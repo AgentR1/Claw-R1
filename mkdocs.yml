@@ -14,13 +14,13 @@ theme:
   favicon: assets/logo.jpeg
   palette:
     - scheme: default
-      primary: red
+      primary: custom
       accent: deep-orange
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: red
+      primary: custom
       accent: deep-orange
       toggle:
         icon: material/brightness-4
@@ -48,6 +48,9 @@ theme:
 plugins:
   - search:
       lang: en
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - admonition

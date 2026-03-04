@@ -34,7 +34,7 @@ from omegaconf import DictConfig, OmegaConf
 from PIL import Image
 from transformers import AutoProcessor, AutoTokenizer
 
-from agent_r1.data_pool.data_model import Step
+from claw_r1.data_pool.data_model import Step
 from verl.experimental.agent_loop.agent_loop import DictConfigWrap
 from verl.protocol import DataProto
 from verl.utils import hf_processor, hf_tokenizer

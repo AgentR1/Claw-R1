@@ -7,7 +7,7 @@
 line-length = 120
 
 [tool.ruff.lint]
-isort = {known-first-party = ["agent_r1", "verl"]}
+isort = {known-first-party = ["claw_r1", "verl"]}
 # c.f. https://github.com/vllm-project/vllm/blob/ce8d6b75fc0586045df75ee1568a5b5f9957251b/pyproject.toml
 select = [
     # pycodestyle

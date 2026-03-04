@@ -5,7 +5,7 @@ defaults:
   # 继承 verl 的完整 ppo_trainer 配置
   - ppo_trainer
 
-  # 覆盖 rollout 配置（使用 agent_r1 的 AgentFlowConfig）
+  # 覆盖 rollout 配置（使用 claw_r1 的 AgentFlowConfig）
   - /overrides/rollout@actor_rollout_ref.rollout
 
   # _self_ 确保当前文件的配置优先

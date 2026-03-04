@@ -18,8 +18,8 @@ import os
 from typing import Any
 from uuid import uuid4
 
-from agent_r1.agent_flow.agent_flow import AgentFlowBase, register
-from agent_r1.data_pool.data_model import Step
+from claw_r1.agent_flow.agent_flow import AgentFlowBase, register
+from claw_r1.data_pool.data_model import Step
 
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))

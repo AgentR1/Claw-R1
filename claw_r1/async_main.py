@@ -6,7 +6,7 @@ ParameterSynchronizer.
 
 Usage::
 
-    python -m agent_r1.async_main ...hydra overrides...
+    python -m claw_r1.async_main ...hydra overrides...
 
 Based on ``verl/recipe/fully_async_policy/fully_async_main.py``.
 """
@@ -53,7 +53,7 @@ def _create_resource_pool_manager(config, roles: list[Role]) -> ResourcePoolMana
 
 def _create_role_worker_mapping(config):
     """Create mapping from Roles to worker classes for async mode."""
-    from agent_r1.detach_workers import (
+    from claw_r1.detach_workers import (
         CriticWorker,
         DetachActorWorker,
         DetachAsyncRolloutWorker,
@@ -126,7 +126,7 @@ class AsyncTaskRunner:
         )
 
         # -- DataPool -----------------------------------------------------
-        from agent_r1.data_pool import DataPool, DataPoolConfig, VerlBackend
+        from claw_r1.data_pool import DataPool, DataPoolConfig, VerlBackend
 
         verl_backend = VerlBackend(
             tokenizer=tokenizer,
@@ -147,7 +147,7 @@ class AsyncTaskRunner:
         # -- RewardLoopWorker ---------------------------------------------
         # Always created so the Gateway can compute rule-based or model-based
         # rewards, consistent with the synchronous Trainer.
-        from agent_r1.reward_loop import RewardLoopWorker
+        from claw_r1.reward_loop import RewardLoopWorker
 
         reward_worker_name = "reward_loop_worker"
         reward_worker = RewardLoopWorker.options(
@@ -173,7 +173,7 @@ class AsyncTaskRunner:
         print(f"[ASYNC] total_train_steps = {total_train_steps}")
 
         # -- ParameterSynchronizer ----------------------------------------
-        from agent_r1.param_sync import ParameterSynchronizer
+        from claw_r1.param_sync import ParameterSynchronizer
 
         ps = ParameterSynchronizer.remote(
             config=config,
@@ -190,7 +190,7 @@ class AsyncTaskRunner:
         print("[ASYNC] All components initialized")
 
     def _create_rollouter(self, config):
-        from agent_r1.async_rollouter import AsyncRollouter
+        from claw_r1.async_rollouter import AsyncRollouter
 
         rollouter = AsyncRollouter.remote(
             config=config,
@@ -211,7 +211,7 @@ class AsyncTaskRunner:
         print("[ASYNC] Rollouter created")
 
     def _create_trainer(self, config):
-        from agent_r1.async_trainer import AsyncTrainer
+        from claw_r1.async_trainer import AsyncTrainer
 
         trainer_roles = [
             role for role in self.components["role_worker_mapping"]
@@ -278,7 +278,7 @@ def main(config):
         ray_init_kwargs = OmegaConf.create(
             {**ray_init_kwargs, "runtime_env": runtime_env}
         )
-        ray.init(namespace="agent_r1_async", **OmegaConf.to_container(ray_init_kwargs))
+        ray.init(namespace="claw_r1_async", **OmegaConf.to_container(ray_init_kwargs))
 
     if not hasattr(config, "async_training"):
         raise RuntimeError("async_training config section is required")

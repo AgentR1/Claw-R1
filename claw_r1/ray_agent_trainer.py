@@ -34,7 +34,7 @@ import torch
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
-from agent_r1.metric_utils import compute_data_metrics
+from claw_r1.metric_utils import compute_data_metrics
 from verl import DataProto
 from verl.experimental.dataset.sampler import AbstractCurriculumSampler
 from verl.protocol import pad_dataproto_to_divisor
@@ -122,7 +122,7 @@ def compute_advantage(
     # prepare response group
     if adv_estimator == AdvantageEstimator.GAE:
         # Compute advantages and returns using Generalized Advantage Estimation (GAE)
-        from agent_r1.core_algos import compute_gae_advantage_return
+        from claw_r1.core_algos import compute_gae_advantage_return
 
         valid_advantages, valid_returns = compute_gae_advantage_return(
             token_level_rewards=valid_data.batch["token_level_rewards"],
@@ -137,7 +137,7 @@ def compute_advantage(
         returns[valid_mask] = valid_returns
     elif adv_estimator == AdvantageEstimator.GRPO:
         # Call compute_grpo_outcome_advantage with parameters matching its definition
-        from agent_r1.core_algos import compute_grpo_outcome_advantage
+        from claw_r1.core_algos import compute_grpo_outcome_advantage
 
         valid_advantages, valid_returns = compute_grpo_outcome_advantage(
             token_level_rewards=valid_data.batch["token_level_rewards"],
@@ -561,7 +561,7 @@ class RayAgentTrainer(RayPPOTrainer):
         # RewardLoopWorker handles rule-based, model-based, and custom reward
         # computation. Always created so the Gateway can use it regardless of
         # whether a reward model is deployed.
-        from agent_r1.reward_loop import RewardLoopWorker
+        from claw_r1.reward_loop import RewardLoopWorker
 
         self._reward_worker_name = "reward_loop_worker"
         self._reward_worker = RewardLoopWorker.options(
@@ -569,7 +569,7 @@ class RayAgentTrainer(RayPPOTrainer):
         ).remote(self.config, reward_router_address)
 
         # ── DataPool ─────────────────────────────────────────────────────────
-        from agent_r1.data_pool import DataPool, DataPoolConfig, VerlBackend
+        from claw_r1.data_pool import DataPool, DataPoolConfig, VerlBackend
 
         verl_backend = VerlBackend(
             tokenizer=self.tokenizer,
@@ -589,7 +589,7 @@ class RayAgentTrainer(RayPPOTrainer):
         self._start_gateway_server()
 
         # ── AgentFlowManager ─────────────────────────────────────────────────
-        from agent_r1.agent_flow import AgentFlowManager
+        from claw_r1.agent_flow import AgentFlowManager
 
         self.async_rollout_manager = AgentFlowManager(
             config=self.config,
@@ -679,7 +679,7 @@ class RayAgentTrainer(RayPPOTrainer):
         cmd = [
             "python",
             "-m",
-            "agent_r1.gateway.gateway",
+            "claw_r1.gateway.gateway",
             "--data-pool-name",
             self._data_pool_name,
             "--vllm-addresses",

@@ -5,7 +5,7 @@ storage and to vLLM servers for LLM generation via HTTP forwarding.
 
 Start with::
 
-    python -m agent_r1.gateway.gateway \\
+    python -m claw_r1.gateway.gateway \\
         --data-pool-name data_pool \\
         --vllm-addresses http://host1:8000,http://host2:8000 \\
         --tokenizer-path /path/to/model \\
@@ -28,8 +28,8 @@ import ray
 import uvicorn
 from fastapi import FastAPI, HTTPException
 
-from agent_r1.data_pool.data_model import Step
-from agent_r1.gateway.models import (
+from claw_r1.data_pool.data_model import Step
+from claw_r1.gateway.models import (
     CompleteTrajectoryRequest,
     ComputeRewardRequest,
     ComputeRewardResponse,
@@ -40,7 +40,7 @@ from agent_r1.gateway.models import (
     SubmitStepsResponse,
 )
 
-logger = logging.getLogger("agent_r1.gateway")
+logger = logging.getLogger("claw_r1.gateway")
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "INFO"))
 
 app = FastAPI(title="Agent-R1 Gateway")

@@ -22,8 +22,8 @@ from typing import Any
 
 import ray
 
-from agent_r1.data_pool.data_model import DataPoolConfig, Step
-from agent_r1.data_pool.training_backend import TrainingBackend
+from claw_r1.data_pool.data_model import DataPoolConfig, Step
+from claw_r1.data_pool.training_backend import TrainingBackend
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))

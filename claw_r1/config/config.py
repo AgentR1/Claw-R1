@@ -82,12 +82,12 @@ class BaseModelConfig(BaseConfig):
 class AgentFlowConfig(BaseConfig):
     """AgentFlow 配置，兼容 verl 的 AgentLoopConfig 字段。
 
-    agent_r1 使用 agent_flow 命名，但同时接受 verl 的 agent_loop 字段以便配置合并。
+    claw_r1 使用 agent_flow 命名，但同时接受 verl 的 agent_loop 字段以便配置合并。
     """
 
     num_workers: int = 8
 
-    # agent_r1 字段
+    # claw_r1 字段
     default_agent_flow: str = "single_step_single_turn_agent"
     agent_flow_config_path: Optional[str] = None
 

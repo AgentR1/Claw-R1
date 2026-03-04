@@ -7,8 +7,8 @@ mode: async
 # [Experimental] agent flow based rollout configs (覆盖 verl 的 AgentLoopConfig)
 agent:
 
-  # 使用 agent_r1 的 AgentFlowConfig 替代 verl 的 AgentLoopConfig
-  _target_: agent_r1.config.AgentFlowConfig
+  # 使用 claw_r1 的 AgentFlowConfig 替代 verl 的 AgentLoopConfig
+  _target_: claw_r1.config.AgentFlowConfig
 
   # Number of agent flow workers
   num_workers: 8

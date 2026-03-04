@@ -34,7 +34,7 @@ from verl.utils.checkpoint.checkpoint_manager import find_latest_ckpt_path, shou
 from verl.trainer.ppo.ray_trainer import compute_response_mask
 from verl.utils.debug import marked_timer
 from verl.protocol import pad_dataproto_to_divisor
-from agent_r1.ray_agent_trainer import get_valid_data
+from claw_r1.ray_agent_trainer import get_valid_data
 
 import logging
 

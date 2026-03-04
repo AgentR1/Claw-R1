@@ -243,7 +243,7 @@ class AsyncRollouter:
         ray_namespace = ray_ctx.namespace
 
         cmd = [
-            "python", "-m", "agent_r1.gateway.gateway",
+            "python", "-m", "claw_r1.gateway.gateway",
             "--data-pool-name", self._data_pool_name,
             "--vllm-addresses", ",".join(self._server_addresses),
             "--tokenizer-path", self.config.actor_rollout_ref.model.path,
@@ -277,7 +277,7 @@ class AsyncRollouter:
             proc.wait(timeout=10)
 
     def _init_agent_flow_manager(self):
-        from agent_r1.agent_flow import AgentFlowManager
+        from claw_r1.agent_flow import AgentFlowManager
         self.async_rollout_manager = AgentFlowManager(
             config=self.config,
             gateway_url=self._gateway_url,

@@ -54,7 +54,7 @@ Claw-R1 builds upon [Agent-R1](https://github.com/0russwest0/Agent-R1). We exten
 ```bibtex
 @misc{clawr1-2026,
   title={Claw-R1: Agentic RL for Modern Agents},
-  author={Wang, Daoyu and Ouyang, Jie and Yu Shuo and Cheng, Mingyue and Liu, Qi},
+  author={Wang, Daoyu and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
   year={2025},
   howpublished={\url{https://github.com/AgentR1/Claw-R1}},
   note={GitHub repository}

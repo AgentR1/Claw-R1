@@ -3,6 +3,7 @@
 <p align="center">
   <a href="https://github.com/AgentR1/Claw-R1/stargazers"><img src="https://img.shields.io/github/stars/AgentR1/Claw-R1" alt="GitHub Repo stars"></a>
   <a href="https://github.com/AgentR1/Claw-R1/network/members"><img src="https://img.shields.io/github/forks/AgentR1/Claw-R1" alt="GitHub forks"></a>
+  <a href="https://agentr1.github.io/Claw-R1/"><img src="https://img.shields.io/badge/docs-latest-blue.svg" alt="Docs"></a>
 </p>
 
 <p align="center"><img src="./assets/logo.jpeg" width="600px" alt="Claw-R1 Logo" /></p>
@@ -34,7 +35,11 @@
 
 ## Get Started
 
-- [Installation](docs/Installation.md)
+Explore our comprehensive documentation for setup, configuration, and advanced usage:
+
+- 📖 **[Full Documentation](https://agentr1.github.io/Claw-R1/)**
+- 🚀 [Installation Guide](https://agentr1.github.io/Claw-R1/Installation/) (Web) or [Local MD](docs/Installation.md)
+- 🛠️ [Architecture Overview](https://agentr1.github.io/Claw-R1/Architecture/)
 
 ## Contributors
 

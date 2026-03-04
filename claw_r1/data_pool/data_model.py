@@ -5,7 +5,7 @@ The DataPool stores rollout trajectories at Step granularity. A Step is the atom
 reconstructed from Step metadata fields rather than nested data structures.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Optional
 
 from verl.base_config import BaseConfig

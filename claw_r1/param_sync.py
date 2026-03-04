@@ -82,11 +82,16 @@ class ParameterSynchronizer:
         sync_time = time.time()
         logger.info(
             "sync_weights v%d done: pause=%.2fs sync=%.2fs total=%.2fs",
-            version, pause_time - start, sync_time - pause_time, sync_time - start,
+            version,
+            pause_time - start,
+            sync_time - pause_time,
+            sync_time - start,
         )
 
         self._wait_last_update = self.rollouter.update_param_version.remote(
-            version, validate, global_steps,
+            version,
+            validate,
+            global_steps,
         )
         self._wait_last_resume = self.rollouter.resume.remote(self._wait_last_update)
 

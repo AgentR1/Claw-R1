@@ -26,8 +26,8 @@ from verl.trainer.ppo.ray_trainer import ResourcePoolManager
 from verl.trainer.ppo.utils import Role
 from verl.utils.device import auto_set_device
 
-
 # -- Resource pool helpers ------------------------------------------------
+
 
 def _create_resource_pool_manager(config, roles: list[Role]) -> ResourcePoolManager:
     """Build separate resource pools for trainer vs. rollout roles."""
@@ -74,6 +74,7 @@ def _create_role_worker_mapping(config):
 
 # -- AsyncTaskRunner ------------------------------------------------------
 
+
 @ray.remote(num_cpus=1)
 class AsyncTaskRunner:
     """Orchestrates async training: creates components, wires them, starts loops."""
@@ -93,8 +94,8 @@ class AsyncTaskRunner:
         pprint(OmegaConf.to_container(config, resolve=True))
         OmegaConf.resolve(config)
 
-        from verl.utils.fs import copy_to_local
         from verl.utils import hf_processor, hf_tokenizer
+        from verl.utils.fs import copy_to_local
 
         local_path = copy_to_local(
             config.actor_rollout_ref.model.path,
@@ -103,7 +104,9 @@ class AsyncTaskRunner:
         trust_remote_code = config.data.get("trust_remote_code", False)
         tokenizer = hf_tokenizer(local_path, trust_remote_code=trust_remote_code)
         processor = hf_processor(
-            local_path, trust_remote_code=trust_remote_code, use_fast=True,
+            local_path,
+            trust_remote_code=trust_remote_code,
+            use_fast=True,
         )
 
         role_worker_mapping, ray_worker_group_cls = _create_role_worker_mapping(config)
@@ -139,7 +142,9 @@ class AsyncTaskRunner:
         max_queue_size = config.async_training.get("max_queue_size", None)
         data_pool_name = "data_pool"
         data_pool = DataPool.options(name=data_pool_name).remote(
-            data_pool_config, verl_backend, max_queue_size=max_queue_size,
+            data_pool_config,
+            verl_backend,
+            max_queue_size=max_queue_size,
         )
         self.components["data_pool"] = data_pool
         self.components["data_pool_name"] = data_pool_name
@@ -213,17 +218,12 @@ class AsyncTaskRunner:
     def _create_trainer(self, config):
         from claw_r1.async_trainer import AsyncTrainer
 
-        trainer_roles = [
-            role for role in self.components["role_worker_mapping"]
-            if role != Role.Rollout
-        ]
+        trainer_roles = [role for role in self.components["role_worker_mapping"] if role != Role.Rollout]
         trainer = AsyncTrainer.remote(
             config=config,
             tokenizer=self.components["tokenizer"],
             role_worker_mapping={
-                role: cls
-                for role, cls in self.components["role_worker_mapping"].items()
-                if role != Role.Rollout
+                role: cls for role, cls in self.components["role_worker_mapping"].items() if role != Role.Rollout
             },
             resource_pool_manager=_create_resource_pool_manager(config, trainer_roles),
             ray_worker_group_cls=self.components["ray_worker_group_cls"],
@@ -266,6 +266,7 @@ class AsyncTaskRunner:
 
 # -- Hydra entry point ----------------------------------------------------
 
+
 @hydra.main(config_path="config", config_name="async_ppo_trainer", version_base=None)
 def main(config):
     auto_set_device(config)
@@ -275,9 +276,7 @@ def main(config):
         ray_init_kwargs = config.ray_kwargs.get("ray_init", {})
         runtime_env_kwargs = ray_init_kwargs.get("runtime_env", {})
         runtime_env = OmegaConf.merge(default_runtime_env, runtime_env_kwargs)
-        ray_init_kwargs = OmegaConf.create(
-            {**ray_init_kwargs, "runtime_env": runtime_env}
-        )
+        ray_init_kwargs = OmegaConf.create({**ray_init_kwargs, "runtime_env": runtime_env})
         ray.init(namespace="claw_r1_async", **OmegaConf.to_container(ray_init_kwargs))
 
     if not hasattr(config, "async_training"):

@@ -10,33 +10,26 @@ Based on ``verl/recipe/fully_async_policy/fully_async_trainer.py``.
 
 from __future__ import annotations
 
+import logging
 import math
 import os
-import time
-from collections import defaultdict
 from functools import reduce
 from pprint import pprint
-from typing import Any
 
 import numpy as np
 import ray
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
-from verl.protocol import DataProto
+from claw_r1.ray_agent_trainer import get_valid_data
+from verl.protocol import DataProto, pad_dataproto_to_divisor
 from verl.single_controller.ray import RayClassWithInitArgs, RayWorkerGroup
 from verl.single_controller.ray.base import create_colocated_worker_cls
 from verl.trainer.ppo import core_algos
-from verl.trainer.ppo.ray_trainer import ResourcePoolManager, compute_data_metrics
+from verl.trainer.ppo.ray_trainer import ResourcePoolManager, compute_data_metrics, compute_response_mask
 from verl.trainer.ppo.reward import load_reward_manager
 from verl.trainer.ppo.utils import Role, WorkerType, need_critic, need_reference_policy
-from verl.utils.checkpoint.checkpoint_manager import find_latest_ckpt_path, should_save_ckpt_esi
-from verl.trainer.ppo.ray_trainer import compute_response_mask
 from verl.utils.debug import marked_timer
-from verl.protocol import pad_dataproto_to_divisor
-from claw_r1.ray_agent_trainer import get_valid_data
-
-import logging
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
@@ -70,11 +63,15 @@ class AsyncTrainer:
         self.ref_in_actor = config.actor_rollout_ref.model.get("lora_rank", 0) > 0
 
         self.reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=0,
+            config,
+            tokenizer,
+            num_examine=0,
             **config.reward_model.get("reward_kwargs", {}),
         )
         self.val_reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=1,
+            config,
+            tokenizer,
+            num_examine=1,
             **config.reward_model.get("reward_kwargs", {}),
         )
 
@@ -124,9 +121,7 @@ class AsyncTrainer:
         """Create Actor, Critic, RefPolicy worker groups."""
         self.resource_pool_manager.create_resource_pool()
 
-        resource_pool_to_cls = {
-            pool: {} for pool in self.resource_pool_manager.resource_pool_dict.values()
-        }
+        resource_pool_to_cls = {pool: {} for pool in self.resource_pool_manager.resource_pool_dict.values()}
 
         # Actor
         resource_pool = self.resource_pool_manager.get_resource_pool(Role.Actor)
@@ -139,8 +134,8 @@ class AsyncTrainer:
 
         # Critic
         if self.use_critic:
-            from verl.workers.config import CriticConfig
             from verl.utils.config import omega_conf_to_dataclass
+            from verl.workers.config import CriticConfig
 
             crit_pool = self.resource_pool_manager.get_resource_pool(Role.Critic)
             critic_cfg = omega_conf_to_dataclass(self.config.critic, CriticConfig)
@@ -261,7 +256,9 @@ class AsyncTrainer:
         # Final sync + validation (after progress bar so timing is accurate)
         if self._param_synchronizer:
             self._trigger_parameter_sync(
-                self.global_steps, validate=True, force=True,
+                self.global_steps,
+                validate=True,
+                force=True,
             )
             ray.get(self._param_synchronizer.wait_last_valid.remote())
             self._check_validation_data(tracking)
@@ -272,9 +269,7 @@ class AsyncTrainer:
 
     def _process_batch(self, batch: DataProto, metrics: dict, timing_raw: dict) -> DataProto:
         """Run the full PPO pipeline on a single batch."""
-        batch.meta_info["global_token_num"] = (
-            batch.batch["attention_mask"].sum(dim=-1).tolist()
-        )
+        batch.meta_info["global_token_num"] = batch.batch["attention_mask"].sum(dim=-1).tolist()
 
         if "response_mask" not in batch.batch:
             batch.batch["response_mask"] = compute_response_mask(batch)
@@ -309,12 +304,11 @@ class AsyncTrainer:
         with marked_timer("adv", timing_raw, color="brown"):
             batch.batch["token_level_scores"] = reward_tensor
             if reward_extra_infos_dict:
-                batch.non_tensor_batch.update(
-                    {k: np.array(v) for k, v in reward_extra_infos_dict.items()}
-                )
+                batch.non_tensor_batch.update({k: np.array(v) for k, v in reward_extra_infos_dict.items()})
 
             if self.config.algorithm.use_kl_in_reward:
                 from verl.trainer.ppo.ray_trainer import apply_kl_penalty
+
                 batch, kl_metrics = apply_kl_penalty(
                     batch,
                     kl_ctrl=self.kl_ctrl_in_reward,
@@ -325,6 +319,7 @@ class AsyncTrainer:
                 batch.batch["token_level_rewards"] = batch.batch["token_level_scores"]
 
             from verl.trainer.ppo.ray_trainer import compute_advantage
+
             norm_adv = self.config.algorithm.get("norm_adv_by_std_in_grpo", True)
             batch = compute_advantage(
                 batch,
@@ -340,6 +335,7 @@ class AsyncTrainer:
         if self.use_critic:
             with marked_timer("update_critic", timing_raw, color="pink"):
                 import torch
+
                 response_mask = batch.batch["response_mask"]
                 value_mask = torch.zeros_like(response_mask)
                 value_mask[:, 0] = 1
@@ -347,6 +343,7 @@ class AsyncTrainer:
                 critic_output = self.critic_wg.update_critic(batch)
                 batch.batch["response_mask"] = response_mask
                 from verl.trainer.ppo.ray_trainer import reduce_metrics
+
                 metrics.update(reduce_metrics(critic_output.meta_info["metrics"]))
 
         # Update actor
@@ -354,6 +351,7 @@ class AsyncTrainer:
             with marked_timer("update_actor", timing_raw, color="red"):
                 actor_output = self.actor_wg.update_actor(batch)
                 from verl.trainer.ppo.ray_trainer import reduce_metrics
+
                 metrics.update(reduce_metrics(actor_output.meta_info["metrics"]))
 
         return batch
@@ -363,16 +361,15 @@ class AsyncTrainer:
     def _compute_reward(self, batch: DataProto):
         """Compute or extract reward for training."""
         if "rm_scores" in batch.batch:
-            import torch
             reward_extra_keys = batch.meta_info.get("reward_extra_keys", [])
             reward_extra_infos_dict = (
-                {key: batch.non_tensor_batch[key] for key in reward_extra_keys}
-                if reward_extra_keys else {}
+                {key: batch.non_tensor_batch[key] for key in reward_extra_keys} if reward_extra_keys else {}
             )
             return batch.batch["rm_scores"], reward_extra_infos_dict
 
         if self.reward_fn is not None:
             from verl.trainer.ppo.reward import compute_reward
+
             return compute_reward(batch, self.reward_fn)
 
         raise ValueError("No reward_fn and no pre-computed rm_scores in batch")
@@ -391,7 +388,10 @@ class AsyncTrainer:
     # ── Parameter sync ───────────────────────────────────────────────────
 
     def _trigger_parameter_sync(
-        self, global_steps: int, validate: bool = False, force: bool = False,
+        self,
+        global_steps: int,
+        validate: bool = False,
+        force: bool = False,
     ):
         """Trigger weight sync after N local training steps."""
         if self._param_synchronizer is None:
@@ -400,8 +400,7 @@ class AsyncTrainer:
         if force or self.local_trigger_step >= self.trigger_parameter_sync_step:
             self.current_param_version += 1
             should_validate = validate or (
-                self.config.trainer.test_freq > 0
-                and self.current_param_version % self.config.trainer.test_freq == 0
+                self.config.trainer.test_freq > 0 and self.current_param_version % self.config.trainer.test_freq == 0
             )
             ray.get(
                 self._param_synchronizer.sync_weights.remote(
@@ -411,10 +410,7 @@ class AsyncTrainer:
                 )
             )
             self.local_trigger_step = 1
-            print(
-                f"[AsyncTrainer] Synced weights v{self.current_param_version} "
-                f"(validate={should_validate})"
-            )
+            print(f"[AsyncTrainer] Synced weights v{self.current_param_version} (validate={should_validate})")
         else:
             self.local_trigger_step += 1
 
@@ -425,10 +421,7 @@ class AsyncTrainer:
         if self.config.trainer.save_freq <= 0:
             return
 
-        is_last = (
-            self.total_train_steps is not None
-            and self.global_steps >= self.total_train_steps
-        )
+        is_last = self.total_train_steps is not None and self.global_steps >= self.total_train_steps
         if is_last or self.global_steps % self.config.trainer.save_freq == 0:
             with marked_timer("save_checkpoint", timing_raw, color="green"):
                 self._save_checkpoint()
@@ -454,6 +447,7 @@ class AsyncTrainer:
             return
 
         from ray import cloudpickle as ray_cloudpickle
+
         val_data = ray_cloudpickle.loads(val_data)
         val_metrics = val_data.get("metrics")
         if val_metrics:

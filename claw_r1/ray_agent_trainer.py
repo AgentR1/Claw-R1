@@ -290,6 +290,10 @@ class RayAgentTrainer(RayPPOTrainer):
                 "validate": True,
                 "global_steps": self.global_steps,
             }
+            test_gen_batch.non_tensor_batch["channel"] = np.array(
+                ["val"] * len(test_gen_batch),
+                dtype=object,
+            )
             print(f"test_gen_batch meta info: {test_gen_batch.meta_info}")
 
             self._wake_up_rollout_engine()
@@ -301,7 +305,11 @@ class RayAgentTrainer(RayPPOTrainer):
 
             self.async_rollout_manager.generate_sequences(test_gen_batch)
             test_output_gen_batch = ray.get(
-                self.data_pool.fetch_batch.remote(batch_size=num_val_prompts, n_rollouts=val_n)
+                self.data_pool.fetch_batch.remote(
+                    batch_size=num_val_prompts,
+                    n_rollouts=val_n,
+                    channel="val",
+                )
             )
 
             self._sleep_rollout_engine()

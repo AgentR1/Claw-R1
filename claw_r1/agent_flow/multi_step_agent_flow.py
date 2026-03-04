@@ -18,7 +18,9 @@ from claw_r1.data_pool.data_model import Step
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
-FEEDBACK_PROMPT = "Please verify your answer step by step and provide the final answer again in the format #### <number>."
+FEEDBACK_PROMPT = (
+    "Please verify your answer step by step and provide the final answer again in the format #### <number>."
+)
 
 
 @register("multi_step_agent")
@@ -35,9 +37,8 @@ class MultiStepAgentFlow(AgentFlowBase):
         trajectory_uid = uuid4().hex
         prompt_uid = str(kwargs.get("uid", uuid4().hex))
         messages = list(kwargs["raw_prompt"])
+        channel = kwargs.pop("channel", None)
         metadata = {k: v for k, v in kwargs.items() if k != "agent_name"}
-
-        steps: list[Step] = []
 
         for turn in range(self.max_turns):
             prompt_ids = await self.apply_chat_template(messages)
@@ -66,9 +67,10 @@ class MultiStepAgentFlow(AgentFlowBase):
             )
 
             if not is_last:
-                await self.gateway_submit_steps([step])
+                await self.gateway_submit_steps([step], channel=channel)
                 response_text = self.tokenizer.decode(
-                    response_ids, skip_special_tokens=True,
+                    response_ids,
+                    skip_special_tokens=True,
                 )
                 messages.append({"role": "assistant", "content": response_text})
                 messages.append({"role": "user", "content": FEEDBACK_PROMPT})
@@ -81,6 +83,6 @@ class MultiStepAgentFlow(AgentFlowBase):
                     dataset_fields=dataset_fields,
                 )
                 step.reward = reward_result["reward_score"]
-                await self.gateway_submit_steps([step])
+                await self.gateway_submit_steps([step], channel=channel)
 
         return self.max_turns

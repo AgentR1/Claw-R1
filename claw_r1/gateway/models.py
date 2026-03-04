@@ -4,8 +4,8 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
-
 # ── Step submission ──────────────────────────────────────────────────────
+
 
 class StepPayload(BaseModel):
     """Wire format for a single Step (JSON-serialisable subset of data_model.Step)."""
@@ -38,6 +38,7 @@ class SubmitStepsResponse(BaseModel):
 
 # ── LLM generation ──────────────────────────────────────────────────────
 
+
 class GenerateRequest(BaseModel):
     """POST /generate request body — mirrors the old server_manager.generate() interface."""
 
@@ -56,6 +57,7 @@ class GenerateResponse(BaseModel):
 
 
 # ── Reward computation ───────────────────────────────────────────────────
+
 
 class ComputeRewardRequest(BaseModel):
     """POST /compute_reward request body.
@@ -80,6 +82,7 @@ class ComputeRewardResponse(BaseModel):
 
 
 # ── Trajectory completion (black-box, stub) ──────────────────────────────
+
 
 class CompleteTrajectoryRequest(BaseModel):
     """POST /complete_trajectory/{trajectory_uid} request body."""

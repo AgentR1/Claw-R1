@@ -11,8 +11,8 @@ from typing import Any, Optional
 
 import numpy as np
 import torch
-from transformers import AutoTokenizer, AutoProcessor
 from tensordict import TensorDict
+from transformers import AutoProcessor, AutoTokenizer
 
 from claw_r1.data_pool.data_model import Step
 from verl.protocol import DataProto
@@ -125,7 +125,7 @@ class VerlBackend(TrainingBackend):
             reward_tensors=reward_tensors if has_reward else None,
             logprobs_list=logprobs_list,
             experts_list=experts_list,
-            multi_modal_inputs_list=multi_modal_inputs_list
+            multi_modal_inputs_list=multi_modal_inputs_list,
         )
 
     # ── Per-step padding ───────────────────────────────────────────────────
@@ -164,10 +164,12 @@ class VerlBackend(TrainingBackend):
         response_mask = response_out["attention_mask"].clone()
 
         attention_mask = torch.cat(
-            [prompt_out["attention_mask"], response_out["attention_mask"]], dim=1,
+            [prompt_out["attention_mask"], response_out["attention_mask"]],
+            dim=1,
         )
         input_ids = torch.cat(
-            [prompt_out["input_ids"], response_out["input_ids"]], dim=1,
+            [prompt_out["input_ids"], response_out["input_ids"]],
+            dim=1,
         )
 
         result: dict[str, Any] = {
@@ -188,19 +190,24 @@ class VerlBackend(TrainingBackend):
         # Optional: MoE routed experts
         if step.routed_experts is not None:
             result["routed_experts"] = self._pad_routed_experts(
-                step, prompt_out["input_ids"], input_ids,
+                step,
+                prompt_out["input_ids"],
+                input_ids,
             )
 
         # Multi-modal inputs
         multi_modal_inputs = self._compute_multi_modal_inputs(
-            step.multi_modal_data, input_ids,
+            step.multi_modal_data,
+            input_ids,
         )
         if multi_modal_inputs:
             result["multi_modal_inputs"] = multi_modal_inputs
 
         # Position IDs (must come after multi_modal_inputs)
         result["position_ids"] = self._compute_position_ids(
-            input_ids, attention_mask, multi_modal_inputs,
+            input_ids,
+            attention_mask,
+            multi_modal_inputs,
         )
 
         return result
@@ -253,13 +260,16 @@ class VerlBackend(TrainingBackend):
 
         non_tensor_batch: dict[str, np.ndarray] = {
             "prompt_uids": np.array(
-                [s.prompt_uid for s in steps], dtype=object,
+                [s.prompt_uid for s in steps],
+                dtype=object,
             ),
             "trajectory_uids": np.array(
-                [s.trajectory_uid for s in steps], dtype=object,
+                [s.trajectory_uid for s in steps],
+                dtype=object,
             ),
             "step_indices": np.array(
-                [s.step_index for s in steps], dtype=np.int32,
+                [s.step_index for s in steps],
+                dtype=np.int32,
             ),
         }
 
@@ -278,7 +288,8 @@ class VerlBackend(TrainingBackend):
 
         if any(mmi is not None for mmi in multi_modal_inputs_list):
             non_tensor_batch["multi_modal_inputs"] = np.array(
-                multi_modal_inputs_list, dtype=object,
+                multi_modal_inputs_list,
+                dtype=object,
             )
 
         return DataProto(batch=batch, non_tensor_batch=non_tensor_batch)
@@ -296,7 +307,11 @@ class VerlBackend(TrainingBackend):
         length, layer_num, topk_num = step.routed_experts.shape
         experts_tensor = torch.from_numpy(step.routed_experts)
         routed_experts = torch.zeros(
-            1, total_length, layer_num, topk_num, dtype=experts_tensor.dtype,
+            1,
+            total_length,
+            layer_num,
+            topk_num,
+            dtype=experts_tensor.dtype,
         )
 
         start_pos = padded_prompt_ids.shape[1] - len(step.prompt_ids)
@@ -304,8 +319,7 @@ class VerlBackend(TrainingBackend):
 
         if start_pos < 0 or end_pos > total_length:
             raise ValueError(
-                f"Invalid position range: start_pos={start_pos}, "
-                f"end_pos={end_pos}, total_length={total_length}"
+                f"Invalid position range: start_pos={start_pos}, end_pos={end_pos}, total_length={total_length}"
             )
 
         routed_experts[:, start_pos:end_pos] = experts_tensor.unsqueeze(0)
@@ -328,7 +342,8 @@ class VerlBackend(TrainingBackend):
             videos, video_metadatas = list(videos), list(video_metadatas)
 
         current_text = self._tokenizer.decode(
-            input_ids.squeeze(0), skip_special_tokens=True,
+            input_ids.squeeze(0),
+            skip_special_tokens=True,
         )
         multi_modal_inputs = self._processor(
             text=[current_text],
@@ -366,11 +381,13 @@ class VerlBackend(TrainingBackend):
 
         valid_mask = attention_mask[0].bool()
         text_position_ids = torch.ones(
-            (1, input_ids.shape[1]), dtype=torch.long,
+            (1, input_ids.shape[1]),
+            dtype=torch.long,
         )
         text_position_ids[0, valid_mask] = torch.arange(valid_mask.sum().item())
         text_position_ids = text_position_ids.unsqueeze(0)
 
         return torch.cat(
-            (text_position_ids, vision_position_ids), dim=1,
+            (text_position_ids, vision_position_ids),
+            dim=1,
         )

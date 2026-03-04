@@ -10,14 +10,13 @@ Based on ``verl/recipe/fully_async_policy/fsdp_workers.py``.
 
 import logging
 import os
-import time
 
 import torch
 import torch.distributed
 from omegaconf import DictConfig
 
 from verl.single_controller.base.decorator import Dispatch, register
-from verl.utils.device import get_device_name, get_torch_device
+from verl.utils.device import get_torch_device
 from verl.utils.fsdp_utils import (
     fsdp_version,
     load_fsdp_model_to_gpu,
@@ -65,6 +64,7 @@ class _DetachNcclSync(AsyncActorRolloutRefWorker):
         if self._is_rollout:
             inference_model = _get_inference_model(self.rollout)
             from verl.utils.vllm.patch import patch_vllm_moe_model_weight_loader
+
             patch_vllm_moe_model_weight_loader(inference_model)
 
         for key, shape, dtype in self._weights_info:
@@ -78,6 +78,7 @@ class _DetachNcclSync(AsyncActorRolloutRefWorker):
                     tensor.copy_(origin_data)
 
             from ray.util.collective import collective
+
             collective.broadcast(tensor, src_rank=0, group_name=sync_group_name)
 
             if self._is_rollout:
@@ -95,6 +96,7 @@ class DetachActorWorker(_DetachNcclSync):
         assert self._is_actor
         params = self.actor_module_fsdp.state_dict()
         from verl.utils.model import convert_weight_keys
+
         params = convert_weight_keys(
             params,
             getattr(self.actor_module_fsdp, "_fsdp_wrapped_module", self.actor_module_fsdp),
@@ -111,6 +113,7 @@ class DetachActorWorker(_DetachNcclSync):
         if fsdp_version(self.actor_module_fsdp) == 1:
             from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
             from torch.distributed.fsdp.api import ShardedStateDictConfig, StateDictType
+
             FSDP.set_state_dict_type(
                 self.actor_module_fsdp,
                 state_dict_type=StateDictType.SHARDED_STATE_DICT,

@@ -63,6 +63,7 @@ class SingleStepSingleTurnAgentFlow(AgentFlowBase):
         trajectory_uid = uuid4().hex
         prompt_uid = str(kwargs.get("uid", uuid4().hex))
 
+        channel = kwargs.pop("channel", None)
         metadata = {k: v for k, v in kwargs.items() if k != "agent_name"}
 
         step = Step(
@@ -75,5 +76,5 @@ class SingleStepSingleTurnAgentFlow(AgentFlowBase):
             is_last=True,
             metadata=metadata,
         )
-        await self.gateway_submit_steps([step])
+        await self.gateway_submit_steps([step], channel=channel)
         return 1

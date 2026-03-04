@@ -13,13 +13,10 @@ import asyncio
 import logging
 import os
 import time
-from collections import defaultdict
 from pprint import pformat
-from typing import Any
 
 import numpy as np
 import ray
-import torch
 from ray import ObjectRef
 
 from verl.protocol import DataProto
@@ -55,7 +52,9 @@ class AsyncRollouter:
         self.device_name = device_name or self.config.trainer.device
 
         self.val_reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=1,
+            config,
+            tokenizer,
+            num_examine=1,
             **config.reward_model.get("reward_kwargs", {}),
         )
 
@@ -66,9 +65,7 @@ class AsyncRollouter:
 
         # Async config
         self.require_batches = config.async_training.require_batches
-        self.required_samples = (
-            config.actor_rollout_ref.actor.ppo_mini_batch_size * self.require_batches
-        )
+        self.required_samples = config.actor_rollout_ref.actor.ppo_mini_batch_size * self.require_batches
         self.staleness_threshold = config.async_training.get("staleness_threshold", 1)
 
         # Statistics
@@ -88,16 +85,23 @@ class AsyncRollouter:
         self._gateway_process = None
 
         # DataLoader — reuse the same creation logic as the synchronous Trainer
-        from verl.trainer.main_ppo import create_rl_dataset, create_rl_sampler
-        from verl.utils.dataset.rl_dataset import collate_fn
         from torchdata.stateful_dataloader import StatefulDataLoader
 
+        from verl.trainer.main_ppo import create_rl_dataset, create_rl_sampler
+        from verl.utils.dataset.rl_dataset import collate_fn
+
         train_dataset = create_rl_dataset(
-            config.data.train_files, config.data, tokenizer, processor,
+            config.data.train_files,
+            config.data,
+            tokenizer,
+            processor,
             max_samples=config.data.get("train_max_samples", -1),
         )
         val_dataset = create_rl_dataset(
-            config.data.val_files, config.data, tokenizer, processor,
+            config.data.val_files,
+            config.data,
+            tokenizer,
+            processor,
             is_train=False,
             max_samples=config.data.get("val_max_samples", -1),
         )
@@ -126,17 +130,13 @@ class AsyncRollouter:
             collate_fn=collate_fn,
         )
 
-        self.total_rollout_steps = (
-            len(self.train_dataloader) * config.trainer.total_epochs
-        )
+        self.total_rollout_steps = len(self.train_dataloader) * config.trainer.total_epochs
         rollout_limit = config.get("rollout", {}).get("total_rollout_steps")
         if rollout_limit:
             self.total_rollout_steps = min(self.total_rollout_steps, rollout_limit)
 
         gen_batch_size = config.data.get("gen_batch_size", config.data.train_batch_size)
-        self.total_train_steps = int(
-            self.total_rollout_steps * gen_batch_size / config.data.train_batch_size
-        )
+        self.total_train_steps = int(self.total_rollout_steps * gen_batch_size / config.data.train_batch_size)
 
     # ── External wiring ──────────────────────────────────────────────────
 
@@ -159,9 +159,7 @@ class AsyncRollouter:
         self._init_async_objects()
         self.resource_pool_manager.create_resource_pool()
 
-        resource_pool_to_cls = {
-            pool: {} for pool in self.resource_pool_manager.resource_pool_dict.values()
-        }
+        resource_pool_to_cls = {pool: {} for pool in self.resource_pool_manager.resource_pool_dict.values()}
 
         resource_pool = self.resource_pool_manager.get_resource_pool(Role.Rollout)
         rollout_cls = RayClassWithInitArgs(
@@ -172,6 +170,7 @@ class AsyncRollouter:
         resource_pool_to_cls[resource_pool][str(Role.Rollout)] = rollout_cls
 
         from verl.single_controller.ray.base import create_colocated_worker_cls
+
         for pool, class_dict in resource_pool_to_cls.items():
             worker_dict_cls = create_colocated_worker_cls(class_dict=class_dict)
             wg_dict = self.ray_worker_group_cls(
@@ -215,15 +214,14 @@ class AsyncRollouter:
                 config=rollout_config,
                 model_config=model_config,
                 gpus_per_node=self.config.get("rollout", {}).get(
-                    "n_gpus_per_node", self.config.trainer.n_gpus_per_node,
+                    "n_gpus_per_node",
+                    self.config.trainer.n_gpus_per_node,
                 ),
             )
             for rank in range(num_replicas)
         ]
 
-        await asyncio.gather(
-            *[r.init_hybrid(self.rollout_wg) for r in self.rollout_replicas]
-        )
+        await asyncio.gather(*[r.init_hybrid(self.rollout_wg) for r in self.rollout_replicas])
 
         self._server_handles = [r._server_handle for r in self.rollout_replicas]
         self._server_addresses = [r._server_address for r in self.rollout_replicas]
@@ -243,16 +241,27 @@ class AsyncRollouter:
         ray_namespace = ray_ctx.namespace
 
         cmd = [
-            "python", "-m", "claw_r1.gateway.gateway",
-            "--data-pool-name", self._data_pool_name,
-            "--vllm-addresses", ",".join(self._server_addresses),
-            "--tokenizer-path", self.config.actor_rollout_ref.model.path,
-            "--prompt-length", str(self.config.actor_rollout_ref.rollout.prompt_length),
-            "--response-length", str(self.config.actor_rollout_ref.rollout.response_length),
-            "--reward-worker-name", self._reward_worker_name,
-            "--ray-address", ray_address,
-            "--ray-namespace", ray_namespace,
-            "--port", str(gateway_port),
+            "python",
+            "-m",
+            "claw_r1.gateway.gateway",
+            "--data-pool-name",
+            self._data_pool_name,
+            "--vllm-addresses",
+            ",".join(self._server_addresses),
+            "--tokenizer-path",
+            self.config.actor_rollout_ref.model.path,
+            "--prompt-length",
+            str(self.config.actor_rollout_ref.rollout.prompt_length),
+            "--response-length",
+            str(self.config.actor_rollout_ref.rollout.response_length),
+            "--reward-worker-name",
+            self._reward_worker_name,
+            "--ray-address",
+            ray_address,
+            "--ray-namespace",
+            ray_namespace,
+            "--port",
+            str(gateway_port),
         ]
 
         self._gateway_process = subprocess.Popen(cmd)
@@ -278,6 +287,7 @@ class AsyncRollouter:
 
     def _init_agent_flow_manager(self):
         from claw_r1.agent_flow import AgentFlowManager
+
         self.async_rollout_manager = AgentFlowManager(
             config=self.config,
             gateway_url=self._gateway_url,
@@ -295,8 +305,25 @@ class AsyncRollouter:
         monitor_task = asyncio.create_task(self._monitor_loop())
 
         try:
-            await asyncio.gather(gen_task, monitor_task, return_exceptions=True)
+            # Wait for _generation_main to finish (the primary task).
+            # _monitor_loop is secondary and should be cancelled once
+            # generation is done.
+            done, pending = await asyncio.wait(
+                [gen_task, monitor_task],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for t in done:
+                exc = t.exception()
+                if exc is not None:
+                    logger.error(
+                        "[AsyncRollouter] Task failed: %s",
+                        exc,
+                        exc_info=exc,
+                    )
+                    raise exc
         finally:
+            async with self.lock:
+                self.running = False
             for t in (gen_task, monitor_task):
                 if not t.done():
                     t.cancel()
@@ -311,7 +338,12 @@ class AsyncRollouter:
         """Iterate over epochs/batches, generate sequences, submit to DataPool."""
         for epoch in range(self.config.trainer.total_epochs):
             for batch_dict in self.train_dataloader:
-                # Respect pause
+                # Yield to the event loop so that queued actor methods
+                # (pause, update_param_version, resume, etc.) can run.
+                # Without this, generate_sequences() blocks the event loop
+                # and incoming remote calls are starved indefinitely.
+                await asyncio.sleep(0)
+
                 async with self.lock:
                     while self.paused:
                         await self.condition.wait()
@@ -320,6 +352,7 @@ class AsyncRollouter:
 
                 if "uid" not in batch.non_tensor_batch:
                     import uuid
+
                     batch.non_tensor_batch["uid"] = np.array(
                         [str(uuid.uuid4()) for _ in range(len(batch))],
                         dtype=object,
@@ -334,7 +367,14 @@ class AsyncRollouter:
                     "global_steps": self.global_steps,
                 }
 
-                self.async_rollout_manager.generate_sequences(gen_batch)
+                try:
+                    self.async_rollout_manager.generate_sequences(gen_batch)
+                except Exception:
+                    logger.exception(
+                        "[AsyncRollouter] generate_sequences failed at rollout_step=%d",
+                        self.global_steps,
+                    )
+                    raise
 
                 self.total_generated_samples += len(gen_batch)
                 self.global_steps += 1
@@ -353,13 +393,15 @@ class AsyncRollouter:
         rollout_cfg = self.config.actor_rollout_ref.rollout
         temperature = rollout_cfg.get("temperature", 1.0)
         gen_batch.non_tensor_batch["temperature"] = np.array(
-            [temperature] * len(gen_batch), dtype=np.float32,
+            [temperature] * len(gen_batch),
+            dtype=np.float32,
         )
 
         agent_cfg = rollout_cfg.get("agent", {})
         default_flow = agent_cfg.get("default_agent_flow", "single_step_single_turn_agent")
         gen_batch.non_tensor_batch["agent_name"] = np.array(
-            [default_flow] * len(gen_batch), dtype=object,
+            [default_flow] * len(gen_batch),
+            dtype=object,
         )
 
         return gen_batch
@@ -380,7 +422,10 @@ class AsyncRollouter:
             self.condition.notify_all()
 
     async def update_param_version(
-        self, version: int, validate: bool = False, global_steps: int = 0,
+        self,
+        version: int,
+        validate: bool = False,
+        global_steps: int = 0,
     ):
         """Update current parameter version; optionally run validation."""
         async with self.lock:
@@ -392,6 +437,7 @@ class AsyncRollouter:
             val_metrics = self._validate()
 
         from ray import cloudpickle as ray_cloudpickle
+
         data_pool = ray.get_actor(self._data_pool_name)
         val_data = {
             "metrics": val_metrics,
@@ -412,7 +458,6 @@ class AsyncRollouter:
             return None
 
         import uuid
-        from verl.trainer.ppo.ray_trainer import compute_data_metrics
 
         all_scores = []
 
@@ -440,12 +485,14 @@ class AsyncRollouter:
 
             num_val_prompts = len(test_batch) // val_n if val_n > 1 else len(test_batch)
 
-            gen_meta = self.async_rollout_manager.generate_sequences(gen_batch)
+            self.async_rollout_manager.generate_sequences(gen_batch)
 
             data_pool = ray.get_actor(self._data_pool_name)
             output_batch = ray.get(
                 data_pool.fetch_batch.remote(
-                    batch_size=num_val_prompts, n_rollouts=val_n,
+                    batch_size=num_val_prompts,
+                    n_rollouts=val_n,
+                    channel="val",
                 )
             )
 
@@ -473,12 +520,18 @@ class AsyncRollouter:
         rollout_cfg = self.config.actor_rollout_ref.rollout
         temperature = rollout_cfg.val_kwargs.get("temperature", 1.0)
         batch.non_tensor_batch["temperature"] = np.array(
-            [temperature] * len(batch), dtype=np.float32,
+            [temperature] * len(batch),
+            dtype=np.float32,
         )
         agent_cfg = rollout_cfg.get("agent", {})
         default_flow = agent_cfg.get("default_agent_flow", "single_step_single_turn_agent")
         batch.non_tensor_batch["agent_name"] = np.array(
-            [default_flow] * len(batch), dtype=object,
+            [default_flow] * len(batch),
+            dtype=object,
+        )
+        batch.non_tensor_batch["channel"] = np.array(
+            ["val"] * len(batch),
+            dtype=object,
         )
         return batch
 

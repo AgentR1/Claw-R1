@@ -59,6 +59,7 @@ _http_client: Optional[httpx.AsyncClient] = None
 
 # ── Helpers ───────────────────────────────────────────────────────────────
 
+
 def _step_payload_to_step(p: StepPayload) -> Step:
     return Step(
         prompt_ids=p.prompt_ids,
@@ -91,14 +92,20 @@ def _next_vllm_address() -> str:
 
 # ── White-box endpoints (implemented) ────────────────────────────────────
 
+
 @app.post("/submit_steps", response_model=SubmitStepsResponse)
-async def submit_steps(req: SubmitStepsRequest):
-    """Accept Steps from white-box agents and forward to DataPool."""
+async def submit_steps(req: SubmitStepsRequest, channel: str = "train"):
+    """Accept Steps from white-box agents and forward to DataPool.
+
+    The optional *channel* query parameter controls which DataPool channel
+    receives the data (default ``"train"``).  Validation flows pass
+    ``channel=val`` to keep data isolated from training.
+    """
     if _data_pool is None:
         raise HTTPException(503, "DataPool not connected")
 
     steps = [_step_payload_to_step(p) for p in req.steps]
-    ray.get(_data_pool.submit_steps.remote(steps))
+    ray.get(_data_pool.submit_steps.remote(steps, channel=channel))
     return SubmitStepsResponse(accepted=len(steps))
 
 
@@ -132,9 +139,9 @@ async def generate(req: GenerateRequest):
         resp = await _http_client.post(url, json=vllm_payload, timeout=600.0)
         resp.raise_for_status()
     except httpx.HTTPStatusError as exc:
-        raise HTTPException(exc.response.status_code, f"vLLM error: {exc.response.text}")
+        raise HTTPException(exc.response.status_code, f"vLLM error: {exc.response.text}") from None
     except httpx.RequestError as exc:
-        raise HTTPException(502, f"vLLM unreachable: {exc}")
+        raise HTTPException(502, f"vLLM unreachable: {exc}") from None
 
     data = resp.json()
     choice = data["choices"][0]
@@ -194,10 +201,12 @@ async def compute_reward(req: ComputeRewardRequest):
         response_out["attention_mask"] = response_out["attention_mask"].unsqueeze(0)
 
     attention_mask = torch.cat(
-        [prompt_out["attention_mask"], response_out["attention_mask"]], dim=1,
+        [prompt_out["attention_mask"], response_out["attention_mask"]],
+        dim=1,
     )
     input_ids = torch.cat(
-        [prompt_out["input_ids"], response_out["input_ids"]], dim=1,
+        [prompt_out["input_ids"], response_out["input_ids"]],
+        dim=1,
     )
     position_ids = compute_position_id_with_mask(attention_mask)
 
@@ -228,6 +237,7 @@ async def compute_reward(req: ComputeRewardRequest):
 
 # ── Black-box endpoints (stubs, to be implemented later) ─────────────────
 
+
 @app.post("/complete_trajectory/{trajectory_uid}")
 async def complete_trajectory(trajectory_uid: str, req: CompleteTrajectoryRequest = None):
     """Mark a black-box trajectory as complete. Stub — not yet implemented."""
@@ -244,6 +254,7 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str):
 
 
 # ── Server bootstrap ─────────────────────────────────────────────────────
+
 
 def init_gateway(
     *,

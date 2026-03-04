@@ -231,8 +231,17 @@ class AgentFlowBase(ABC):
         resp.raise_for_status()
         return resp.json()
 
-    async def gateway_submit_steps(self, steps: list[Step]) -> int:
+    async def gateway_submit_steps(
+        self,
+        steps: list[Step],
+        channel: str | None = None,
+    ) -> int:
         """Submit Steps to DataPool via ``POST /submit_steps``.
+
+        Args:
+            steps: Steps to submit.
+            channel: DataPool channel name.  When *None* the Gateway uses
+                its default (``"train"``).
 
         Returns the number of accepted steps.
         """
@@ -253,10 +262,9 @@ class AgentFlowBase(ABC):
                     "metadata": _json_safe(s.metadata),
                 }
             )
-        resp = await client.post(
-            f"{self.gateway_url}/submit_steps",
-            json={"steps": payloads},
-        )
+        url = f"{self.gateway_url}/submit_steps"
+        params = {"channel": channel} if channel else None
+        resp = await client.post(url, json={"steps": payloads}, params=params)
         resp.raise_for_status()
         return resp.json()["accepted"]
 

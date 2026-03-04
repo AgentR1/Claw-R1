@@ -7,6 +7,10 @@
 
 <p align="center"><img src="./assets/logo.jpeg" width="600px" alt="Claw-R1 Logo" /></p>
 
+## News
+
+- **[2026.03]** 🚧 **Claw-R1 Project Init.** We are actively updating the framework. Stay tuned for more features and documentation.
+
 ## Overview
 
 **Agentic RL** has become the dominant approach for training powerful LLM agents. Meanwhile, **General Agents** (e.g., OpenClaw, Claude Code, Open Code, etc.) have emerged as game-changing systems that redefine what agents can do. Yet there remains critical gaps:
@@ -50,7 +54,7 @@ Claw-R1 builds upon [Agent-R1](https://github.com/0russwest0/Agent-R1). We exten
 ```bibtex
 @misc{clawr1-2026,
   title={Claw-R1: Agentic RL for Modern Agents},
-  author={Wang, Daoyu and Ouyang, Jie and Shuo Yu and Cheng, Mingyue and Liu, Qi},
+  author={Wang, Daoyu and Ouyang, Jie and Yu Shuo and Cheng, Mingyue and Liu, Qi},
   year={2025},
   howpublished={\url{https://github.com/AgentR1/Claw-R1}},
   note={GitHub repository}

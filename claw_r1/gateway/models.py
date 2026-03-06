@@ -81,10 +81,21 @@ class ComputeRewardResponse(BaseModel):
     reward_extra_info: dict[str, Any] = Field(default_factory=dict)
 
 
-# ── Trajectory completion (black-box, stub) ──────────────────────────────
+# ── Trajectory completion (black-box) ─────────────────────────────────────
 
 
 class CompleteTrajectoryRequest(BaseModel):
     """POST /complete_trajectory/{trajectory_uid} request body."""
 
     reward: Optional[float] = None
+    channel: str = "train"
+
+
+# ── Init trajectory (black-box, online mode) ─────────────────────────────
+
+
+class InitTrajectoryResponse(BaseModel):
+    """POST /init_trajectory response body."""
+
+    trajectory_uid: str
+    base_url: str

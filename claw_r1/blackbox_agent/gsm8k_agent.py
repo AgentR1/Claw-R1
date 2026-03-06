@@ -83,14 +83,23 @@ class GSM8KAgent:
 
     The agent is completely unaware of training-side concepts such as
     ``trajectory_uid``, ``Step``, or ``DataPool``.  All it needs is a
-    ``base_url`` pointing to a chat completions endpoint.
+    ``base_url`` pointing to an OpenAI-compatible endpoint.
+
+    Args:
+        base_url: Root URL for the API, e.g. ``http://host:port/{traj}/{prompt}``.
+            The OpenAI SDK client will use ``{base_url}/v1`` as its base,
+            while trajectory completion hits ``{base_url}/v1/trajectory/complete``.
     """
 
     def __init__(self, base_url: str):
         import openai
 
-        self.client = openai.AsyncOpenAI(base_url=base_url, api_key="not-needed")
-        self.base_url = base_url
+        self.base_url = base_url.rstrip("/")
+        self.client = openai.AsyncOpenAI(
+            base_url=f"{self.base_url}/v1",
+            api_key="not-needed",
+            timeout=600.0,
+        )
 
     async def solve(self, question: str, ground_truth: str, max_turns: int = 3) -> int:
         """Attempt to solve *question* in up to *max_turns* LLM interactions.
@@ -125,7 +134,7 @@ class GSM8KAgent:
                 messages.append({"role": "assistant", "content": content})
                 break
 
-        async with httpx.AsyncClient() as http:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as http:
             await http.post(f"{self.base_url}/v1/trajectory/complete")
 
         return turns_used

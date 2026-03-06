@@ -135,9 +135,12 @@ class VerlBackend(TrainingBackend):
 
         Returns a dict of tensors, each with a leading batch dim of 1.
         """
+        pad_token_id = self._tokenizer.pad_token_id or 0
+
         self._tokenizer.padding_side = "left"
+        prompt_ids = step.prompt_ids if step.prompt_ids else [pad_token_id]
         prompt_out = self._tokenizer.pad(
-            {"input_ids": step.prompt_ids},
+            {"input_ids": prompt_ids},
             padding="max_length",
             max_length=self._prompt_length,
             return_tensors="pt",
@@ -148,8 +151,9 @@ class VerlBackend(TrainingBackend):
             prompt_out["attention_mask"] = prompt_out["attention_mask"].unsqueeze(0)
 
         self._tokenizer.padding_side = "right"
+        response_ids = step.response_ids if step.response_ids else [pad_token_id]
         response_out = self._tokenizer.pad(
-            {"input_ids": step.response_ids},
+            {"input_ids": response_ids},
             padding="max_length",
             max_length=self._response_length,
             return_tensors="pt",

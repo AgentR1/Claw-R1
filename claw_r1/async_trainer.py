@@ -270,6 +270,7 @@ class AsyncTrainer:
     def _process_batch(self, batch: DataProto, metrics: dict, timing_raw: dict) -> DataProto:
         """Run the full PPO pipeline on a single batch."""
         batch.meta_info["global_token_num"] = batch.batch["attention_mask"].sum(dim=-1).tolist()
+        batch.meta_info.setdefault("temperature", self.config.actor_rollout_ref.rollout.temperature)
 
         if "response_mask" not in batch.batch:
             batch.batch["response_mask"] = compute_response_mask(batch)

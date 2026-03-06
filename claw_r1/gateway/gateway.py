@@ -62,9 +62,10 @@ _http_client: Optional[httpx.AsyncClient] = None
 _gateway_host: str = "0.0.0.0"
 _gateway_port: int = 8100
 
-# Per-trajectory step counter for black-box mode.
-# Maps trajectory_uid -> next step_index to assign.
-_trajectory_step_counter: dict[str, int] = {}
+# Per-trajectory state for black-box mode.
+_trajectory_step_counter: dict[str, int] = {}  # trajectory_uid -> next step_index
+_trajectory_channel: dict[str, str] = {}  # trajectory_uid -> DataPool channel
+_trajectory_metadata: dict[str, dict] = {}  # trajectory_uid -> Step metadata
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -344,8 +345,10 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str, request: 
         prompt_uid=prompt_uid,
         step_index=step_index,
         is_last=False,
+        metadata=_trajectory_metadata.get(trajectory_uid),
     )
-    ray.get(_data_pool.submit_steps.remote([step]))
+    channel = _trajectory_channel.get(trajectory_uid, "train")
+    await _data_pool.submit_steps.remote([step], channel=channel)
 
     # Return standard ChatCompletion JSON
     completion_id = f"chatcmpl-{uuid4().hex[:12]}"
@@ -384,8 +387,11 @@ async def trajectory_complete_via_baseurl(trajectory_uid: str, prompt_uid: str):
     if _data_pool is None:
         raise HTTPException(503, "DataPool not connected")
 
-    ray.get(_data_pool.complete_trajectory.remote(trajectory_uid))
+    channel = _trajectory_channel.get(trajectory_uid, "train")
+    await _data_pool.complete_trajectory.remote(trajectory_uid, channel=channel)
     _trajectory_step_counter.pop(trajectory_uid, None)
+    _trajectory_channel.pop(trajectory_uid, None)
+    _trajectory_metadata.pop(trajectory_uid, None)
     return {"status": "ok"}
 
 
@@ -397,8 +403,28 @@ async def complete_trajectory(trajectory_uid: str, req: CompleteTrajectoryReques
 
     channel = req.channel if req else "train"
     reward = req.reward if req else None
-    ray.get(_data_pool.complete_trajectory.remote(trajectory_uid, reward=reward, channel=channel))
+    await _data_pool.complete_trajectory.remote(trajectory_uid, reward=reward, channel=channel)
     _trajectory_step_counter.pop(trajectory_uid, None)
+    _trajectory_channel.pop(trajectory_uid, None)
+    _trajectory_metadata.pop(trajectory_uid, None)
+    return {"status": "ok"}
+
+
+@app.post("/register_trajectory")
+async def register_trajectory(request: Request):
+    """Pre-register metadata for a trajectory before the agent starts.
+
+    Called by the offline Wrapper to associate a trajectory_uid with a
+    DataPool channel and dataset metadata (reward_model, data_source, etc.).
+    """
+    body = await request.json()
+    traj_uid = body["trajectory_uid"]
+    channel = body.get("channel", "train")
+    metadata = body.get("metadata")
+    _trajectory_step_counter.setdefault(traj_uid, 0)
+    _trajectory_channel[traj_uid] = channel
+    if metadata:
+        _trajectory_metadata[traj_uid] = metadata
     return {"status": "ok"}
 
 

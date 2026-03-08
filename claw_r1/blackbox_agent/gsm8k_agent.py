@@ -11,7 +11,6 @@ those are transparently handled by the Gateway.
 import json
 import logging
 
-import httpx
 import regex
 
 logger = logging.getLogger(__name__)
@@ -89,8 +88,7 @@ class GSM8KAgent:
 
     Args:
         base_url: Root URL for the API, e.g. ``http://host:port/{traj}/{prompt}``.
-            The OpenAI SDK client will use ``{base_url}/v1`` as its base,
-            while trajectory completion hits ``{base_url}/v1/trajectory/complete``.
+            The OpenAI SDK client will use ``{base_url}/v1`` as its base.
     """
 
     def __init__(self, base_url: str):
@@ -106,10 +104,8 @@ class GSM8KAgent:
     async def solve(self, question: str, ground_truth: str, max_turns: int = 3) -> int:
         """Attempt to solve *question* in up to *max_turns* LLM interactions.
 
-        After all turns (or an early stop), the agent signals trajectory
-        completion via ``POST {base_url}/v1/trajectory/complete``.
-
-        Returns the number of turns actually used.
+        Returns the number of turns actually used.  Trajectory completion is
+        signaled by the caller (BlackBoxAgentFlowBase or online service entrypoint).
         """
         messages: list[dict] = [{"role": "user", "content": question}]
 
@@ -135,8 +131,5 @@ class GSM8KAgent:
             else:
                 messages.append({"role": "assistant", "content": content})
                 break
-
-        async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as http:
-            await http.post(f"{self.base_url}/v1/trajectory/complete")
 
         return turns_used

@@ -264,11 +264,22 @@ class AsyncRollouter:
             str(gateway_port),
         ]
 
-        self._gateway_process = subprocess.Popen(cmd)
+        self._gateway_process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
         self._gateway_url = f"http://localhost:{gateway_port}"
         atexit.register(self._stop_gateway)
 
         for _ in range(120):
+            if self._gateway_process.poll() is not None:
+                _, err = self._gateway_process.communicate()
+                err = (err or "").strip() or "(no stderr)"
+                raise RuntimeError(
+                    f"Gateway process exited before ready ({self._gateway_url}). stderr:\n{err}"
+                )
             try:
                 resp = httpx.get(f"{self._gateway_url}/docs", timeout=2.0)
                 if resp.status_code == 200:
@@ -277,7 +288,11 @@ class AsyncRollouter:
             except Exception:
                 pass
             time.sleep(1)
-        raise RuntimeError(f"Gateway did not start within 120s ({self._gateway_url})")
+        raise RuntimeError(
+            f"Gateway did not start within 120s ({self._gateway_url}). "
+            "Check that port %s is free and no firewall blocks it."
+            % gateway_port
+        )
 
     def _stop_gateway(self):
         proc = getattr(self, "_gateway_process", None)

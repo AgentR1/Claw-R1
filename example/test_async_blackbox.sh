@@ -45,7 +45,7 @@ python3 -m claw_r1.async_main \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger='["console","swanlab"]' \
-    trainer.project_name='test_async_blackbox' \
+    trainer.project_name='test_async_blackbox_refactor' \
     trainer.experiment_name='qwen2_5_3b_blackbox_gsm8k' \
     trainer.n_gpus_per_node=2 \
     trainer.nnodes=1 \

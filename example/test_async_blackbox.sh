@@ -1,5 +1,5 @@
 # ── Environment ──────────────────────────────────────────────────────────────
-export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-1,2,3}
+export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0,1,4}
 export VLLM_USE_V1=1
 export HF_ENDPOINT=https://hf-mirror.com
 export CUDA_HOME=/usr/local/cuda
@@ -44,7 +44,7 @@ python3 -m claw_r1.async_main \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
-    trainer.logger='["console"]' \
+    trainer.logger='["console","swanlab"]' \
     trainer.project_name='test_async_blackbox' \
     trainer.experiment_name='qwen2_5_3b_blackbox_gsm8k' \
     trainer.n_gpus_per_node=2 \

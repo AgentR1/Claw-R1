@@ -54,8 +54,10 @@ def parse_tool_calls(content: str) -> tuple[str, list[dict]]:
     for match in matches:
         try:
             parsed = json.loads(match)
+            if not isinstance(parsed, dict):
+                continue
             tool_calls.append({"name": parsed["name"], "arguments": parsed["arguments"]})
-        except (json.JSONDecodeError, KeyError):
+        except (json.JSONDecodeError, KeyError, TypeError):
             pass
 
     remaining = TOOL_CALL_REGEX.sub("", content).strip()

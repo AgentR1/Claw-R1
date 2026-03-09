@@ -2,82 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/Installation/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/contributing/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/test-doc/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/api/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/api/gateway/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/components/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/components/agent-flow/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/components/async-training/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/components/datapool/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/components/gateway/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/components/reward-system/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/concepts/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/concepts/base-url-integration/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/concepts/middleware-layer/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/concepts/production-scenario/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/configuration/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/getting-started/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/getting-started/installation/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
     <url>
          <loc>https://AgentR1.github.io/Claw-R1/getting-started/quickstart/</loc>
-         <lastmod>2026-03-06</lastmod>
+         <lastmod>2026-03-09</lastmod>
     </url>
 </urlset>

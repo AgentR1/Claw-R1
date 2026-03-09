@@ -96,7 +96,7 @@ class GSM8KAgent:
 
         self.base_url = base_url.rstrip("/")
         self.client = openai.AsyncOpenAI(
-            base_url=f"{self.base_url}/v1",
+            base_url=self.base_url,
             api_key="not-needed",
             timeout=600.0,
         )

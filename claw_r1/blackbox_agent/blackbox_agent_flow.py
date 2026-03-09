@@ -57,30 +57,36 @@ class BlackBoxAgentFlowBase(AgentFlowBase):
         channel, prompt_uid, metadata = self._prepare_params(kwargs)
 
         async with httpx.AsyncClient(timeout=30.0) as http:
+            # 1. Allocate trajectory — get base_url with trajectory_uid embedded.
             init_resp = await http.post(f"{self.gateway_url}/init_trajectory")
             init_resp.raise_for_status()
             init_data = init_resp.json()
-            trajectory_uid = init_data["trajectory_uid"]
             base_url_from_init = init_data["base_url"]
-            base_url = base_url_from_init.rsplit("/", 1)[0] + "/" + prompt_uid
+            # base_url_from_init is http://host:port/{traj_uid}/{default_prompt_uid}/v1
+            # Replace the default prompt_uid with the actual one.
+            parts = base_url_from_init.rsplit("/", 2)  # [...base, prompt_uid, "v1"]
+            base_url = f"{parts[0]}/{prompt_uid}/v1"
 
-            reg_body: dict[str, Any] = {"trajectory_uid": trajectory_uid}
+            # 2. Register channel + metadata via base_url.
+            reg_body: dict[str, Any] = {}
             if channel:
                 reg_body["channel"] = channel
             if metadata:
                 reg_body["metadata"] = metadata
             payload = json.dumps(reg_body, cls=_NumpyEncoder).encode()
             await http.post(
-                f"{self.gateway_url}/register_trajectory",
+                f"{base_url}/register_trajectory",
                 content=payload,
                 headers={"content-type": "application/json"},
             )
 
+        # 3. Run the concrete agent.
         try:
             num_turns = await self._run_agent(base_url, kwargs)
         finally:
-            async with httpx.AsyncClient(timeout=30.0) as http:
-                await http.post(f"{base_url}/v1/trajectory/complete")
+            # 4. Mark trajectory complete.
+            async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as http:
+                await http.post(f"{base_url}/complete_trajectory")
 
         return num_turns
 

@@ -377,31 +377,18 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str, request: 
     )
 
 
-@app.post("/{trajectory_uid}/{prompt_uid}/v1/trajectory/complete")
-async def trajectory_complete_via_baseurl(trajectory_uid: str, prompt_uid: str):
-    """Mark a trajectory as complete. Called by the agent via its base_url.
+@app.post("/{trajectory_uid}/{prompt_uid}/v1/complete_trajectory")
+async def complete_trajectory(trajectory_uid: str, prompt_uid: str, req: CompleteTrajectoryRequest = None):
+    """Mark a trajectory as complete.
 
-    The agent only sees ``POST {base_url}/v1/trajectory/complete`` and is
-    unaware of trajectory_uid — it is extracted from the URL path.
+    Called by agents via ``POST {base_url}/v1/complete_trajectory``.
+    ``trajectory_uid`` is extracted from the URL path.  An optional request
+    body can override ``channel`` and supply a ``reward``.
     """
     if _data_pool is None:
         raise HTTPException(503, "DataPool not connected")
 
-    channel = _trajectory_channel.get(trajectory_uid, "train")
-    await _data_pool.complete_trajectory.remote(trajectory_uid, channel=channel)
-    _trajectory_step_counter.pop(trajectory_uid, None)
-    _trajectory_channel.pop(trajectory_uid, None)
-    _trajectory_metadata.pop(trajectory_uid, None)
-    return {"status": "ok"}
-
-
-@app.post("/complete_trajectory/{trajectory_uid}")
-async def complete_trajectory(trajectory_uid: str, req: CompleteTrajectoryRequest = None):
-    """Mark a trajectory as complete (internal / wrapper endpoint)."""
-    if _data_pool is None:
-        raise HTTPException(503, "DataPool not connected")
-
-    channel = req.channel if req else "train"
+    channel = req.channel if req else _trajectory_channel.get(trajectory_uid, "train")
     reward = req.reward if req else None
     await _data_pool.complete_trajectory.remote(trajectory_uid, reward=reward, channel=channel)
     _trajectory_step_counter.pop(trajectory_uid, None)
@@ -410,21 +397,21 @@ async def complete_trajectory(trajectory_uid: str, req: CompleteTrajectoryReques
     return {"status": "ok"}
 
 
-@app.post("/register_trajectory")
-async def register_trajectory(request: Request):
-    """Pre-register metadata for a trajectory before the agent starts.
+@app.post("/{trajectory_uid}/{prompt_uid}/v1/register_trajectory")
+async def register_trajectory(trajectory_uid: str, prompt_uid: str, request: Request):
+    """Register channel and metadata for a trajectory before the agent starts.
 
-    Called by the offline Wrapper to associate a trajectory_uid with a
-    DataPool channel and dataset metadata (reward_model, data_source, etc.).
+    Called via ``POST {base_url}/v1/register_trajectory`` to associate a
+    trajectory with a DataPool channel and dataset metadata.
+    ``trajectory_uid`` is extracted from the URL path.
     """
     body = await request.json()
-    traj_uid = body["trajectory_uid"]
     channel = body.get("channel", "train")
     metadata = body.get("metadata")
-    _trajectory_step_counter.setdefault(traj_uid, 0)
-    _trajectory_channel[traj_uid] = channel
+    _trajectory_step_counter.setdefault(trajectory_uid, 0)
+    _trajectory_channel[trajectory_uid] = channel
     if metadata:
-        _trajectory_metadata[traj_uid] = metadata
+        _trajectory_metadata[trajectory_uid] = metadata
     return {"status": "ok"}
 
 
@@ -434,10 +421,20 @@ async def init_trajectory():
 
     Used in online service mode where the agent is an independent process.
     """
+    import socket
+
     trajectory_uid = uuid4().hex
     prompt_uid = "1"
     _trajectory_step_counter[trajectory_uid] = 0
-    base_url = f"http://{_gateway_host}:{_gateway_port}/{trajectory_uid}/{prompt_uid}"
+    # 0.0.0.0 is a valid listen address but not a valid destination for clients.
+    # Use the machine's hostname (or fallback to 127.0.0.1) for the returned URL.
+    host = _gateway_host
+    if host == "0.0.0.0":
+        try:
+            host = socket.gethostname()
+        except Exception:
+            host = "127.0.0.1"
+    base_url = f"http://{host}:{_gateway_port}/{trajectory_uid}/{prompt_uid}/v1"
     return InitTrajectoryResponse(trajectory_uid=trajectory_uid, base_url=base_url)
 
 

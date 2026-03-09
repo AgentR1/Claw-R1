@@ -11,7 +11,9 @@
 
 ## News
 
-- **[2026.03]** 🚧 **Claw-R1 Project Init.** We are actively updating the framework. Stay tuned for more features and documentation.
+- **[2026.03.06]** 📖 **Claw-R1 Documentation Released.** Project page and documentation are now available at [Claw-R1 Project Page](https://agentr1.github.io/) and [Claw-R1 docs](https://agentr1.github.io/Claw-R1/).
+
+- **[2026.03.03]** 🚧 **Claw-R1 Project Init.** We are actively updating the framework. Stay tuned for more features and documentation.
 
 ## Overview
 

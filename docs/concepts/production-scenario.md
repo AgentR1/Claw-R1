@@ -1,109 +1,102 @@
 # Production Agent Scenario
 
-## The Hidden Assumption in Agentic RL
+## Agentic RL 中的隐含假设
 
-Almost every Agentic RL framework is built on an implicit assumption:
+几乎所有 Agentic RL 框架都建立在一个隐含假设上：
 
-> **Training phase ≠ Deployment phase**
+> **训练阶段 ≠ 部署阶段**
 
-The standard workflow: train on offline/simulated data → deploy a fixed model → retrain periodically.
+标准流程：在离线/模拟数据上训练 → 部署固定模型 → 定期重训。
 
-This works in research settings, but in production it hits fundamental walls:
+这在研究场景下可行，但在生产环境中遇到根本性障碍：
 
-| Problem | Manifestation |
+| 问题 | 表现 |
 |---|---|
-| **Distribution shift** | Training data is synthetic; real user requests have a different distribution → capability degradation after deployment |
-| **Cold start** | A newly deployed model knows nothing about a specific user's habits, tools, or workflows → long "warmup" period |
-| **Long-tail tasks** | Benchmarks cover common tasks; real users' niche needs cannot be covered by offline training |
-| **Environment drift** | Tool APIs update, user behavior changes → static models cannot self-adapt |
+| **分布偏移** | 训练数据是合成的；真实用户请求分布不同 → 部署后能力退化 |
+| **冷启动** | 新部署的模型对特定用户的习惯、工具、工作流一无所知 → 漫长的"预热"期 |
+| **长尾任务** | Benchmark 覆盖常见任务；用户的小众需求无法被离线训练覆盖 |
+| **环境漂移** | 工具 API 更新、用户行为变化 → 静态模型无法自适应 |
 
-## Claw-R1's Core Scenario: Personal Agent Self-Evolution
+## Claw-R1 的核心场景：个人 Agent 自我进化
 
-Claw-R1's first validation scenario is the **OpenClaw personal assistant**:
+Claw-R1 的首个验证场景是 **OpenClaw 个人助手**：
 
 ```
-Setup:
-  User deploys OpenClaw on a Mac Mini, connected to Slack / WeChat / email.
-  Every day they interact with OpenClaw via messages:
-  scheduling, information retrieval, code assistance, etc.
+设置：
+  用户在 Mac Mini 上部署 OpenClaw，连接 Slack / 微信 / 邮件。
+  每天通过消息与 OpenClaw 交互：日程安排、信息检索、代码辅助等。
 
-Traditional approach:
-  OpenClaw uses a fixed GPT-4o / Claude 3.5.
-  Capabilities do not grow with usage.
+传统方案：
+  OpenClaw 使用固定的 GPT-4o / Claude 3.5。
+  能力不会随使用而增长。
 
-Claw-R1 approach:
-  1. User message → OpenClaw → Gateway (intercepts LLM call)
-  2. Gateway logs each interaction step → DataPool (local)
-  3. Reward Model scores each interaction (user satisfaction signals, task completion, etc.)
-  4. Training Engine on a remote server continuously consumes DataPool, updates model weights
-  5. Updated weights are pushed back to the Gateway; the next call uses the improved model
+Claw-R1 方案：
+  1. 用户消息 → OpenClaw → Gateway（拦截 LLM 调用）
+  2. Gateway 记录每次交互 → DataPool（本地）
+  3. Reward Model 对每次交互评分
+  4. 远程服务器上的训练引擎持续消费 DataPool，更新模型权重
+  5. 更新的权重推送回 Gateway；下次调用使用改进后的模型
 
-Result:
-  The OpenClaw running on the user's Mac Mini becomes progressively better
-  at understanding this specific user over time.
+结果：
+  用户 Mac Mini 上的 OpenClaw 会随时间推移越来越了解该用户。
 ```
 
-## Three Requirements Traditional RL Frameworks Cannot Meet
+## 传统 RL 框架无法满足的三个需求
 
-This scenario requires three capabilities that traditional frameworks lack:
+### ① 服务连续性
 
-### ① Service continuity
+模型权重更新不能中断 Gateway 的请求处理。在 Claw-R1 中：
 
-Model weight updates must not interrupt Gateway request handling. In Claw-R1:
+- Trainer 直接管理 Rollout Engine 和 Reward Model 的生命周期（`wake_up` / `sleep` / 权重同步）
+- Gateway 是**纯 HTTP 代理** — 只转发请求和提交 step；不管理任何引擎生命周期
+- 这保证了即使在权重更新期间，请求转发和数据收集也能持续进行
 
-- The Trainer directly manages the lifecycle of Rollout Engine and Reward Model (`wake_up` / `sleep` / weight sync)
-- The Gateway is a **pure HTTP proxy** — it only forwards requests and submits steps; it does not manage any engine lifecycle
-- This guarantees continuous request forwarding and data collection even during weight updates
+### ② 无预设数据
 
-### ② No preset data
+传统框架需要预先收集的数据集。Claw-R1 的训练数据**完全来自实时用户交互**：
 
-Traditional frameworks require a pre-collected dataset (SFT corpus or RL environment). Claw-R1's training data comes **entirely from live user interactions**:
+- 用户问了什么、Agent 如何回答、调用了哪些工具 — 这些自动成为训练数据
+- 零数据工程；数据随服务运行自然积累
 
-- What questions the user asked, how the agent answered, which tools were called — all of this becomes training data automatically
-- Zero data engineering; data accumulates naturally as the service runs
+### ③ 真实环境的 Reward 信号
 
-### ③ Reward signals from the real environment
+传统 RLVR 的 reward 来自可验证的任务结果。生产环境的 reward 更加微妙：
 
-Traditional RLVR rewards come from verifiable task outcomes (does the code run? is the math answer correct?). Production rewards are more nuanced:
+- 用户继续追问 → 隐式正信号
+- 用户纠正 Agent → 负反馈
+- 任务完成后无后续 → Reward Model 估计中间步骤质量
 
-- User follows up → implicit positive signal
-- User corrects the agent → negative feedback
-- Task completed with no follow-up → Reward Model estimates quality of intermediate steps
+Claw-R1 使用 **Reward Model** 将这些**软信号**转换为可训练的 process reward。
 
-Claw-R1 uses a **Reward Model** to convert these **soft rewards** into trainable process rewards, bridging the gap between "verifiable tasks" and "real conversational tasks".
+## 三种运行模式
 
-## Three Operating Modes
-
-| Mode | Agent type | Data source | Notes |
+| 模式 | Agent 类型 | 数据来源 | 说明 |
 |---|---|---|---|
-| **White-box offline** | AgentFlow (Python) | Synthetic dataset or pre-collected trajectories | Fully implemented; recommended for research |
-| **Black-box offline** | Any HTTP agent | Pre-collected logs | Gateway endpoint reserved |
-| **Black-box online** | Any HTTP agent | Live user interactions | Gateway endpoint reserved; target production mode |
+| **白盒离线** | AgentFlow (Python) | 合成数据集或预收集的 trajectory | 已完整实现；推荐用于研究 |
+| **黑盒离线** | 任何 HTTP Agent | 预收集的数据集 | 已完整实现；通过 `base_url` 接入 |
+| **黑盒在线** | 任何 HTTP Agent | 实时用户交互 | 目标生产模式；Gateway 端点已实现 |
 
-!!! info "Current Status"
-    White-box offline mode is fully implemented. The black-box online endpoints (`/complete_trajectory`, `/{traj_uid}/{prompt_uid}/v1/chat/completions`) are designed and stubbed, actively being developed.
+## 部署 = 训练
 
-## Deployment = Training
-
-Claw-R1 introduces a new paradigm:
+Claw-R1 引入了一种新范式：
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│         Traditional: Train → Deploy (fixed)          │
+│         传统：训练 → 部署（固定）                      │
 │                                                      │
-│  [Synthetic data] → [Train] → [Fixed model] → Users  │
+│  [合成数据] → [训练] → [固定模型] → 用户               │
 └─────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────┐
-│         Claw-R1: Deploy = Train (continuous)         │
+│         Claw-R1：部署 = 训练（持续）                   │
 │                                                      │
-│  Users ──► Agent ──► [Live data] ──► Train ──► Agent │
-│            ▲___________________________________|      │
+│  用户 ──► Agent ──► [实时数据] ──► 训练 ──► Agent     │
+│           ▲___________________________________|      │
 └─────────────────────────────────────────────────────┘
 ```
 
-In this paradigm:
+在这种范式下：
 
-- Every user interaction is a training sample
-- Every model update improves the agent's real-world performance
-- The longer the agent runs, the better it becomes for its specific users and environment
+- 每次用户交互都是一个训练样本
+- 每次模型更新都改善 Agent 的真实世界表现
+- Agent 运行时间越长，对其特定用户和环境的表现越好

@@ -1,109 +1,106 @@
 # Quick Start
 
-This guide walks you through two minimal examples: a **white-box agent** (AgentFlow managed by Claw-R1) and a **black-box agent** (any HTTP-based agent, zero modification required).
+本指南展示如何快速运行 Claw-R1 的异步训练。
 
-## White-box Mode
+## 前置条件
 
-In white-box mode, Claw-R1 owns the agent loop via `AgentFlowBase`. The framework can observe token IDs, compute rewards internally, and submit steps directly.
+- 已完成 [安装](installation.md)
+- 至少 3 张 GPU（2 张训练 + 1 张推理）
+- 训练数据（parquet 格式）
 
-### 1. Start the Gateway
+## Black-box 模式（推荐入门）
 
-```bash
-python -m claw_r1.gateway.gateway \
-    --data-pool-name data_pool \
-    --vllm-addresses http://localhost:8001 \
-    --tokenizer-path /path/to/your/model \
-    --prompt-length 4096 \
-    --response-length 1024
-```
+黑盒模式下，Agent 使用标准 OpenAI API 与 Gateway 交互，无需修改 Agent 代码。以 GSM8K 数学题为例：
 
-### 2. Launch Training
-
-Use the provided Hydra configuration:
+### 1. 准备数据
 
 ```bash
-python -m claw_r1.main_agent_ppo \
-    --config-name agent_ppo_trainer \
-    trainer.model.path=/path/to/your/model \
-    trainer.project_name=claw_r1_quickstart
+# 下载 GSM8K 数据集（parquet 格式）
+# 确保 train.parquet 和 test.parquet 在 ~/data/gsm8k/ 下
 ```
 
-### 3. Monitor
-
-Ray Dashboard is available at `http://localhost:8265` by default once the Ray cluster is initialized.
-
----
-
-## Black-box Mode
-
-In black-box mode, your existing agent needs **only one change**: redirect its `base_url` to the Gateway.
-
-### Any Python agent (OpenAI SDK)
-
-```python
-from openai import OpenAI
-import uuid
-
-traj_uid  = str(uuid.uuid4())  # unique per conversation
-prompt_uid = str(uuid.uuid4()) # unique per prompt group (for GRPO)
-
-# Before
-# client = OpenAI(base_url="https://api.openai.com/v1")
-
-# After — single line change
-client = OpenAI(
-    base_url=f"http://localhost:8000/{traj_uid}/{prompt_uid}",
-    api_key="not-used",
-)
-
-response = client.chat.completions.create(
-    model="your-model-name",
-    messages=[{"role": "user", "content": "Hello, what can you do?"}],
-)
-print(response.choices[0].message.content)
-```
-
-### OpenClaw
-
-In your OpenClaw configuration file, change:
-
-```yaml
-# Before
-LLM_API_BASE: "https://api.openai.com/v1"
-
-# After
-LLM_API_BASE: "http://gateway-host:8000"
-```
-
-That's it. Every LLM call OpenClaw makes will be transparently intercepted, logged to DataPool, and used for training — with no interruption to service.
-
----
-
-## Async Training Mode
-
-For production scenarios where the agent serves requests continuously, use the fully-async entry point:
+### 2. 运行训练
 
 ```bash
-python -m claw_r1.async_main \
-    --config-name async_ppo_trainer \
-    trainer.model.path=/path/to/your/model
+export CUDA_VISIBLE_DEVICES=0,1,2
+
+sh example/test_async_blackbox.sh
 ```
 
-The async runner automatically:
+该脚本会：
 
-1. Initializes the `DataPool` Ray actor
-2. Starts the `AsyncRollouter` on the rollout GPU pool
-3. Starts the `AsyncTrainer` on the training GPU pool
-4. Starts a `ParameterSynchronizer` that periodically pushes updated weights to the rollout vLLM servers
-5. Starts the `Gateway` as an independent FastAPI process
+1. 启动 Ray 集群
+2. 创建 DataPool（Ray Actor）
+3. 在 GPU 0-1 上部署 Actor + Critic（训练）
+4. 在 GPU 2 上部署 vLLM（推理）
+5. 启动 Gateway（端口 8100）
+6. 运行 `BlackBoxGSM8KAgentFlow`：
+    - 为每个样本调用 `init_trajectory` 获取 `base_url`
+    - 创建 `GSM8KAgent`，使用 `base_url` 作为 OpenAI API 的 endpoint
+    - Agent 通过多轮 tool calling 解题
+    - Gateway 自动收集每轮对话为 Step 并提交到 DataPool
+7. AsyncTrainer 从 DataPool 拉取 batch 进行 PPO 训练
+8. 定期同步权重到 vLLM
 
-!!! info "No dataset required"
-    In async online mode, the training data comes entirely from live agent interactions. No pre-collected dataset is needed — the DataPool fills automatically as the agent handles real requests.
+### 3. 关键配置参数
 
----
+```bash
+# GPU 分配
+trainer.n_gpus_per_node=2        # 训练用 2 张 GPU
+rollout.n_gpus_per_node=1        # 推理用 1 张 GPU
 
-## Next Steps
+# Agent Flow
+actor_rollout_ref.rollout.agent.default_agent_flow=blackbox_gsm8k_agent
+actor_rollout_ref.rollout.agent.agent_flow_config_path=claw_r1/blackbox_agent/agent_flow_config.yaml
 
-- [Concepts: Base URL Integration](../concepts/base-url-integration.md)
-- [Components: Gateway Server](../components/gateway.md)
-- [Configuration Reference](../configuration/index.md)
+# 异步训练
+async_training.trigger_parameter_sync_step=1   # 每步同步权重
+actor_rollout_ref.rollout.n=5                  # 每个 prompt 生成 5 条 trajectory
+```
+
+## White-box 模式
+
+白盒模式下，Agent 逻辑用 Python 编写，直接通过 Gateway 的 `/generate` 和 `/submit_steps` 端点交互。
+
+```bash
+export CUDA_VISIBLE_DEVICES=0,1,2
+
+sh example/test_async.sh
+```
+
+白盒模式使用 `MultiStepAgentFlow` 或 `SingleStepSingleTurnAgentFlow`，Agent 自行管理 tokenize 和 Step 构建。
+
+## 自定义 Agent
+
+### 添加黑盒 Agent
+
+1. 实现 Agent 类（只需 `base_url` 和 OpenAI API）
+2. 实现 `BlackBoxAgentFlowBase` 子类
+3. 在 `agent_flow_config.yaml` 中注册
+4. 在训练脚本中指定
+
+详细步骤见 [Black-box Agent](../components/blackbox-agent.md)。
+
+### 添加白盒 Agent
+
+1. 继承 `AgentFlowBase`（或 `MultiStepAgentFlow`）
+2. 实现 `run()` 方法
+3. 使用 `@register("name")` 注册
+
+详细步骤见 [Agent Flow](../components/agent-flow.md)。
+
+## 监控训练
+
+训练日志默认输出到控制台。可配置 SwanLab 等日志后端：
+
+```bash
+trainer.logger='["console","swanlab"]'
+trainer.project_name='my_project'
+trainer.experiment_name='my_experiment'
+```
+
+## 下一步
+
+- [Components](../components/index.md) — 了解各组件的详细设计
+- [Configuration](../configuration/index.md) — 完整配置参考
+- [Gateway API](../api/gateway.md) — HTTP 端点文档

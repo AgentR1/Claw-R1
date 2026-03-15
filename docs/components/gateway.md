@@ -1,14 +1,17 @@
 # Gateway Server
 
-The Gateway Server is a **FastAPI HTTP service** that acts as the network-layer proxy between agents and the Claw-R1 training infrastructure.
+Gateway Server 是一个 **FastAPI HTTP 服务**，作为 Agent 与 Claw-R1 训练基础设施之间的网络层代理。
 
-## Design Principles
+## 设计原则
 
-- **Independent process**: The Gateway runs as a plain OS process, not a Ray actor. This means it can be restarted independently of the Ray cluster.
-- **Pure proxy**: The Gateway does not manage any engine lifecycle. It only forwards requests, collects steps, and submits to DataPool.
-- **OpenAI-compatible**: Implements the same interface as OpenAI's chat completions API, making it a drop-in replacement.
+- **独立进程**：Gateway 作为普通 OS 进程运行（非 Ray Actor），可以独立于 Ray 集群重启。
+- **纯代理**：Gateway 不管理任何引擎生命周期，只负责转发请求、收集 Step、提交到 DataPool。
+- **OpenAI 兼容**：黑盒端点实现与 OpenAI chat completions API 相同的接口，可作为 drop-in 替换。
+- **延迟初始化**：启动时先快速初始化 Ray 连接和配置，HTTP 服务立即可用；tokenizer 在后台线程加载，通过 `/ready` 端点报告就绪状态。
 
-## Starting the Gateway
+## 启动方式
+
+Gateway 通常由 `AsyncRollouter` 作为子进程自动启动。也可手动启动：
 
 ```bash
 python -m claw_r1.gateway.gateway \
@@ -16,103 +19,100 @@ python -m claw_r1.gateway.gateway \
     --vllm-addresses  http://host1:8001,http://host2:8001 \
     --tokenizer-path  /path/to/model \
     --prompt-length   4096 \
-    --response-length 1024
+    --response-length 1024 \
+    --reward-worker-name reward_loop_worker \
+    --ray-address     auto \
+    --ray-namespace   default \
+    --host            0.0.0.0 \
+    --port            8100
 ```
 
-### Arguments
+### 参数
 
-| Argument | Required | Description |
+| 参数 | 必填 | 说明 |
 |---|---|---|
-| `--data-pool-name` | Yes | Ray actor name of the DataPool to connect to |
-| `--vllm-addresses` | Yes | Comma-separated list of vLLM server addresses (load-balanced round-robin) |
-| `--tokenizer-path` | Yes | Path to the HuggingFace tokenizer |
-| `--prompt-length` | Yes | Maximum prompt token length (for padding) |
-| `--response-length` | Yes | Maximum response token length (for padding) |
+| `--data-pool-name` | 是 | DataPool 的 Ray Actor 名称 |
+| `--vllm-addresses` | 是 | 逗号分隔的 vLLM 服务器地址列表（轮询负载均衡） |
+| `--tokenizer-path` | 是 | HuggingFace tokenizer 路径 |
+| `--prompt-length` | 是 | 最大 prompt token 长度（用于 padding） |
+| `--response-length` | 是 | 最大 response token 长度（用于 padding） |
+| `--reward-worker-name` | 否 | RewardLoopWorker 的 Ray Actor 名称 |
+| `--ray-address` | 否 | Ray GCS 地址（默认 `auto`） |
+| `--ray-namespace` | 否 | Ray namespace |
+| `--host` | 否 | 监听地址（默认 `0.0.0.0`） |
+| `--port` | 否 | 监听端口（默认 `8100`） |
 
-## Endpoints
+## 两种工作模式
 
-### `POST /generate` (white-box mode)
+### White-box 模式
 
-Called by `AgentFlowBase.gateway_generate()`. Forwards the generation request to a vLLM server, tokenizes the response, and returns token IDs.
+白盒 Agent（`AgentFlowBase` 子类）通过 Gateway 根路径端点交互：
 
-```python
-# Request
-{
-    "trajectory_uid": "string",
-    "prompt_uid": "string",
-    "messages": [...],         # OpenAI chat messages
-    "max_tokens": 1024,
-    "temperature": 1.0
-}
-
-# Response
-{
-    "response_text": "string",
-    "response_ids": [101, 202, ...],   # token IDs
-    "prompt_ids": [50, 60, ...]        # full context token IDs
-}
+```
+AgentFlow → POST /generate        → vLLM → 返回 token IDs
+AgentFlow → POST /submit_steps    → DataPool
+AgentFlow → POST /compute_reward  → RewardLoopWorker
 ```
 
-### `POST /submit_steps` (white-box mode)
+Agent 自己管理 tokenize、Step 构建和提交。
 
-Called by `AgentFlowBase.gateway_submit_steps()`. Submits one or more `Step` objects to the DataPool.
+### Black-box 模式
 
-```python
-# Request
-{
-    "steps": [
-        {
-            "trajectory_uid": "string",
-            "prompt_uid": "string",
-            "prompt_ids": [...],
-            "response_ids": [...],
-            "reward": 0.0,
-            "step_index": 0,
-            "policy_version": 42,
-            "is_last": false,
-            "metadata": {}
-        }
-    ]
-}
+黑盒 Agent 只需要一个 `base_url`，通过标准 OpenAI 接口交互：
+
+```
+1. BlackBoxAgentFlow → POST /init_trajectory           → 获取 base_url
+2. BlackBoxAgentFlow → POST {base_url}/v1/register_trajectory  → 注册 channel/metadata
+3. Agent             → POST {base_url}/v1/chat/completions     → 标准 OpenAI 调用（可多轮）
+4. BlackBoxAgentFlow → POST {base_url}/v1/complete_trajectory  → 标记完成
 ```
 
-### `POST /compute_reward`
+Gateway 在 `v1/chat/completions` 内部自动完成 tokenize、Step 构建和 DataPool 提交，Agent 完全无感知。
 
-Computes a reward score for a completed trajectory step.
+## base_url 机制
 
-```python
-# Request
-{
-    "trajectory_uid": "string",
-    "messages": [...],
-    "dataset_fields": {}    # task-specific fields (ground truth, etc.)
-}
+`base_url` 的格式为：
 
-# Response
-{
-    "reward": 0.85
-}
+```
+http://<host>:<port>/<trajectory_uid>/<prompt_uid>
 ```
 
-### `POST /{trajectory_uid}/{prompt_uid}/v1/chat/completions` *(reserved)*
-
-OpenAI-compatible endpoint for black-box agents. The `trajectory_uid` and `prompt_uid` are encoded in the URL path, allowing the Gateway to associate incoming requests with the correct trajectory without any client-side changes beyond `base_url`.
-
-!!! info "Status"
-    This endpoint is designed and stubbed. Full black-box online integration is under active development.
-
-### `POST /complete_trajectory/{trajectory_uid}` *(reserved)*
-
-Called by black-box agents to mark the end of a trajectory and optionally provide a final reward.
-
-## Load Balancing
-
-When multiple `--vllm-addresses` are provided, the Gateway distributes requests across them using **round-robin**:
+`trajectory_uid` 和 `prompt_uid` 编码在 URL path 中，使得 Gateway 能将请求关联到正确的 trajectory，而 Agent 端只需修改 `base_url` 即可接入训练系统。
 
 ```python
-# Internal: cycle through vLLM addresses
-self.vllm_address_cycle = itertools.cycle(vllm_addresses)
-vllm_url = next(self.vllm_address_cycle)
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="http://gateway:8100/abc123/1",  # base_url 由 init_trajectory 返回
+    api_key="not-needed",
+)
+response = client.chat.completions.create(
+    model="qwen",
+    messages=[{"role": "user", "content": "Hello"}],
+)
 ```
 
-This provides basic load balancing without requiring an external proxy.
+## 内部状态管理
+
+Gateway 为每条 trajectory 维护以下状态：
+
+| 状态 | 说明 |
+|---|---|
+| `_trajectory_step_counter` | 每条 trajectory 的下一个 step_index |
+| `_trajectory_channel` | trajectory 对应的 DataPool channel（默认 `"train"`） |
+| `_trajectory_metadata` | trajectory 关联的 metadata（如 reward_model、data_source 等） |
+
+这些状态在 `register_trajectory` 时设置，在 `complete_trajectory` 时清理。
+
+## 负载均衡
+
+当提供多个 `--vllm-addresses` 时，Gateway 使用 **round-robin** 轮询分发请求：
+
+```python
+_vllm_cycle = itertools.cycle(vllm_addresses)
+vllm_url = next(_vllm_cycle)
+```
+
+## API 参考
+
+完整的端点文档见 [Gateway API](../api/gateway.md)。

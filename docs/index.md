@@ -1,120 +1,90 @@
----
-hide:
-  - navigation
-  - toc
----
-
 # Claw-R1
-
-<div align="center" markdown>
 
 **Empowering OpenClaw with Advanced Agentic RL**
 
-[![GitHub Stars](https://img.shields.io/github/stars/AgentR1/Claw-R1?style=flat-square)](https://github.com/AgentR1/Claw-R1/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/AgentR1/Claw-R1?style=flat-square)](https://github.com/AgentR1/Claw-R1/network/members)
-[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg?style=flat-square)](https://github.com/AgentR1/Claw-R1/blob/main/LICENCE)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square)](https://www.python.org/)
-
-</div>
+Claw-R1 是一个基于中间件的 Agentic RL 训练框架，让任何 Agent 都能通过强化学习持续进化。
 
 ---
 
-**Claw-R1** is an Agentic RL training framework that bridges the gap between **General Agents** (e.g., OpenClaw, Claude Code) and **Agentic Reinforcement Learning**.
-
-It introduces a **Middleware Layer** — Gateway Server + DataPool — as the sole bridge between the Agent Side and the Training Side. Agents, whether white-box or black-box, connect to the framework via standard HTTP with **zero code modification**.
-
 <div class="grid cards" markdown>
 
--   :material-connection:{ .lg .middle } **Zero-Code Integration**
+-   :material-link-variant: **Zero-Code Integration**
 
     ---
 
-    Black-box agents (LangChain, AutoGen, CrewAI, OpenClaw) integrate instantly — just redirect `base_url` to the Gateway. No SDK hooks, no source modifications.
+    通过 `base_url` 机制，任何使用 OpenAI 兼容 API 的 Agent 只需修改一个参数即可接入训练系统。无需修改 Agent 代码。
 
     [:octicons-arrow-right-24: Base URL Integration](concepts/base-url-integration.md)
 
--   :material-layers-triple:{ .lg .middle } **Middleware Layer**
+-   :material-layers-outline: **Middleware Layer**
 
     ---
 
-    Gateway + DataPool completely decouple the Agent Side from the Training Side, enabling asynchronous, non-blocking training while the agent keeps serving.
+    Gateway + DataPool 中间件完全解耦 Agent 侧和 Training 侧。Gateway 自动收集训练数据，DataPool 异步缓冲，Trainer 持续消费。
 
     [:octicons-arrow-right-24: Middleware Layer](concepts/middleware-layer.md)
 
--   :material-robot-industrial:{ .lg .middle } **Production Agent Scenario**
+-   :material-robot: **Production Agent Scenario**
 
     ---
 
-    Supports three modes: white-box offline, black-box offline, and black-box online service. In online mode, agents serve and train simultaneously — no dataset required.
+    "部署 = 训练" 范式。Agent 在服务用户的同时持续收集数据和改进，支持白盒离线、黑盒离线和黑盒在线三种模式。
 
     [:octicons-arrow-right-24: Production Scenario](concepts/production-scenario.md)
 
--   :material-lightning-bolt:{ .lg .middle } **Async Training & Rollout**
+-   :material-sync: **Async Training & Rollout**
 
     ---
 
-    Rollout Engine and Training Engine run independently. Data flows from live requests into DataPool; the Trainer continuously fetches batches — never blocking the agent.
+    Rollout 和 Training 分离到独立 GPU 池，通过 DataPool 异步通信。支持 GRPO 和 GAE advantage 计算。
 
     [:octicons-arrow-right-24: Async Training](components/async-training.md)
 
 </div>
 
----
-
-## Framework Overview
-
-![Claw-R1 Framework](assets/framework.png)
-
-The framework consists of three logical layers:
-
-| Layer | Components | Role |
-|---|---|---|
-| **Agent Side** | OpenClaw / White-box AgentFlow / Black-box Agent | Executes tasks, calls LLM via Gateway |
-| **Middleware Layer** | Gateway Server + DataPool | Intercepts LLM calls, buffers trajectories asynchronously |
-| **Training Side** | Async Trainer + Rollout Engine + Reward System | Fetches batches, updates model, syncs weights |
-
----
-
 ## Why Claw-R1?
 
-Most Agentic RL frameworks share a hidden assumption: **training ≠ deployment**. They train on simulated data, deploy a fixed model, and periodically retrain. This works for research but breaks down in production:
+| 特性 | 传统 Agentic RL | Claw-R1 |
+|---|---|---|
+| Agent 接入 | 需要用框架 API 重写 | 只改 `base_url` |
+| 训练数据 | 预收集的离线数据 | 实时交互自动收集 |
+| 训练模式 | 同步（生成 → 训练交替） | 异步（生成和训练并行） |
+| 部署方式 | 训练完成后部署固定模型 | 部署即训练，持续进化 |
+| Agent 类型 | 仅支持框架内 Agent | 任何 OpenAI 兼容 Agent |
 
-- Models trained on synthetic tasks degrade on real user request distributions
-- No mechanism for continuous adaptation to specific users or tool ecosystems
-- Blocking synchronous loops make it impossible to serve while training
+## 快速开始
 
-Claw-R1 is designed to fill this void. It enables **deployment = training**: a production agent that continuously learns from its own service interactions.
+```bash
+# 安装
+pip install -e .
 
-[Get started in minutes :octicons-arrow-right-24:](getting-started/installation.md){ .md-button .md-button--primary }
-[Read the concepts :octicons-arrow-right-24:](concepts/index.md){ .md-button }
+# 运行黑盒 GSM8K 训练
+export CUDA_VISIBLE_DEVICES=0,1,2
+sh example/test_async_blackbox.sh
+```
 
----
+[:octicons-arrow-right-24: 完整安装指南](getting-started/installation.md) · [:octicons-arrow-right-24: Quick Start](getting-started/quickstart.md)
 
-## Project Status
+## 项目状态
 
-!!! warning "Active Development"
-    Claw-R1 was initiated in March 2026 and is under active development. APIs and configurations may change before the first stable release. Contributions and feedback are welcome.
-
----
+| 模式 | 状态 |
+|---|---|
+| 白盒离线训练 | :material-check-circle: 已实现 |
+| 黑盒离线训练 | :material-check-circle: 已实现 |
+| 黑盒在线训练 | :material-progress-wrench: 开发中 |
+| 异步训练 | :material-check-circle: 已实现 |
 
 ## Team
 
-**Members**: Daoyu Wang, Jie Ouyang, Shuo Yu
-
-**Supervisors**: Qi Liu, Mingyue Cheng
-
-**Affiliation**: State Key Laboratory of Cognitive Intelligence, University of Science and Technology of China
-
----
+State Key Laboratory of Cognitive Intelligence, USTC
 
 ## Citation
 
 ```bibtex
-@misc{clawr1-2026,
-  title   = {Claw-R1: Agentic RL for Modern Agents},
-  author  = {Wang, Daoyu and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
-  year    = {2025},
-  url     = {https://github.com/AgentR1/Claw-R1},
-  note    = {GitHub repository}
+@misc{claw-r1,
+  title={Claw-R1: Empowering OpenClaw with Advanced Agentic RL},
+  author={Claw-R1 Team},
+  year={2025},
+  url={https://github.com/AgentR1/Claw-R1}
 }
 ```

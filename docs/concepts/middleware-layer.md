@@ -1,115 +1,85 @@
 # Middleware Layer
 
-## The Problem with Synchronous Training
+## 同步训练的问题
 
-Traditional RLVR training uses a **synchronous loop**:
+传统 RL 训练是同步的：生成一个 batch → 训练一步 → 生成下一个 batch。这导致：
 
-```
-Generate batch of trajectories (Rollout)
-  → Compute rewards
-  → Update model weights
-  → Generate next batch ...
-```
+- GPU 利用率低（训练时推理空闲，推理时训练空闲）
+- 无法支持实时服务（训练期间无法响应用户请求）
+- 扩展困难（推理和训练的资源需求不同）
 
-This works well in research settings where the environment is a dataset and can be paused at will. But in production, the synchronous loop creates fundamental problems:
+## Gateway + DataPool 架构
 
-- **Rollout blocks training**: the model cannot update while serving requests
-- **Training blocks service**: gradient updates stall the agent
-- **Data waste**: real user interactions that fall outside the "current batch window" are discarded
-
-## Architecture: Gateway + DataPool
-
-The Middleware Layer consists of two components that together form the **only bridge** between the Agent Side and Training Side — the two sides never communicate directly.
+Claw-R1 通过 **Middleware Layer**（Gateway + DataPool）将 Agent 侧和 Training 侧完全解耦：
 
 ```
-┌──────────────────────────────────────────────────────┐
-│          Agent Side                                  │
-│  User request → Agent → Gateway (HTTP) → LLM resp.  │
-│                             │                        │
-│              [Gateway submits Step to DataPool]      │
-└─────────────────────────────┬────────────────────────┘
-                               │  Async, non-blocking
-                               │  (Ray RPC)
-┌─────────────────────────────▼────────────────────────┐
-│          Training Side (runs independently)          │
-│  Trainer ◄── DataPool.fetch_batch() ◄── Reward       │
-│      │                                               │
-│      └── weight update → sync to rollout vLLM        │
-└──────────────────────────────────────────────────────┘
+Agent 侧                    Middleware                    Training 侧
+┌──────────┐           ┌──────────────────┐           ┌──────────────┐
+│ Agent    │──HTTP──►  │  Gateway         │──Ray RPC──►│  DataPool    │
+│ (任意)   │◄──HTTP──  │  (FastAPI, 8100) │           │  (Ray Actor) │
+└──────────┘           └──────────────────┘           └──────┬───────┘
+                                                             │ fetch_batch()
+                                                             ▼
+                                                      ┌──────────────┐
+                                                      │  Trainer     │
+                                                      │  (Ray Actor) │
+                                                      └──────────────┘
 ```
 
-### Gateway Server
+## Gateway 的设计
 
-The Gateway is a **FastAPI HTTP service** (independent OS process, not a Ray actor). This design is deliberate:
+Gateway 是一个**独立进程**（FastAPI），具有以下特性：
 
-- As a plain HTTP process it can be restarted without touching the Ray cluster
-- It introduces no Ray scheduling overhead on the critical request-handling path
-- It is the sole point of contact for agents — agents need only an HTTP address, nothing else
+- **纯代理**：不管理任何引擎生命周期，只转发请求和收集数据
+- **OpenAI 兼容**：黑盒 Agent 通过 `base_url` 透明接入
+- **延迟初始化**：HTTP 服务立即可用，tokenizer 在后台加载
 
-The Gateway has three responsibilities:
+Gateway 支持两种工作模式：
 
-1. **Forward** LLM completion requests to the vLLM rollout servers (load-balanced)
-2. **Tokenize** responses and construct `Step` objects
-3. **Submit** steps to DataPool via Ray RPC (fire-and-forget, non-blocking)
+| 模式 | 端点 | 数据收集方式 |
+|---|---|---|
+| 白盒 | `/generate`, `/submit_steps` | Agent 自行构建 Step 并提交 |
+| 黑盒 | `{base_url}/v1/chat/completions` | Gateway 自动 tokenize 并构建 Step |
 
-### DataPool
+详见 [Gateway Server](../components/gateway.md)。
 
-DataPool is a **Ray Actor** that acts as a timestamped trajectory queue. It decouples write speed (determined by agent request rate) from read speed (determined by training throughput).
+## DataPool 的设计
 
-Key characteristics:
+DataPool 是一个 **Ray Actor**，作为 trajectory 缓冲区：
 
-| Property | Behavior |
+| 特性 | 说明 |
 |---|---|
-| Write | Asynchronous — Gateway submits steps without waiting for confirmation |
-| Read | Async pull — Trainer fetches batches at its own pace, independent of rollout timing |
-| Ordering | FIFO by `prompt_uid` group |
-| Capacity | Configurable `max_queue_size`; oldest groups dropped when full |
-| Persistence | Survives agent restarts (Ray actor keeps state in memory) |
-| Mixed policy | Trainer can consume both on-policy (latest) and off-policy (historical) trajectories |
+| **异步写入** | Gateway 通过 fire-and-forget 的 Ray RPC 提交 Step |
+| **阻塞读取** | Trainer 调用 `fetch_batch()` 等待完整的 prompt 组 |
+| **Channel 分区** | `"train"` 和 `"val"` 数据隔离 |
+| **FIFO 队列** | 按 `prompt_uid` 分组，完整组按先进先出顺序消费 |
+| **容量管理** | 可配置 `max_queue_size` 防止内存溢出 |
 
-## Data Model: The Step
+详见 [DataPool](../components/datapool.md)。
 
-Every LLM call produces one `Step` — the atomic unit of RL data:
+## Step 数据模型
 
 ```python
 @dataclass
 class Step:
-    prompt_ids:     list[int]  # full context token IDs (state)
-    response_ids:   list[int]  # LLM-generated tokens (action)
-    reward:         float      # immediate reward for this step
-    trajectory_uid: str        # shared across all steps in one conversation
-    prompt_uid:     str        # groups rollouts from the same prompt (GRPO)
-    step_index:     int        # position within the trajectory
-    policy_version: int        # for off-policy staleness detection
-    is_last:        bool       # marks the final step of a trajectory
-    metadata:       dict       # dataset fields, data source, etc.
+    prompt_ids:     list[int]   # state: 完整上下文 token IDs
+    response_ids:   list[int]   # action: LLM 生成的 token IDs
+    reward:         float       # 即时 reward
+    trajectory_uid: str         # 同一对话的 step 共享此 ID
+    prompt_uid:     str         # 同一 prompt 的 rollout 共享此 ID
+    step_index:     int         # trajectory 内的位置
+    policy_version: int         # 生成时的策略版本
+    is_last:        bool        # 是否为最后一个 step
+    metadata:       dict        # 辅助数据
 ```
 
-Trajectories are stored **step-by-step** (not episode-by-episode), which allows the trainer to start computing advantages as soon as individual steps arrive, without waiting for the full episode to complete.
+## Reward 标注
 
-## Comparison with rLLM's DataPool
+Reward 计算与 Agent 服务**解耦**：
 
-rLLM also uses a DataPool abstraction, but serves a different use case:
+1. Gateway 提交 Step 时 `reward=0.0`
+2. DataPool 存储原始 Step
+3. Trainer 在 PPO 更新前通过 `RewardLoopWorker` 计算 reward
+4. 更新后的 reward 用于 advantage 计算
 
-| Dimension | rLLM DataPool | Claw-R1 DataPool |
-|---|---|---|
-| Data source | Batch rollout engine (offline generation) | Real user requests (live service) |
-| Data nature | Pre-defined synthetic trajectories | Authentic user interaction trajectories |
-| Agent status during training | Not serving | Continuously serving |
-| Reward type | Verifiable task result | Process reward + environment feedback |
-
-rLLM's DataPool accelerates offline batch training. Claw-R1's DataPool makes the **production service itself the training data source**.
-
-## Reward Annotation
-
-DataPool stores not just raw trajectories but reward-annotated steps. Claw-R1 uses a `RewardLoopWorker` to score trajectories:
-
-```
-Trajectory:   [user msg] → [agent think] → [tool call] → [tool result] → [final reply]
-Reward:            0.3           0.7            0.9            0.8
-```
-
-- **White-box offline mode**: AgentFlow builds `Step` objects and submits them via Gateway `/submit_steps`; the Trainer calls `/compute_reward` on its side
-- **Black-box online mode** (reserved): The agent side computes rewards and passes them via Gateway `/complete_trajectory`
-
-Reward computation never blocks the agent service. The Trainer fetches fully-annotated batches from `DataPool.fetch_batch()` at training time.
+这确保了即使是慢速的 generative reward model 也不会影响 Agent 服务延迟。

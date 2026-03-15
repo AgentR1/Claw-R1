@@ -1,148 +1,161 @@
 # Agent Flow
 
-Agent Flow is the Python framework for **white-box agents** in Claw-R1. It handles the full lifecycle of an agent turn: vision data processing, chat template application, LLM generation via Gateway, and step submission.
+Agent Flow 是 Claw-R1 中管理 Agent 执行生命周期的框架。它分为两大类：
 
-## Class Hierarchy
+- **白盒 Agent Flow**：Agent 逻辑用 Python 编写，直接通过 Gateway 的 `/generate`、`/submit_steps` 等端点交互，自行管理 tokenize 和 Step 构建。
+- **黑盒 Agent Flow**：Agent 使用标准 OpenAI API，通过 `base_url` 透明接入，Gateway 自动处理 tokenize 和 Step 提交。
+
+## 类层次
 
 ```
-AgentFlowBase           (abstract base)
+AgentFlowBase                              (abstract base)
     │
-    ├── SingleStepSingleTurnAgentFlow   (simplest: one prompt → one response)
-    └── MultiStepAgentFlow              (multi-turn: tools, planning, etc.)
+    ├── SingleStepSingleTurnAgentFlow      (白盒：单轮问答)
+    ├── MultiStepAgentFlow                 (白盒：多轮工具调用)
+    │
+    └── BlackBoxAgentFlowBase              (黑盒基类)
+            └── BlackBoxGSM8KAgentFlow     (黑盒：GSM8K 数学题)
 ```
 
 ## AgentFlowBase
 
-All agent flows inherit from `AgentFlowBase`, which provides:
+所有 Agent Flow 的抽象基类，提供：
 
-- HTTP client management (shared `aiohttp.ClientSession` per process)
-- Tokenizer and processor initialization
-- Chat template application
-- Vision / multimodal data extraction
-- Gateway communication helpers
+- Gateway URL 管理
+- 配置访问（`self.config`）
+- 抽象方法 `run(sampling_params, **kwargs) -> int`
 
-### Key Methods
+### 白盒辅助方法
+
+白盒 Agent Flow 可使用以下方法与 Gateway 交互：
 
 #### `gateway_generate(trajectory_uid, prompt_uid, messages, **kwargs)`
 
-Sends an async HTTP POST to `Gateway /generate` and returns the raw text and token IDs.
+向 Gateway `/generate` 发送异步 HTTP POST，返回生成文本和 token IDs。
 
 ```python
 text, response_ids, prompt_ids = await self.gateway_generate(
     trajectory_uid="traj-abc",
     prompt_uid="prompt-xyz",
-    messages=[
-        {"role": "user", "content": "Summarize this document."}
-    ],
+    messages=[{"role": "user", "content": "Summarize this document."}],
     max_tokens=512,
     temperature=0.8,
 )
 ```
 
-#### `gateway_submit_steps(steps: list[Step])`
+#### `gateway_submit_steps(steps, channel="train")`
 
-Sends an async HTTP POST to `Gateway /submit_steps`. This is a fire-and-forget call — the agent flow does not wait for confirmation from the DataPool.
+向 Gateway `/submit_steps` 提交 Step 列表。
 
-#### `apply_chat_template(messages, add_generation_prompt=True)`
+#### `gateway_compute_reward(trajectory_uid, messages, dataset_fields)`
 
-Applies the model's chat template and tokenizes the message sequence.
-
-#### `process_vision_info(messages)`
-
-Extracts images and videos from messages for multimodal models.
+向 Gateway `/compute_reward` 请求 reward 计算。
 
 ## SingleStepSingleTurnAgentFlow
 
-The simplest implementation: a single prompt produces a single response. Useful for datasets where each example is a self-contained question-answer pair.
+最简单的白盒实现：单个 prompt 产生单个 response。适用于每个样本都是独立问答对的数据集。
 
 ```python
-from claw_r1.agent_flow import SingleStepSingleTurnAgentFlow
-
 class MyAgentFlow(SingleStepSingleTurnAgentFlow):
-    async def run(self, sample: dict) -> None:
-        messages = [{"role": "user", "content": sample["question"]}]
-
-        # Generate response via Gateway
+    async def run(self, sampling_params, **kwargs) -> int:
+        messages = [{"role": "user", "content": kwargs["raw_prompt"]}]
         text, response_ids, prompt_ids = await self.gateway_generate(
-            trajectory_uid=sample["trajectory_uid"],
-            prompt_uid=sample["prompt_uid"],
+            trajectory_uid=kwargs["trajectory_uid"],
+            prompt_uid=kwargs["prompt_uid"],
             messages=messages,
         )
-
-        # Build and submit the step
         step = Step(
             prompt_ids=prompt_ids,
             response_ids=response_ids,
-            reward=0.0,           # reward filled in by Trainer via /compute_reward
-            trajectory_uid=sample["trajectory_uid"],
-            prompt_uid=sample["prompt_uid"],
+            reward=0.0,
+            trajectory_uid=kwargs["trajectory_uid"],
+            prompt_uid=kwargs["prompt_uid"],
             step_index=0,
-            policy_version=self.policy_version,
             is_last=True,
-            metadata=sample.get("metadata", {}),
         )
         await self.gateway_submit_steps([step])
+        return 1
 ```
 
 ## MultiStepAgentFlow
 
-For complex agents that call tools, plan across multiple turns, or use a scratchpad. Each turn produces one `Step`, and steps are chained by `trajectory_uid`.
+多轮 Agent Flow，支持工具调用、规划等场景。每轮产生一个 Step，通过 `trajectory_uid` 串联。
 
 ```python
-from claw_r1.agent_flow import MultiStepAgentFlow
-
 class ToolAgentFlow(MultiStepAgentFlow):
-    async def run(self, sample: dict) -> None:
-        messages = [{"role": "user", "content": sample["task"]}]
+    async def run(self, sampling_params, **kwargs) -> int:
+        messages = [{"role": "user", "content": kwargs["task"]}]
         step_index = 0
 
         while True:
-            text, response_ids, prompt_ids = await self.gateway_generate(
-                trajectory_uid=sample["trajectory_uid"],
-                prompt_uid=sample["prompt_uid"],
-                messages=messages,
-            )
-
+            text, response_ids, prompt_ids = await self.gateway_generate(...)
             is_last = self.is_terminal(text)
 
             step = Step(
                 prompt_ids=prompt_ids,
                 response_ids=response_ids,
-                reward=0.0,
-                trajectory_uid=sample["trajectory_uid"],
-                prompt_uid=sample["prompt_uid"],
                 step_index=step_index,
-                policy_version=self.policy_version,
                 is_last=is_last,
+                ...
             )
             await self.gateway_submit_steps([step])
 
             if is_last:
                 break
 
-            # Append response and tool result for next turn
             messages.append({"role": "assistant", "content": text})
             tool_result = await self.execute_tool(text)
             messages.append({"role": "tool", "content": tool_result})
             step_index += 1
+
+        return step_index + 1
 ```
 
-## Configuration
+## BlackBoxAgentFlowBase
 
-Agent flows are configured via `AgentFlowConfig`:
+黑盒 Agent Flow 的基类。处理与 Gateway 的完整协议（init → register → complete），将 Agent 执行委托给子类的 `_run_agent` 方法。
+
+详细文档见 [Black-box Agent](blackbox-agent.md)。
+
+## 注册机制
+
+Agent Flow 通过 `@register("name")` 装饰器注册到全局注册表：
 
 ```python
-@dataclass
-class AgentFlowConfig:
-    num_workers: int = 8                               # parallel agent workers
-    default_agent_flow: str = "single_step_single_turn_agent"
+from claw_r1.agent_flow.agent_flow import register
+
+@register("my_agent_flow")
+class MyAgentFlow(AgentFlowBase):
+    ...
 ```
 
-Or in YAML (via Hydra):
+也可通过 YAML 配置文件注册（用于黑盒 Agent）：
 
 ```yaml
-# overrides/rollout.yaml
-agent_flow:
-  num_workers: 8
-  default_agent_flow: single_step_single_turn_agent
+# agent_flow_config.yaml
+- name: blackbox_gsm8k_agent
+  _target_: claw_r1.blackbox_agent.gsm8k_agent_flow.BlackBoxGSM8KAgentFlow
+```
+
+## AgentFlowManager 和 AgentFlowWorker
+
+- **AgentFlowManager**：管理多个 `AgentFlowWorker`，将 batch 中的每个样本分发给对应的 Agent Flow 执行。
+- **AgentFlowWorker**：Ray Actor，持有 tokenizer 和配置，执行具体的 Agent Flow。
+
+```
+AsyncRollouter
+    └── AgentFlowManager
+            └── AgentFlowWorker (Ray Actor, 可多个)
+                    └── AgentFlowBase 子类实例
+```
+
+## 配置
+
+在训练脚本中指定 Agent Flow：
+
+```bash
+python3 -m claw_r1.async_main \
+    actor_rollout_ref.rollout.agent.default_agent_flow=blackbox_gsm8k_agent \
+    actor_rollout_ref.rollout.agent.agent_flow_config_path=claw_r1/blackbox_agent/agent_flow_config.yaml \
+    ...
 ```

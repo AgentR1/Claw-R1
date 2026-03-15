@@ -1,102 +1,80 @@
 # Contributing
 
-Thank you for your interest in contributing to Claw-R1! This document explains how to get started, the project structure, and our development workflow.
+感谢你对 Claw-R1 的关注！欢迎贡献代码、文档和想法。
 
-!!! warning "Early Stage"
-    Claw-R1 is under active development. APIs and interfaces may change significantly before the first stable release.
+## 项目结构
 
-## Getting the Code
+```
+claw_r1/
+├── agent_flow/           # Agent 执行框架（白盒 + 管理器）
+├── blackbox_agent/       # 黑盒 Agent 系统（Flow + Agent 实现）
+├── config/               # Hydra 配置文件
+├── data_pool/            # DataPool（Ray Actor + Training Backend）
+├── gateway/              # Gateway Server（FastAPI）
+├── async_main.py         # 异步训练入口
+├── async_rollouter.py    # AsyncRollouter（Rollout GPU Pool）
+├── async_trainer.py      # AsyncTrainer（Training GPU Pool）
+├── param_sync.py         # ParameterSynchronizer
+├── detach_workers.py     # 分离式 Actor/Rollout Worker
+├── core_algos.py         # PPO/GAE/GRPO 核心算法
+├── reward_loop.py        # RewardLoopWorker
+├── metric_utils.py       # 指标聚合
+├── ray_agent_trainer.py  # 同步 Ray PPO Trainer
+└── main_agent_ppo.py     # 同步训练入口
+```
+
+## 代码风格
+
+- 使用 [Ruff](https://docs.astral.sh/ruff/) 进行 lint 和格式化
+- 遵循 PEP 8
+- 类型注解（Python 3.10+ 语法）
 
 ```bash
-git clone https://github.com/AgentR1/Claw-R1
-cd Claw-R1
-conda create -n clawr1-dev python=3.10 -y
-conda activate clawr1-dev
-pip install -e ".[dev]"
-```
-
-## Project Structure
-
-```
-Claw-R1/
-├── claw_r1/
-│   ├── agent_flow/         # White-box agent base classes
-│   ├── config/             # Hydra YAML configurations
-│   ├── data_pool/          # DataPool Ray Actor + data model
-│   ├── gateway/            # FastAPI Gateway server
-│   ├── async_main.py       # Entry point for async training
-│   ├── async_rollouter.py  # AsyncRollouter Ray Actor
-│   ├── async_trainer.py    # AsyncTrainer Ray Actor
-│   ├── core_algos.py       # PPO / GAE / GRPO algorithms
-│   ├── param_sync.py       # Weight synchronization
-│   └── reward_loop.py      # RewardLoopWorker Ray Actor
-├── docs/                   # MkDocs documentation (this site)
-├── mkdocs.yml              # Documentation configuration
-└── pyproject.toml          # Project metadata and linting config
-```
-
-## Code Style
-
-Claw-R1 uses [Ruff](https://docs.astral.sh/ruff/) for linting and formatting:
-
-```bash
-# Check
-ruff check claw_r1/
-
-# Format
-ruff format claw_r1/
-```
-
-Pre-commit hooks are configured in `.pre-commit-config.yaml`:
-
-```bash
+# 安装 pre-commit hooks
+pip install pre-commit
 pre-commit install
-pre-commit run --all-files
+
+# 手动检查
+ruff check .
+ruff format .
 ```
 
-## Areas for Contribution
+## 贡献方向
 
-### High Priority
+### 高优先级
 
-- [ ] Complete black-box online mode endpoints in Gateway
-- [ ] Add end-to-end integration tests
-- [ ] Add more `AgentFlowBase` examples (tool-use agents, multi-modal agents)
-- [ ] Improve reward model integration (RLHF reward models, LLM-as-judge)
+- 新的黑盒 Agent 实现（参考 `blackbox_agent/gsm8k_agent.py`）
+- 新的 Reward 函数
+- 性能优化（DataPool 吞吐、Gateway 延迟）
 
-### Documentation
+### 文档
 
-- [ ] Add examples for specific use cases (OpenClaw, LangChain agents)
-- [ ] Add performance benchmarks
-- [ ] Chinese translation of docs
+- 教程和示例
+- API 文档补充
+- 中英文翻译
 
-### Research
+### 研究
 
-- [ ] Token-level GAE for multi-step trajectories
-- [ ] Exploration bonuses for online training
-- [ ] Curriculum learning for DataPool sampling
+- 新的 advantage 计算算法
+- 在线学习策略
+- 多 Agent 协作训练
 
-## Submitting a Pull Request
+## PR 流程
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Make your changes and run `pre-commit run --all-files`
-4. Push and open a PR against `main`
-5. Fill in the PR description with a summary of your changes
+1. Fork 仓库
+2. 创建 feature branch：`git checkout -b feature/my-feature`
+3. 编写代码和测试
+4. 确保 `ruff check .` 通过
+5. 提交 PR，描述改动内容和动机
 
-## Building the Documentation Locally
+## 本地构建文档
 
 ```bash
-pip install mkdocs-material pymdown-extensions
+pip install mkdocs-material
 mkdocs serve
+# 访问 http://localhost:8000
 ```
 
-The documentation will be available at `http://127.0.0.1:8000`.
+## 联系
 
-## Contact
-
-- GitHub Issues: [AgentR1/Claw-R1/issues](https://github.com/AgentR1/Claw-R1/issues)
-- Team: Daoyu Wang, Jie Ouyang, Shuo Yu (USTC)
-
-## Acknowledgements
-
-Claw-R1 builds upon [Agent-R1](https://github.com/0russwest0/Agent-R1). We extend our gratitude to [MiniMax Forge](https://www.minimax.io/news/forge-scalable-agent-rl-framework-and-algorithm) for architectural insights on the Middleware design, and to [rLLM](https://github.com/rllm-org/rllm) for pioneering work on RL framework design for language agents. We also thank [OpenClaw](https://github.com/openclaw/openclaw) for the modern agent paradigm that inspires our vision.
+- GitHub Issues: [AgentR1/Claw-R1](https://github.com/AgentR1/Claw-R1/issues)

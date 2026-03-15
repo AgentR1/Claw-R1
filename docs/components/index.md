@@ -1,6 +1,6 @@
 # Components
 
-Claw-R1 is composed of five independently runnable components that communicate via HTTP and Ray RPC.
+Claw-R1 由六个独立可运行的组件组成，通过 HTTP 和 Ray RPC 通信。
 
 <div class="grid cards" markdown>
 
@@ -8,7 +8,7 @@ Claw-R1 is composed of five independently runnable components that communicate v
 
     ---
 
-    FastAPI HTTP service. The network-layer entry point for all agent LLM calls. Manages load balancing across vLLM servers and submits steps to DataPool.
+    FastAPI HTTP 服务。所有 Agent LLM 调用的网络层入口。管理 vLLM 负载均衡，自动收集训练数据并提交到 DataPool。
 
     [:octicons-arrow-right-24: Gateway Server](gateway.md)
 
@@ -16,7 +16,7 @@ Claw-R1 is composed of five independently runnable components that communicate v
 
     ---
 
-    Ray Actor. The central trajectory buffer between Agent Side and Training Side. Supports asynchronous writes from the Gateway and batch reads from the Trainer.
+    Ray Actor。Agent 侧和 Training 侧之间的中央 trajectory 缓冲区。支持 Gateway 的异步写入和 Trainer 的批量读取。
 
     [:octicons-arrow-right-24: DataPool](datapool.md)
 
@@ -24,15 +24,23 @@ Claw-R1 is composed of five independently runnable components that communicate v
 
     ---
 
-    Python framework for white-box agents. Manages chat templates, tokenization, multimodal data processing, and HTTP communication with the Gateway.
+    Agent 执行生命周期管理框架。支持白盒（Python）和黑盒（OpenAI API）两种模式。
 
     [:octicons-arrow-right-24: Agent Flow](agent-flow.md)
+
+-   **Black-box Agent**
+
+    ---
+
+    黑盒 Agent 系统。任何使用 OpenAI 兼容 API 的 Agent 通过 `base_url` 透明接入训练循环。
+
+    [:octicons-arrow-right-24: Black-box Agent](blackbox-agent.md)
 
 -   **Async Training**
 
     ---
 
-    `AsyncTrainer` and `AsyncRollouter` Ray Actors. Continuous, non-blocking training loop with parameter synchronization.
+    `AsyncTrainer` 和 `AsyncRollouter` Ray Actor。持续、非阻塞的训练循环，带参数同步。
 
     [:octicons-arrow-right-24: Async Training](async-training.md)
 
@@ -40,41 +48,42 @@ Claw-R1 is composed of five independently runnable components that communicate v
 
     ---
 
-    `RewardLoopWorker` Ray Actor. Computes step-level rewards from rule-based, discriminative, or generative reward models.
+    `RewardLoopWorker` Ray Actor。从 rule-based、discriminative 或 generative reward model 计算 step 级别的 reward。
 
     [:octicons-arrow-right-24: Reward System](reward-system.md)
 
 </div>
 
-## Component Interaction Map
+## 组件交互图
 
 ```
                       ┌─────────────────────────────────────────┐
-  Black-box Agent ───►│                                         │
-  (base_url only)     │         GATEWAY SERVER                  │
-                      │         (FastAPI, port 8000)            │
-  White-box Agent ───►│                                         │
+  黑盒 Agent ────────►│                                         │
+  (base_url)          │         GATEWAY SERVER                  │
+                      │         (FastAPI, 端口 8100)             │
+  白盒 Agent ────────►│                                         │
   (AgentFlow)         └────────────┬────────────────────────────┘
                                    │ Ray RPC (submit_step)
                                    ▼
                       ┌─────────────────────────────────────────┐
                       │         DATAPOOL                         │
                       │         (Ray Actor)                      │
+                      │         Channel: train / val              │
                       └──────────────────┬──────────────────────┘
                                          │ fetch_batch()
                                          ▼
                       ┌─────────────────────────────────────────┐
                       │         ASYNC TRAINER                    │
-                      │         (Ray Actor)                      │
+                      │         (Ray Actor, Training GPU Pool)   │
                       │   ┌─────────────────────────────────┐   │
                       │   │  Actor │ Critic │ RefPolicy      │   │
-                      │   └────────────────────────────────-┘   │
+                      │   └─────────────────────────────────┘   │
                       └────────────────┬────────────────────────┘
-                                       │ weight sync (NCCL)
+                                       │ NCCL weight sync
                                        ▼
                       ┌─────────────────────────────────────────┐
                       │         ASYNC ROLLOUTER                  │
-                      │         (Ray Actor, rollout GPU pool)    │
+                      │         (Ray Actor, Rollout GPU Pool)    │
                       │         vLLM servers                     │
                       └─────────────────────────────────────────┘
 ```

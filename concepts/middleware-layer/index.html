@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -763,10 +763,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-problem-with-synchronous-training" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Problem with Synchronous Training
+        同步训练的问题
       
     </span>
   </a>
@@ -774,49 +774,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture-gateway-datapool" class="md-nav__link">
+  <a href="#gateway-datapool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture: Gateway + DataPool
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Architecture: Gateway + DataPool">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#gateway-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Gateway Server
+        Gateway + DataPool 架构
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#gateway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gateway 的设计
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#datapool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DataPool
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-model-the-step" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Model: The Step
+        DataPool 的设计
       
     </span>
   </a>
@@ -824,10 +807,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparison-with-rllms-datapool" class="md-nav__link">
+  <a href="#step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparison with rLLM's DataPool
+        Step 数据模型
       
     </span>
   </a>
@@ -835,10 +818,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reward-annotation" class="md-nav__link">
+  <a href="#reward" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reward Annotation
+        Reward 标注
       
     </span>
   </a>
@@ -1348,10 +1331,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-problem-with-synchronous-training" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Problem with Synchronous Training
+        同步训练的问题
       
     </span>
   </a>
@@ -1359,49 +1342,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#architecture-gateway-datapool" class="md-nav__link">
+  <a href="#gateway-datapool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture: Gateway + DataPool
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Architecture: Gateway + DataPool">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#gateway-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Gateway Server
+        Gateway + DataPool 架构
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#gateway" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gateway 的设计
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#datapool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DataPool
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-model-the-step" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Model: The Step
+        DataPool 的设计
       
     </span>
   </a>
@@ -1409,10 +1375,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparison-with-rllms-datapool" class="md-nav__link">
+  <a href="#step" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparison with rLLM's DataPool
+        Step 数据模型
       
     </span>
   </a>
@@ -1420,10 +1386,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reward-annotation" class="md-nav__link">
+  <a href="#reward" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reward Annotation
+        Reward 标注
       
     </span>
   </a>
@@ -1451,145 +1417,112 @@
 
 
 <h1 id="middleware-layer">Middleware Layer<a class="headerlink" href="#middleware-layer" title="Permanent link">&para;</a></h1>
-<h2 id="the-problem-with-synchronous-training">The Problem with Synchronous Training<a class="headerlink" href="#the-problem-with-synchronous-training" title="Permanent link">&para;</a></h2>
-<p>Traditional RLVR training uses a <strong>synchronous loop</strong>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Generate batch of trajectories (Rollout)
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  → Compute rewards
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  → Update model weights
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  → Generate next batch ...
-</span></code></pre></div>
-<p>This works well in research settings where the environment is a dataset and can be paused at will. But in production, the synchronous loop creates fundamental problems:</p>
+<h2 id="_1">同步训练的问题<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>传统 RL 训练是同步的：生成一个 batch → 训练一步 → 生成下一个 batch。这导致：</p>
 <ul>
-<li><strong>Rollout blocks training</strong>: the model cannot update while serving requests</li>
-<li><strong>Training blocks service</strong>: gradient updates stall the agent</li>
-<li><strong>Data waste</strong>: real user interactions that fall outside the "current batch window" are discarded</li>
+<li>GPU 利用率低（训练时推理空闲，推理时训练空闲）</li>
+<li>无法支持实时服务（训练期间无法响应用户请求）</li>
+<li>扩展困难（推理和训练的资源需求不同）</li>
 </ul>
-<h2 id="architecture-gateway-datapool">Architecture: Gateway + DataPool<a class="headerlink" href="#architecture-gateway-datapool" title="Permanent link">&para;</a></h2>
-<p>The Middleware Layer consists of two components that together form the <strong>only bridge</strong> between the Agent Side and Training Side — the two sides never communicate directly.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>┌──────────────────────────────────────────────────────┐
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>│          Agent Side                                  │
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>│  User request → Agent → Gateway (HTTP) → LLM resp.  │
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>│                             │                        │
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>│              [Gateway submits Step to DataPool]      │
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>└─────────────────────────────┬────────────────────────┘
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                               │  Async, non-blocking
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                               │  (Ray RPC)
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>┌─────────────────────────────▼────────────────────────┐
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>│          Training Side (runs independently)          │
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>│  Trainer ◄── DataPool.fetch_batch() ◄── Reward       │
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>│      │                                               │
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>│      └── weight update → sync to rollout vLLM        │
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>└──────────────────────────────────────────────────────┘
+<h2 id="gateway-datapool">Gateway + DataPool 架构<a class="headerlink" href="#gateway-datapool" title="Permanent link">&para;</a></h2>
+<p>Claw-R1 通过 <strong>Middleware Layer</strong>（Gateway + DataPool）将 Agent 侧和 Training 侧完全解耦：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Agent 侧                    Middleware                    Training 侧
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>┌──────────┐           ┌──────────────────┐           ┌──────────────┐
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│ Agent    │──HTTP──►  │  Gateway         │──Ray RPC──►│  DataPool    │
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│ (任意)   │◄──HTTP──  │  (FastAPI, 8100) │           │  (Ray Actor) │
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└──────────┘           └──────────────────┘           └──────┬───────┘
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                                                             │ fetch_batch()
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                                             ▼
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                                                      ┌──────────────┐
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                                      │  Trainer     │
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                                                      │  (Ray Actor) │
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                                                      └──────────────┘
 </span></code></pre></div>
-<h3 id="gateway-server">Gateway Server<a class="headerlink" href="#gateway-server" title="Permanent link">&para;</a></h3>
-<p>The Gateway is a <strong>FastAPI HTTP service</strong> (independent OS process, not a Ray actor). This design is deliberate:</p>
+<h2 id="gateway">Gateway 的设计<a class="headerlink" href="#gateway" title="Permanent link">&para;</a></h2>
+<p>Gateway 是一个<strong>独立进程</strong>（FastAPI），具有以下特性：</p>
 <ul>
-<li>As a plain HTTP process it can be restarted without touching the Ray cluster</li>
-<li>It introduces no Ray scheduling overhead on the critical request-handling path</li>
-<li>It is the sole point of contact for agents — agents need only an HTTP address, nothing else</li>
+<li><strong>纯代理</strong>：不管理任何引擎生命周期，只转发请求和收集数据</li>
+<li><strong>OpenAI 兼容</strong>：黑盒 Agent 通过 <code>base_url</code> 透明接入</li>
+<li><strong>延迟初始化</strong>：HTTP 服务立即可用，tokenizer 在后台加载</li>
 </ul>
-<p>The Gateway has three responsibilities:</p>
+<p>Gateway 支持两种工作模式：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>端点</th>
+<th>数据收集方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>白盒</td>
+<td><code>/generate</code>, <code>/submit_steps</code></td>
+<td>Agent 自行构建 Step 并提交</td>
+</tr>
+<tr>
+<td>黑盒</td>
+<td><code>{base_url}/v1/chat/completions</code></td>
+<td>Gateway 自动 tokenize 并构建 Step</td>
+</tr>
+</tbody>
+</table>
+<p>详见 <a href="../../components/gateway/">Gateway Server</a>。</p>
+<h2 id="datapool">DataPool 的设计<a class="headerlink" href="#datapool" title="Permanent link">&para;</a></h2>
+<p>DataPool 是一个 <strong>Ray Actor</strong>，作为 trajectory 缓冲区：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>异步写入</strong></td>
+<td>Gateway 通过 fire-and-forget 的 Ray RPC 提交 Step</td>
+</tr>
+<tr>
+<td><strong>阻塞读取</strong></td>
+<td>Trainer 调用 <code>fetch_batch()</code> 等待完整的 prompt 组</td>
+</tr>
+<tr>
+<td><strong>Channel 分区</strong></td>
+<td><code>"train"</code> 和 <code>"val"</code> 数据隔离</td>
+</tr>
+<tr>
+<td><strong>FIFO 队列</strong></td>
+<td>按 <code>prompt_uid</code> 分组，完整组按先进先出顺序消费</td>
+</tr>
+<tr>
+<td><strong>容量管理</strong></td>
+<td>可配置 <code>max_queue_size</code> 防止内存溢出</td>
+</tr>
+</tbody>
+</table>
+<p>详见 <a href="../../components/datapool/">DataPool</a>。</p>
+<h2 id="step">Step 数据模型<a class="headerlink" href="#step" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@dataclass</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">prompt_ids</span><span class="p">:</span>     <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># state: 完整上下文 token IDs</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">response_ids</span><span class="p">:</span>   <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># action: LLM 生成的 token IDs</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">reward</span><span class="p">:</span>         <span class="nb">float</span>       <span class="c1"># 即时 reward</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">trajectory_uid</span><span class="p">:</span> <span class="nb">str</span>         <span class="c1"># 同一对话的 step 共享此 ID</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">prompt_uid</span><span class="p">:</span>     <span class="nb">str</span>         <span class="c1"># 同一 prompt 的 rollout 共享此 ID</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">step_index</span><span class="p">:</span>     <span class="nb">int</span>         <span class="c1"># trajectory 内的位置</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">policy_version</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># 生成时的策略版本</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">is_last</span><span class="p">:</span>        <span class="nb">bool</span>        <span class="c1"># 是否为最后一个 step</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">metadata</span><span class="p">:</span>       <span class="nb">dict</span>        <span class="c1"># 辅助数据</span>
+</span></code></pre></div>
+<h2 id="reward">Reward 标注<a class="headerlink" href="#reward" title="Permanent link">&para;</a></h2>
+<p>Reward 计算与 Agent 服务<strong>解耦</strong>：</p>
 <ol>
-<li><strong>Forward</strong> LLM completion requests to the vLLM rollout servers (load-balanced)</li>
-<li><strong>Tokenize</strong> responses and construct <code>Step</code> objects</li>
-<li><strong>Submit</strong> steps to DataPool via Ray RPC (fire-and-forget, non-blocking)</li>
+<li>Gateway 提交 Step 时 <code>reward=0.0</code></li>
+<li>DataPool 存储原始 Step</li>
+<li>Trainer 在 PPO 更新前通过 <code>RewardLoopWorker</code> 计算 reward</li>
+<li>更新后的 reward 用于 advantage 计算</li>
 </ol>
-<h3 id="datapool">DataPool<a class="headerlink" href="#datapool" title="Permanent link">&para;</a></h3>
-<p>DataPool is a <strong>Ray Actor</strong> that acts as a timestamped trajectory queue. It decouples write speed (determined by agent request rate) from read speed (determined by training throughput).</p>
-<p>Key characteristics:</p>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Behavior</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Write</td>
-<td>Asynchronous — Gateway submits steps without waiting for confirmation</td>
-</tr>
-<tr>
-<td>Read</td>
-<td>Async pull — Trainer fetches batches at its own pace, independent of rollout timing</td>
-</tr>
-<tr>
-<td>Ordering</td>
-<td>FIFO by <code>prompt_uid</code> group</td>
-</tr>
-<tr>
-<td>Capacity</td>
-<td>Configurable <code>max_queue_size</code>; oldest groups dropped when full</td>
-</tr>
-<tr>
-<td>Persistence</td>
-<td>Survives agent restarts (Ray actor keeps state in memory)</td>
-</tr>
-<tr>
-<td>Mixed policy</td>
-<td>Trainer can consume both on-policy (latest) and off-policy (historical) trajectories</td>
-</tr>
-</tbody>
-</table>
-<h2 id="data-model-the-step">Data Model: The Step<a class="headerlink" href="#data-model-the-step" title="Permanent link">&para;</a></h2>
-<p>Every LLM call produces one <code>Step</code> — the atomic unit of RL data:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@dataclass</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">prompt_ids</span><span class="p">:</span>     <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>  <span class="c1"># full context token IDs (state)</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">response_ids</span><span class="p">:</span>   <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>  <span class="c1"># LLM-generated tokens (action)</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">reward</span><span class="p">:</span>         <span class="nb">float</span>      <span class="c1"># immediate reward for this step</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">trajectory_uid</span><span class="p">:</span> <span class="nb">str</span>        <span class="c1"># shared across all steps in one conversation</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">prompt_uid</span><span class="p">:</span>     <span class="nb">str</span>        <span class="c1"># groups rollouts from the same prompt (GRPO)</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">step_index</span><span class="p">:</span>     <span class="nb">int</span>        <span class="c1"># position within the trajectory</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">policy_version</span><span class="p">:</span> <span class="nb">int</span>        <span class="c1"># for off-policy staleness detection</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">is_last</span><span class="p">:</span>        <span class="nb">bool</span>       <span class="c1"># marks the final step of a trajectory</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">metadata</span><span class="p">:</span>       <span class="nb">dict</span>       <span class="c1"># dataset fields, data source, etc.</span>
-</span></code></pre></div>
-<p>Trajectories are stored <strong>step-by-step</strong> (not episode-by-episode), which allows the trainer to start computing advantages as soon as individual steps arrive, without waiting for the full episode to complete.</p>
-<h2 id="comparison-with-rllms-datapool">Comparison with rLLM's DataPool<a class="headerlink" href="#comparison-with-rllms-datapool" title="Permanent link">&para;</a></h2>
-<p>rLLM also uses a DataPool abstraction, but serves a different use case:</p>
-<table>
-<thead>
-<tr>
-<th>Dimension</th>
-<th>rLLM DataPool</th>
-<th>Claw-R1 DataPool</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Data source</td>
-<td>Batch rollout engine (offline generation)</td>
-<td>Real user requests (live service)</td>
-</tr>
-<tr>
-<td>Data nature</td>
-<td>Pre-defined synthetic trajectories</td>
-<td>Authentic user interaction trajectories</td>
-</tr>
-<tr>
-<td>Agent status during training</td>
-<td>Not serving</td>
-<td>Continuously serving</td>
-</tr>
-<tr>
-<td>Reward type</td>
-<td>Verifiable task result</td>
-<td>Process reward + environment feedback</td>
-</tr>
-</tbody>
-</table>
-<p>rLLM's DataPool accelerates offline batch training. Claw-R1's DataPool makes the <strong>production service itself the training data source</strong>.</p>
-<h2 id="reward-annotation">Reward Annotation<a class="headerlink" href="#reward-annotation" title="Permanent link">&para;</a></h2>
-<p>DataPool stores not just raw trajectories but reward-annotated steps. Claw-R1 uses a <code>RewardLoopWorker</code> to score trajectories:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Trajectory:   [user msg] → [agent think] → [tool call] → [tool result] → [final reply]
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Reward:            0.3           0.7            0.9            0.8
-</span></code></pre></div>
-<ul>
-<li><strong>White-box offline mode</strong>: AgentFlow builds <code>Step</code> objects and submits them via Gateway <code>/submit_steps</code>; the Trainer calls <code>/compute_reward</code> on its side</li>
-<li><strong>Black-box online mode</strong> (reserved): The agent side computes rewards and passes them via Gateway <code>/complete_trajectory</code></li>
-</ul>
-<p>Reward computation never blocks the agent service. The Trainer fetches fully-annotated batches from <code>DataPool.fetch_batch()</code> at training time.</p>
+<p>这确保了即使是慢速的 generative reward model 也不会影响 Agent 服务延迟。</p>
 
 
 

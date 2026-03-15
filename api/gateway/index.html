@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1205,6 +1205,18 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#white-box" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        White-box 端点
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="White-box 端点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#post-generate" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1242,8 +1254,8 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#post-submit_steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1281,8 +1293,8 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#post-compute_reward" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1320,17 +1332,34 @@
     </nav>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#post-trajectory_uidprompt_uidv1chatcompletions-reserved" class="md-nav__link">
+  <a href="#black-box" class="md-nav__link">
     <span class="md-ellipsis">
       
-        POST /{trajectory_uid}/{prompt_uid}/v1/chat/completions (reserved)
+        Black-box 端点
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="POST /{trajectory_uid}/{prompt_uid}/v1/chat/completions (reserved)">
+    <nav class="md-nav" aria-label="Black-box 端点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-init_trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /init_trajectory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST /init_trajectory">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1359,17 +1388,17 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#post-complete_trajectorytrajectory_uid-reserved" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#post-base_urlv1register_trajectory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        POST /complete_trajectory/{trajectory_uid} (reserved)
+        POST {base_url}/v1/register_trajectory
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="POST /complete_trajectory/{trajectory_uid} (reserved)">
+    <nav class="md-nav" aria-label="POST {base_url}/v1/register_trajectory">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1398,12 +1427,190 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#health-check" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#post-base_urlv1chatcompletions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Health Check
+        POST {base_url}/v1/chat/completions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST {base_url}/v1/chat/completions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-base_urlv1complete_trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST {base_url}/v1/complete_trajectory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST {base_url}/v1/complete_trajectory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-complete_trajectorytrajectory_uid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /complete_trajectory/{trajectory_uid}
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST /complete_trajectory/{trajectory_uid}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        就绪检查
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="就绪检查">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ready
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GET /ready">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#response-200" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response (200)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-503" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response (503)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /docs
       
     </span>
   </a>
@@ -1493,6 +1700,18 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#white-box" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        White-box 端点
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="White-box 端点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#post-generate" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1530,8 +1749,8 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#post-submit_steps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1569,8 +1788,8 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#post-compute_reward" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1608,17 +1827,34 @@
     </nav>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#post-trajectory_uidprompt_uidv1chatcompletions-reserved" class="md-nav__link">
+  <a href="#black-box" class="md-nav__link">
     <span class="md-ellipsis">
       
-        POST /{trajectory_uid}/{prompt_uid}/v1/chat/completions (reserved)
+        Black-box 端点
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="POST /{trajectory_uid}/{prompt_uid}/v1/chat/completions (reserved)">
+    <nav class="md-nav" aria-label="Black-box 端点">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-init_trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /init_trajectory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST /init_trajectory">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1647,17 +1883,17 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#post-complete_trajectorytrajectory_uid-reserved" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#post-base_urlv1register_trajectory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        POST /complete_trajectory/{trajectory_uid} (reserved)
+        POST {base_url}/v1/register_trajectory
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="POST /complete_trajectory/{trajectory_uid} (reserved)">
+    <nav class="md-nav" aria-label="POST {base_url}/v1/register_trajectory">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1686,12 +1922,190 @@
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#health-check" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#post-base_urlv1chatcompletions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Health Check
+        POST {base_url}/v1/chat/completions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST {base_url}/v1/chat/completions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-base_urlv1complete_trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST {base_url}/v1/complete_trajectory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST {base_url}/v1/complete_trajectory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-complete_trajectorytrajectory_uid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /complete_trajectory/{trajectory_uid}
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="POST /complete_trajectory/{trajectory_uid}">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#request_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        就绪检查
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="就绪检查">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ready
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GET /ready">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#response-200" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response (200)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-503" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response (503)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-docs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /docs
       
     </span>
   </a>
@@ -1719,15 +2133,17 @@
 
 
 <h1 id="gateway-api">Gateway API<a class="headerlink" href="#gateway-api" title="Permanent link">&para;</a></h1>
-<p>The Gateway exposes an HTTP API on port <code>8000</code> (default). All endpoints accept and return JSON.</p>
+<p>Gateway 默认监听端口 <strong>8100</strong>（通过 <code>--port</code> 配置）。所有端点均接受和返回 JSON。</p>
 <h2 id="base-url">Base URL<a class="headerlink" href="#base-url" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>http://&lt;gateway-host&gt;:8000
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>http://&lt;gateway-host&gt;:8100
 </span></code></pre></div>
 <hr />
-<h2 id="post-generate"><code>POST /generate</code><a class="headerlink" href="#post-generate" title="Permanent link">&para;</a></h2>
-<p>Forward a generation request to vLLM and return the response with token IDs.</p>
-<p><strong>Used by</strong>: <code>AgentFlowBase.gateway_generate()</code></p>
-<h3 id="request">Request<a class="headerlink" href="#request" title="Permanent link">&para;</a></h3>
+<h2 id="white-box">White-box 端点<a class="headerlink" href="#white-box" title="Permanent link">&para;</a></h2>
+<p>这些端点由 <code>AgentFlowBase</code> 的白盒 Agent 调用。</p>
+<h3 id="post-generate"><code>POST /generate</code><a class="headerlink" href="#post-generate" title="Permanent link">&para;</a></h3>
+<p>将生成请求转发到 vLLM 并返回带 token ID 的响应。</p>
+<p><strong>调用方</strong>: <code>AgentFlowBase.gateway_generate()</code></p>
+<h4 id="request">Request<a class="headerlink" href="#request" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;trajectory_uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;prompt_uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
@@ -1742,89 +2158,63 @@
 <table>
 <thead>
 <tr>
-<th>Field</th>
-<th>Type</th>
-<th>Required</th>
-<th>Description</th>
+<th>字段</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>trajectory_uid</code></td>
 <td>string</td>
-<td>Yes</td>
-<td>Unique ID for this conversation</td>
+<td>是</td>
+<td>当前对话的唯一 ID</td>
 </tr>
 <tr>
 <td><code>prompt_uid</code></td>
 <td>string</td>
-<td>Yes</td>
-<td>Unique ID for the prompt group (GRPO grouping)</td>
+<td>是</td>
+<td>Prompt 组 ID（用于 GRPO 分组）</td>
 </tr>
 <tr>
 <td><code>messages</code></td>
 <td>array</td>
-<td>Yes</td>
-<td>OpenAI-format chat messages</td>
+<td>是</td>
+<td>OpenAI 格式的聊天消息</td>
 </tr>
 <tr>
 <td><code>max_tokens</code></td>
 <td>int</td>
-<td>No</td>
-<td>Max response length (default: from <code>--response-length</code>)</td>
+<td>否</td>
+<td>最大响应长度（默认取 <code>--response-length</code>）</td>
 </tr>
 <tr>
 <td><code>temperature</code></td>
 <td>float</td>
-<td>No</td>
-<td>Sampling temperature (default: 1.0)</td>
+<td>否</td>
+<td>采样温度（默认 1.0）</td>
 </tr>
 <tr>
 <td><code>top_p</code></td>
 <td>float</td>
-<td>No</td>
-<td>Top-p sampling (default: 1.0)</td>
+<td>否</td>
+<td>Top-p 采样（默认 1.0）</td>
 </tr>
 </tbody>
 </table>
-<h3 id="response">Response<a class="headerlink" href="#response" title="Permanent link">&para;</a></h3>
+<h4 id="response">Response<a class="headerlink" href="#response" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;response_text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;response_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">101</span><span class="p">,</span><span class="w"> </span><span class="mi">202</span><span class="p">,</span><span class="w"> </span><span class="mi">303</span><span class="p">],</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">&quot;prompt_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">]</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">}</span>
 </span></code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>response_text</code></td>
-<td>string</td>
-<td>Generated text</td>
-</tr>
-<tr>
-<td><code>response_ids</code></td>
-<td>int[]</td>
-<td>Token IDs of the generated response</td>
-</tr>
-<tr>
-<td><code>prompt_ids</code></td>
-<td>int[]</td>
-<td>Full context token IDs (prompt + prior turns)</td>
-</tr>
-</tbody>
-</table>
 <hr />
-<h2 id="post-submit_steps"><code>POST /submit_steps</code><a class="headerlink" href="#post-submit_steps" title="Permanent link">&para;</a></h2>
-<p>Submit one or more <code>Step</code> objects to the DataPool.</p>
-<p><strong>Used by</strong>: <code>AgentFlowBase.gateway_submit_steps()</code></p>
-<h3 id="request_1">Request<a class="headerlink" href="#request_1" title="Permanent link">&para;</a></h3>
+<h3 id="post-submit_steps"><code>POST /submit_steps</code><a class="headerlink" href="#post-submit_steps" title="Permanent link">&para;</a></h3>
+<p>提交一个或多个 <code>Step</code> 对象到 DataPool。</p>
+<p><strong>调用方</strong>: <code>AgentFlowBase.gateway_submit_steps()</code></p>
+<h4 id="request_1">Request<a class="headerlink" href="#request_1" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">{</span>
@@ -1841,16 +2231,15 @@
 </span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="p">]</span>
 </span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="response_1">Response<a class="headerlink" href="#response_1" title="Permanent link">&para;</a></h3>
+<h4 id="response_1">Response<a class="headerlink" href="#response_1" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;submitted&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;accepted&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
-<h2 id="post-compute_reward"><code>POST /compute_reward</code><a class="headerlink" href="#post-compute_reward" title="Permanent link">&para;</a></h2>
-<p>Compute a reward score for a step (called by Trainer, not by agents).</p>
-<h3 id="request_2">Request<a class="headerlink" href="#request_2" title="Permanent link">&para;</a></h3>
+<h3 id="post-compute_reward"><code>POST /compute_reward</code><a class="headerlink" href="#post-compute_reward" title="Permanent link">&para;</a></h3>
+<p>为一个 step 计算 reward（由 Trainer 调用，不由 Agent 调用）。</p>
+<h4 id="request_2">Request<a class="headerlink" href="#request_2" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;trajectory_uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
@@ -1860,39 +2249,117 @@
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="response_2">Response<a class="headerlink" href="#response_2" title="Permanent link">&para;</a></h3>
+<h4 id="response_2">Response<a class="headerlink" href="#response_2" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;reward&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">}</span>
 </span></code></pre></div>
 <hr />
-<h2 id="post-trajectory_uidprompt_uidv1chatcompletions-reserved"><code>POST /{trajectory_uid}/{prompt_uid}/v1/chat/completions</code> <em>(reserved)</em><a class="headerlink" href="#post-trajectory_uidprompt_uidv1chatcompletions-reserved" title="Permanent link">&para;</a></h2>
-<p>OpenAI-compatible endpoint for black-box agents. The <code>trajectory_uid</code> and <code>prompt_uid</code> are embedded in the URL path.</p>
-<h3 id="request_3">Request<a class="headerlink" href="#request_3" title="Permanent link">&para;</a></h3>
-<p>Standard OpenAI <code>chat/completions</code> request body.</p>
-<h3 id="response_3">Response<a class="headerlink" href="#response_3" title="Permanent link">&para;</a></h3>
-<p>Standard OpenAI <code>chat/completions</code> response.</p>
-<div class="admonition info">
-<p class="admonition-title">Status: Reserved</p>
-<p>This endpoint is designed and stubbed. It will be the primary integration point for black-box online agents in a future release.</p>
-</div>
-<hr />
-<h2 id="post-complete_trajectorytrajectory_uid-reserved"><code>POST /complete_trajectory/{trajectory_uid}</code> <em>(reserved)</em><a class="headerlink" href="#post-complete_trajectorytrajectory_uid-reserved" title="Permanent link">&para;</a></h2>
-<p>Signal that a trajectory is complete. Used in black-box mode when the agent manages conversation boundaries.</p>
-<h3 id="request_4">Request<a class="headerlink" href="#request_4" title="Permanent link">&para;</a></h3>
+<h2 id="black-box">Black-box 端点<a class="headerlink" href="#black-box" title="Permanent link">&para;</a></h2>
+<p>这些端点供黑盒 Agent 使用。黑盒 Agent 只需要知道一个 <code>base_url</code>，所有交互都通过该 URL 完成。</p>
+<p><code>base_url</code> 的格式为 <code>http://&lt;host&gt;:&lt;port&gt;/&lt;trajectory_uid&gt;/&lt;prompt_uid&gt;</code>，由 <code>POST /init_trajectory</code> 返回。</p>
+<h3 id="post-init_trajectory"><code>POST /init_trajectory</code><a class="headerlink" href="#post-init_trajectory" title="Permanent link">&para;</a></h3>
+<p>分配一条新的 trajectory 并返回 <code>base_url</code>。</p>
+<h4 id="request_3">Request<a class="headerlink" href="#request_3" title="Permanent link">&para;</a></h4>
+<p>无请求体。</p>
+<h4 id="response_3">Response<a class="headerlink" href="#response_3" title="Permanent link">&para;</a></h4>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;trajectory_uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&quot;final_reward&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;trajectory_uid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a1b2c3d4e5f6...&quot;</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://0.0.0.0:8100/a1b2c3d4e5f6.../1&quot;</span>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">}</span>
 </span></code></pre></div>
-<h3 id="response_4">Response<a class="headerlink" href="#response_4" title="Permanent link">&para;</a></h3>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="w"> </span><span class="p">}</span>
+<hr />
+<h3 id="post-base_urlv1register_trajectory"><code>POST {base_url}/v1/register_trajectory</code><a class="headerlink" href="#post-base_urlv1register_trajectory" title="Permanent link">&para;</a></h3>
+<p>注册 trajectory 的 channel 和 metadata。在 Agent 开始交互之前调用。</p>
+<p><code>trajectory_uid</code> 从 URL path 中提取，无需在 body 中传递。</p>
+<h4 id="request_4">Request<a class="headerlink" href="#request_4" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;train&quot;</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">&quot;data_source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gsm8k&quot;</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">&quot;ground_truth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;42&quot;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>所有字段均为可选。<code>channel</code> 默认为 <code>"train"</code>。</p>
+<h4 id="response_4">Response<a class="headerlink" href="#response_4" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
 <hr />
-<h2 id="health-check">Health Check<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>curl<span class="w"> </span>http://localhost:8000/health
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="c1"># {&quot;status&quot;: &quot;ok&quot;}</span>
+<h3 id="post-base_urlv1chatcompletions"><code>POST {base_url}/v1/chat/completions</code><a class="headerlink" href="#post-base_urlv1chatcompletions" title="Permanent link">&para;</a></h3>
+<p>OpenAI 兼容的聊天补全端点。黑盒 Agent 只需将 <code>base_url</code> 设为 OpenAI SDK 的 <code>base_url</code>，即可透明接入训练系统。</p>
+<p>Gateway 会：</p>
+<ol>
+<li>将请求转发到 vLLM 服务器</li>
+<li>对 prompt 和 response 进行 tokenize</li>
+<li>自动构建 <code>Step</code> 并提交到 DataPool</li>
+<li>返回标准 OpenAI 格式的响应</li>
+</ol>
+<h4 id="request_5">Request<a class="headerlink" href="#request_5" title="Permanent link">&para;</a></h4>
+<p>标准 OpenAI <code>chat/completions</code> 请求体。</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;qwen&quot;</span><span class="p">,</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&quot;messages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;What is 2+2?&quot;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.7</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">}</span>
 </span></code></pre></div>
+<h4 id="response_5">Response<a class="headerlink" href="#response_5" title="Permanent link">&para;</a></h4>
+<p>标准 OpenAI <code>chat/completions</code> 响应体。</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chatcmpl-...&quot;</span><span class="p">,</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span><span class="nt">&quot;object&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chat.completion&quot;</span><span class="p">,</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span><span class="nt">&quot;choices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">      </span><span class="nt">&quot;index&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">        </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4&quot;</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">      </span><span class="p">},</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">      </span><span class="nt">&quot;finish_reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stop&quot;</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">  </span><span class="nt">&quot;usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="nt">&quot;prompt_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="nt">&quot;completion_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="nt">&quot;total_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="post-base_urlv1complete_trajectory"><code>POST {base_url}/v1/complete_trajectory</code><a class="headerlink" href="#post-base_urlv1complete_trajectory" title="Permanent link">&para;</a></h3>
+<p>标记一条 trajectory 完成。Agent 完成所有交互后调用。</p>
+<h4 id="request_6">Request<a class="headerlink" href="#request_6" title="Permanent link">&para;</a></h4>
+<p>无请求体。</p>
+<h4 id="response_6">Response<a class="headerlink" href="#response_6" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h3 id="post-complete_trajectorytrajectory_uid"><code>POST /complete_trajectory/{trajectory_uid}</code><a class="headerlink" href="#post-complete_trajectorytrajectory_uid" title="Permanent link">&para;</a></h3>
+<p>内部端点，通过 trajectory_uid 直接标记完成。可选传入 reward 和 channel。</p>
+<h4 id="request_7">Request<a class="headerlink" href="#request_7" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="nt">&quot;channel&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;train&quot;</span><span class="p">,</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">  </span><span class="nt">&quot;reward&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9</span>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="response_7">Response<a class="headerlink" href="#response_7" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="_1">就绪检查<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="get-ready"><code>GET /ready</code><a class="headerlink" href="#get-ready" title="Permanent link">&para;</a></h3>
+<p>当 Gateway 完全初始化（包括 tokenizer 加载完成）后返回 200。用于 Rollouter 启动时的健康检查。</p>
+<h4 id="response-200">Response (200)<a class="headerlink" href="#response-200" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ready&quot;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="response-503">Response (503)<a class="headerlink" href="#response-503" title="Permanent link">&para;</a></h4>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Gateway not ready (tokenizer still loading)&quot;</span><span class="w"> </span><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="get-docs"><code>GET /docs</code><a class="headerlink" href="#get-docs" title="Permanent link">&para;</a></h2>
+<p>FastAPI 自动生成的 Swagger UI 文档页面。</p>
 
 
 

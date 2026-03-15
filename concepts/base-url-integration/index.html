@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -735,10 +735,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-problem" class="md-nav__link">
+  <a href="#agent-llm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Problem
+        问题：如何拦截黑盒 Agent 的 LLM 调用？
       
     </span>
   </a>
@@ -746,10 +746,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How It Works
+        方案对比
       
     </span>
   </a>
@@ -757,22 +757,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#integration-example" class="md-nav__link">
+  <a href="#base_url" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Integration Example
+        base_url 机制
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Integration Example">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#base_url_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        base_url 的结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#claw-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        在 Claw-R1 中的使用
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="在 Claw-R1 中的使用">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#black-box-agent-openai-sdk" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Black-box agent (OpenAI SDK)
+        黑盒离线模式
       
     </span>
   </a>
@@ -780,21 +802,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#openclaw-typescript" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OpenClaw (TypeScript)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#langchain" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        LangChain
+        黑盒在线模式
       
     </span>
   </a>
@@ -807,10 +818,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-this-is-better-than-sdk-hook-patching" class="md-nav__link">
+  <a href="#sdk-hook" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why This Is Better Than SDK Hook Patching
+        为什么优于 SDK Hook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支持的 SDK 和框架
       
     </span>
   </a>
@@ -1348,10 +1370,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-problem" class="md-nav__link">
+  <a href="#agent-llm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Problem
+        问题：如何拦截黑盒 Agent 的 LLM 调用？
       
     </span>
   </a>
@@ -1359,10 +1381,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-it-works" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How It Works
+        方案对比
       
     </span>
   </a>
@@ -1370,22 +1392,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#integration-example" class="md-nav__link">
+  <a href="#base_url" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Integration Example
+        base_url 机制
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Integration Example">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#base_url_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        base_url 的结构
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#claw-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        在 Claw-R1 中的使用
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="在 Claw-R1 中的使用">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#black-box-agent-openai-sdk" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Black-box agent (OpenAI SDK)
+        黑盒离线模式
       
     </span>
   </a>
@@ -1393,21 +1437,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#openclaw-typescript" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        OpenClaw (TypeScript)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#langchain" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        LangChain
+        黑盒在线模式
       
     </span>
   </a>
@@ -1420,10 +1453,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-this-is-better-than-sdk-hook-patching" class="md-nav__link">
+  <a href="#sdk-hook" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why This Is Better Than SDK Hook Patching
+        为什么优于 SDK Hook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支持的 SDK 和框架
       
     </span>
   </a>
@@ -1451,115 +1495,127 @@
 
 
 <h1 id="base-url-integration">Base URL Integration<a class="headerlink" href="#base-url-integration" title="Permanent link">&para;</a></h1>
-<h2 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h2>
-<p>Every Agentic RL framework faces the same tension:</p>
-<ul>
-<li>The framework must <strong>intercept LLM calls</strong> to collect trajectory data for training</li>
-<li>But production agents (OpenClaw, AutoGen, CrewAI, LangChain) are often <strong>black boxes</strong> — you cannot modify their internal logic</li>
-</ul>
-<p>Existing approaches each have significant costs:</p>
+<h2 id="agent-llm">问题：如何拦截黑盒 Agent 的 LLM 调用？<a class="headerlink" href="#agent-llm" title="Permanent link">&para;</a></h2>
+<p>在 Agentic RL 中，训练系统需要拦截 Agent 与 LLM 之间的每次交互，以收集 <code>(state, action, reward)</code> 数据。对于白盒 Agent（源码可控），这很简单。但对于黑盒 Agent（如第三方服务、编译后的二进制文件），如何在不修改 Agent 代码的情况下拦截？</p>
+<h2 id="_1">方案对比<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Approach</th>
-<th>Examples</th>
-<th>Integration Method</th>
-<th>Drawback</th>
+<th>方案</th>
+<th>侵入性</th>
+<th>可靠性</th>
+<th>适用范围</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Modify agent source</td>
-<td>verl, RL-Factory</td>
-<td>Embed rollout interfaces in agent code</td>
-<td>High maintenance cost; impossible for true black-box agents</td>
+<td>SDK monkey-patch</td>
+<td>中</td>
+<td>低（版本更新易失效）</td>
+<td>仅限特定 SDK</td>
 </tr>
 <tr>
-<td>Python class wrapper</td>
-<td>OpenRLHF</td>
-<td>Inherit <code>AgentInstanceBase</code>, override execution</td>
-<td>Requires understanding framework API; not portable</td>
+<td>代理层（Proxy）</td>
+<td>高</td>
+<td>中（需配置网络）</td>
+<td>通用</td>
 </tr>
 <tr>
-<td>SDK hook patching</td>
-<td>Agent Lightning, ART</td>
-<td>Replace LangChain/OpenAI SDK HTTP layer</td>
-<td>SDK-specific; breaks when the agent switches frameworks</td>
-</tr>
-<tr>
-<td><strong>Redirect <code>base_url</code></strong></td>
-<td><strong>Claw-R1</strong></td>
-<td><strong>Redirect LLM calls to Gateway</strong></td>
-<td><strong>Zero changes; works with any HTTP client</strong></td>
+<td><strong>base_url 替换</strong></td>
+<td><strong>极低</strong></td>
+<td><strong>高</strong></td>
+<td><strong>所有 OpenAI 兼容 SDK</strong></td>
 </tr>
 </tbody>
 </table>
-<h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<p>All major LLM clients — OpenAI SDK, LangChain, LiteLLM, custom HTTP clients — follow the same protocol:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>POST {base_url}/v1/chat/completions
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Authorization: Bearer {api_key}
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Content-Type: application/json
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Body: { &quot;model&quot;: &quot;...&quot;, &quot;messages&quot;: [...], ... }
-</span></code></pre></div>
-<p>Claw-R1's Gateway Server is a standard FastAPI HTTP service (an independent process, not a Ray actor) that implements a complete <strong>OpenAI-compatible proxy</strong>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Before:  Agent ──► OpenAI/vLLM endpoint ──► model response
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>After:   Agent ──► Gateway (HTTP) ──► model response
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>                        │
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>                  [async, non-blocking]
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>                        │
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>                        ▼
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                   DataPool (Ray Actor)
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>                   trajectory buffer
-</span></code></pre></div>
-<p>From the agent's perspective, it is talking to a slightly slower OpenAI API. It has no knowledge that every conversation is being recorded and fed into a training pipeline.</p>
-<h2 id="integration-example">Integration Example<a class="headerlink" href="#integration-example" title="Permanent link">&para;</a></h2>
-<h3 id="black-box-agent-openai-sdk">Black-box agent (OpenAI SDK)<a class="headerlink" href="#black-box-agent-openai-sdk" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># One-line change: redirect base_url to Gateway</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># The URL path encodes trajectory_uid and prompt_uid</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;http://gateway-host:8000/</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;unused&quot;</span><span class="p">,</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">)</span>
-</span></code></pre></div>
-<h3 id="openclaw-typescript">OpenClaw (TypeScript)<a class="headerlink" href="#openclaw-typescript" title="Permanent link">&para;</a></h3>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># config.yaml</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">LLM_API_BASE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://gateway-host:8000&quot;</span>
-</span></code></pre></div>
-<h3 id="langchain">LangChain<a class="headerlink" href="#langchain" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;http://gateway-host:8000/traj-123/prompt-456&quot;</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;unused&quot;</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="why-this-is-better-than-sdk-hook-patching">Why This Is Better Than SDK Hook Patching<a class="headerlink" href="#why-this-is-better-than-sdk-hook-patching" title="Permanent link">&para;</a></h2>
-<p>Frameworks like Agent Lightning and ART intercept at the SDK layer:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># SDK hook approach (illustrative)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">agent_lightning</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">agent_lightning</span><span class="o">.</span><span class="n">patch_openai</span><span class="p">()</span>  <span class="c1"># replaces openai.ChatCompletion.create</span>
-</span></code></pre></div>
-<p>This approach has three fundamental limitations:</p>
+<h2 id="base_url">base_url 机制<a class="headerlink" href="#base_url" title="Permanent link">&para;</a></h2>
+<p>几乎所有 OpenAI 兼容的 SDK 都支持自定义 <code>base_url</code>。Claw-R1 利用这一点：</p>
 <ol>
-<li><strong>Requires agent-side execution</strong> — <code>patch_openai()</code> must run inside the agent's process, which still requires modifying the agent's startup code</li>
-<li><strong>SDK-specific</strong> — fails for agents using non-standard HTTP libraries</li>
-<li><strong>Process-level coupling</strong> — the agent and training framework share a process boundary</li>
+<li>Gateway 暴露 <code>POST {base_url}/v1/chat/completions</code> 端点</li>
+<li>Agent 只需将 <code>base_url</code> 从 <code>https://api.openai.com</code> 改为 Gateway 的地址</li>
+<li>Gateway 透明地转发请求到 vLLM，同时自动收集训练数据</li>
 </ol>
-<p>Claw-R1's Gateway is a <strong>network-layer proxy</strong>. It requires no shared process, no specific SDK, and no language dependency. This makes it work natively with:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># 原始代码</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://api.openai.com/v1&quot;</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># 接入 Claw-R1：只改一行</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;http://gateway:8100/traj123/prompt1&quot;</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;not-needed&quot;</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># 后续代码完全不变</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen&quot;</span><span class="p">,</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">}],</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="base_url_1">base_url 的结构<a class="headerlink" href="#base_url_1" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>http://&lt;host&gt;:&lt;port&gt;/&lt;trajectory_uid&gt;/&lt;prompt_uid&gt;
+</span></code></pre></div>
 <ul>
-<li>TypeScript/JavaScript agents (e.g., OpenClaw)</li>
-<li>Agents running in separate Docker containers or remote machines</li>
-<li>Agents using custom-built HTTP clients</li>
-<li>Any future agent framework, without framework updates</li>
+<li><code>trajectory_uid</code>：标识一条完整的对话轨迹</li>
+<li><code>prompt_uid</code>：标识同一 prompt 的多次 rollout（用于 GRPO 分组）</li>
 </ul>
-<div class="admonition tip">
-<p class="admonition-title">Trajectory and Prompt UIDs</p>
-<p>The Gateway uses the URL path to extract <code>trajectory_uid</code> (identifies a conversation) and <code>prompt_uid</code> (groups rollouts for GRPO-style advantage computation). In white-box mode, these are managed automatically by <code>AgentFlowBase</code>. In black-box mode, the agent generates them as UUIDs and encodes them in the URL.</p>
-</div>
+<p>这两个 ID 编码在 URL path 中，Gateway 从 path 中提取，Agent 完全无感知。</p>
+<h2 id="claw-r1">在 Claw-R1 中的使用<a class="headerlink" href="#claw-r1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">黑盒离线模式<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p><code>BlackBoxAgentFlowBase</code> 自动管理 <code>base_url</code> 的生命周期：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>1. POST /init_trajectory              → 获取 base_url
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>2. POST {base_url}/v1/register_trajectory  → 注册 channel/metadata
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>3. Agent 使用 base_url 进行多轮对话     → Gateway 自动收集 Step
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>4. POST {base_url}/v1/complete_trajectory  → 标记完成
+</span></code></pre></div>
+<p>Agent 只需要接收 <code>base_url</code> 参数，其余由训练框架处理。</p>
+<h3 id="_3">黑盒在线模式<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>在线模式下，外部服务直接调用 Gateway 的 <code>init_trajectory</code> 获取 <code>base_url</code>，然后将其传递给 Agent。Agent 的每次 LLM 调用都自动被 Gateway 记录。</p>
+<h2 id="sdk-hook">为什么优于 SDK Hook<a class="headerlink" href="#sdk-hook" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>SDK Hook</th>
+<th>base_url</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 代码修改</td>
+<td>需要注入 hook 代码</td>
+<td>只改一个参数</td>
+</tr>
+<tr>
+<td>多语言支持</td>
+<td>每种语言需要单独实现</td>
+<td>所有语言通用</td>
+</tr>
+<tr>
+<td>版本兼容性</td>
+<td>SDK 更新可能破坏 hook</td>
+<td>HTTP 协议稳定</td>
+</tr>
+<tr>
+<td>调试难度</td>
+<td>Hook 层增加调试复杂度</td>
+<td>标准 HTTP 请求，易于调试</td>
+</tr>
+<tr>
+<td>生产可靠性</td>
+<td>中等</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sdk">支持的 SDK 和框架<a class="headerlink" href="#sdk" title="Permanent link">&para;</a></h2>
+<p>任何支持自定义 <code>base_url</code> 的 OpenAI 兼容 SDK 都可以直接使用：</p>
+<ul>
+<li><strong>Python</strong>: <code>openai</code>, <code>httpx</code>, <code>requests</code></li>
+<li><strong>JavaScript/TypeScript</strong>: <code>openai-node</code></li>
+<li><strong>Go</strong>: <code>go-openai</code></li>
+<li><strong>框架</strong>: LangChain, LlamaIndex, AutoGen, CrewAI 等</li>
+</ul>
 
 
 

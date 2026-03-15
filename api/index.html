@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -1216,15 +1216,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#python-interfaces" class="md-nav__link">
+  <a href="#python" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Python Interfaces
+        Python 接口
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Python Interfaces">
+    <nav class="md-nav" aria-label="Python 接口">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1260,6 +1260,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#blackboxagentflowbase-python-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BlackBoxAgentFlowBase (Python class)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1286,53 +1297,61 @@
 
 
 <h1 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h1>
-<p>This section documents the HTTP and Python APIs exposed by Claw-R1's components.</p>
+<p>本节文档化 Claw-R1 各组件暴露的 HTTP 和 Python API。</p>
 <div class="grid cards">
 <ul>
 <li>
 <p><strong>Gateway HTTP API</strong></p>
 <hr />
-<p>REST endpoints for agent integration and step submission.</p>
+<p>REST 端点，用于 Agent 集成和 Step 提交。包括白盒端点（<code>/generate</code>、<code>/submit_steps</code>）和黑盒端点（<code>{base_url}/v1/chat/completions</code>）。</p>
 <p><a href="gateway/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Gateway API</a></p>
 </li>
 </ul>
 </div>
-<h2 id="python-interfaces">Python Interfaces<a class="headerlink" href="#python-interfaces" title="Permanent link">&para;</a></h2>
+<h2 id="python">Python 接口<a class="headerlink" href="#python" title="Permanent link">&para;</a></h2>
 <h3 id="datapool-ray-actor">DataPool (Ray Actor)<a class="headerlink" href="#datapool-ray-actor" title="Permanent link">&para;</a></h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.data_pool</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataPool</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.data_pool.training_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">VerlBackend</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Initialize</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">data_pool</span> <span class="o">=</span> <span class="n">DataPool</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;data_pool&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">backend</span><span class="o">=</span><span class="n">VerlBackend</span><span class="p">(</span><span class="n">tokenizer_path</span><span class="o">=</span><span class="s2">&quot;/path/to/model&quot;</span><span class="p">),</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">max_queue_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">data_pool</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get_actor</span><span class="p">(</span><span class="s2">&quot;data_pool&quot;</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Producer（由 Gateway 内部调用）</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">))</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_steps</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">))</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">complete_trajectory</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">trajectory_uid</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">))</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Producer (called by Gateway internally)</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">step</span><span class="p">))</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_steps</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">steps</span><span class="p">))</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># Consumer (called by Trainer)</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">fetch_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>  <span class="c1"># returns list[Step] or None</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1"># Consumer（由 Trainer 调用）</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_pool</span><span class="o">.</span><span class="n">fetch_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">n_rollouts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">))</span>
 </span></code></pre></div>
 <h3 id="rewardloopworker-ray-actor">RewardLoopWorker (Ray Actor)<a class="headerlink" href="#rewardloopworker-ray-actor" title="Permanent link">&para;</a></h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.reward_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">RewardLoopWorker</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">reward_worker</span> <span class="o">=</span> <span class="n">RewardLoopWorker</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">reward_config</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">reward_worker</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get_actor</span><span class="p">(</span><span class="s2">&quot;reward_loop_worker&quot;</span><span class="p">)</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">rewards</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">reward_worker</span><span class="o">.</span><span class="n">compute_score_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">steps</span><span class="p">))</span>
 </span></code></pre></div>
 <h3 id="agentflowbase-python-class">AgentFlowBase (Python class)<a class="headerlink" href="#agentflowbase-python-class" title="Permanent link">&para;</a></h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.agent_flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">SingleStepSingleTurnAgentFlow</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyFlow</span><span class="p">(</span><span class="n">SingleStepSingleTurnAgentFlow</span><span class="p">):</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling_params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">text</span><span class="p">,</span> <span class="n">response_ids</span><span class="p">,</span> <span class="n">prompt_ids</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">gateway_generate</span><span class="p">(</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            <span class="n">trajectory_uid</span><span class="o">=</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;traj_uid&quot;</span><span class="p">],</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="n">prompt_uid</span><span class="o">=</span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;prompt_uid&quot;</span><span class="p">],</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">sample</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]}],</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>            <span class="n">trajectory_uid</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;trajectory_uid&quot;</span><span class="p">],</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>            <span class="n">prompt_uid</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;prompt_uid&quot;</span><span class="p">],</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>            <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]}],</span>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>        <span class="p">)</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="c1"># build Step and submit ...</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>        <span class="c1"># 构建 Step 并提交 ...</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>        <span class="k">return</span> <span class="mi">1</span>
+</span></code></pre></div>
+<h3 id="blackboxagentflowbase-python-class">BlackBoxAgentFlowBase (Python class)<a class="headerlink" href="#blackboxagentflowbase-python-class" title="Permanent link">&para;</a></h3>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.agent_flow.agent_flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.blackbox_agent.blackbox_agent_flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBoxAgentFlowBase</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nd">@register</span><span class="p">(</span><span class="s2">&quot;my_blackbox_agent&quot;</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyBlackBoxFlow</span><span class="p">(</span><span class="n">BlackBoxAgentFlowBase</span><span class="p">):</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="c1"># 创建 Agent，使用 base_url 作为 OpenAI API endpoint</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">agent</span> <span class="o">=</span> <span class="n">MyAgent</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;raw_prompt&quot;</span><span class="p">])</span>
 </span></code></pre></div>
 
 

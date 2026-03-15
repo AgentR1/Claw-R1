@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -933,10 +933,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#role-in-the-architecture" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Role in the Architecture
+        在架构中的角色
       
     </span>
   </a>
@@ -944,22 +944,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-storage-model" class="md-nav__link">
+  <a href="#channel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Storage Model
+        Channel 系统
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Data Storage Model">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据模型">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#internal-indices" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Internal Indices
+        内部索引
       
     </span>
   </a>
@@ -984,10 +995,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#submit_stepstep-step" class="md-nav__link">
+  <a href="#submit_stepstep-step-channeltrain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        submit_step(step: Step)
+        submit_step(step: Step, channel="train")
       
     </span>
   </a>
@@ -995,10 +1006,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#submit_stepssteps-liststep" class="md-nav__link">
+  <a href="#submit_stepssteps-liststep-channeltrain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        submit_steps(steps: list[Step])
+        submit_steps(steps: list[Step], channel="train")
       
     </span>
   </a>
@@ -1006,10 +1017,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#complete_trajectorytrajectory_uid-str" class="md-nav__link">
+  <a href="#complete_trajectorytrajectory_uid-rewardnone-channeltrain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        complete_trajectory(trajectory_uid: str)
+        complete_trajectory(trajectory_uid, reward=None, channel="train")
       
     </span>
   </a>
@@ -1034,10 +1045,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fetch_batch-liststep-none" class="md-nav__link">
+  <a href="#fetch_batchn_rollouts-channeltrain-liststep-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        fetch_batch() → list[Step] | None
+        fetch_batch(n_rollouts, channel="train") → list[Step] | None
       
     </span>
   </a>
@@ -1050,10 +1061,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#capacity-management" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Capacity Management
+        容量管理
       
     </span>
   </a>
@@ -1061,10 +1072,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#memory-optimization" class="md-nav__link">
+  <a href="#training-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory Optimization
+        Training Backend
       
     </span>
   </a>
@@ -1072,10 +1083,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#off-policy-support" class="md-nav__link">
+  <a href="#off-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Off-policy Support
+        Off-policy 支持
       
     </span>
   </a>
@@ -1415,10 +1426,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#role-in-the-architecture" class="md-nav__link">
+  <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Role in the Architecture
+        在架构中的角色
       
     </span>
   </a>
@@ -1426,22 +1437,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-storage-model" class="md-nav__link">
+  <a href="#channel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Storage Model
+        Channel 系统
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Data Storage Model">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据模型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数据模型">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#internal-indices" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Internal Indices
+        内部索引
       
     </span>
   </a>
@@ -1466,10 +1488,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#submit_stepstep-step" class="md-nav__link">
+  <a href="#submit_stepstep-step-channeltrain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        submit_step(step: Step)
+        submit_step(step: Step, channel="train")
       
     </span>
   </a>
@@ -1477,10 +1499,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#submit_stepssteps-liststep" class="md-nav__link">
+  <a href="#submit_stepssteps-liststep-channeltrain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        submit_steps(steps: list[Step])
+        submit_steps(steps: list[Step], channel="train")
       
     </span>
   </a>
@@ -1488,10 +1510,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#complete_trajectorytrajectory_uid-str" class="md-nav__link">
+  <a href="#complete_trajectorytrajectory_uid-rewardnone-channeltrain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        complete_trajectory(trajectory_uid: str)
+        complete_trajectory(trajectory_uid, reward=None, channel="train")
       
     </span>
   </a>
@@ -1516,10 +1538,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fetch_batch-liststep-none" class="md-nav__link">
+  <a href="#fetch_batchn_rollouts-channeltrain-liststep-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        fetch_batch() → list[Step] | None
+        fetch_batch(n_rollouts, channel="train") → list[Step] | None
       
     </span>
   </a>
@@ -1532,10 +1554,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#capacity-management" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Capacity Management
+        容量管理
       
     </span>
   </a>
@@ -1543,10 +1565,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#memory-optimization" class="md-nav__link">
+  <a href="#training-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory Optimization
+        Training Backend
       
     </span>
   </a>
@@ -1554,10 +1576,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#off-policy-support" class="md-nav__link">
+  <a href="#off-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Off-policy Support
+        Off-policy 支持
       
     </span>
   </a>
@@ -1585,84 +1607,102 @@
 
 
 <h1 id="datapool">DataPool<a class="headerlink" href="#datapool" title="Permanent link">&para;</a></h1>
-<p>DataPool is a <strong>Ray Actor</strong> that serves as the central trajectory buffer — the sole point of contact between the Agent Side (Gateway) and the Training Side (Trainer).</p>
-<h2 id="role-in-the-architecture">Role in the Architecture<a class="headerlink" href="#role-in-the-architecture" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Gateway ──► DataPool.submit_step()      (async, fire-and-forget)
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Trainer ◄── DataPool.fetch_batch()      (blocking pull, batch-ready groups)
+<p>DataPool 是一个 <strong>Ray Actor</strong>，作为 Agent 侧（Gateway）和 Training 侧（Trainer）之间的中央 trajectory 缓冲区。</p>
+<h2 id="_1">在架构中的角色<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Gateway ──► DataPool.submit_step()      (异步，fire-and-forget)
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Trainer ◄── DataPool.fetch_batch()      (阻塞拉取，batch-ready 的组)
 </span></code></pre></div>
-<p>DataPool completely decouples write speed (driven by agent request rate) from read speed (driven by training throughput). Neither side waits for the other.</p>
-<h2 id="data-storage-model">Data Storage Model<a class="headerlink" href="#data-storage-model" title="Permanent link">&para;</a></h2>
-<p>DataPool stores trajectories at <strong>step granularity</strong>. Each step is an <code>(s, a, r)</code> tuple:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@dataclass</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">prompt_ids</span><span class="p">:</span>     <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># state: full context token IDs</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">response_ids</span><span class="p">:</span>   <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># action: LLM-generated token IDs</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">reward</span><span class="p">:</span>         <span class="nb">float</span>       <span class="c1"># immediate reward for this step</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">trajectory_uid</span><span class="p">:</span> <span class="nb">str</span>         <span class="c1"># groups steps in the same conversation</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">prompt_uid</span><span class="p">:</span>     <span class="nb">str</span>         <span class="c1"># groups rollouts from same prompt (for GRPO)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">step_index</span><span class="p">:</span>     <span class="nb">int</span>         <span class="c1"># position within trajectory (0-indexed)</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">policy_version</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># policy version when step was generated</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">is_last</span><span class="p">:</span>        <span class="nb">bool</span>        <span class="c1"># True if this is the final step of the trajectory</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">metadata</span><span class="p">:</span>       <span class="nb">dict</span>        <span class="c1"># auxiliary data (dataset fields, source info, etc.)</span>
+<p>DataPool 完全解耦了写入速度（由 Agent 请求频率驱动）和读取速度（由训练吞吐量驱动）。双方互不等待。</p>
+<h2 id="channel">Channel 系统<a class="headerlink" href="#channel" title="Permanent link">&para;</a></h2>
+<p>DataPool 通过 <strong>channel</strong> 对数据进行分区。默认 channel 为 <code>"train"</code>，验证流程使用 <code>"val"</code> channel 以隔离数据。</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 训练数据</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># 验证数据</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<h3 id="internal-indices">Internal Indices<a class="headerlink" href="#internal-indices" title="Permanent link">&para;</a></h3>
+<p>每个 channel 拥有独立的存储、索引和 FIFO 队列。</p>
+<h2 id="_2">数据模型<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>DataPool 以 <strong>step 粒度</strong> 存储 trajectory。每个 step 是一个 <code>(s, a, r)</code> 元组：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@dataclass</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">prompt_ids</span><span class="p">:</span>     <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># state: 完整上下文 token IDs</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">response_ids</span><span class="p">:</span>   <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># action: LLM 生成的 token IDs</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">reward</span><span class="p">:</span>         <span class="nb">float</span>       <span class="c1"># 该 step 的即时 reward</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">trajectory_uid</span><span class="p">:</span> <span class="nb">str</span>         <span class="c1"># 同一对话中的 step 共享此 ID</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">prompt_uid</span><span class="p">:</span>     <span class="nb">str</span>         <span class="c1"># 同一 prompt 的 rollout 共享此 ID（用于 GRPO）</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">step_index</span><span class="p">:</span>     <span class="nb">int</span>         <span class="c1"># trajectory 内的位置（0-indexed）</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">policy_version</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># 生成该 step 时的策略版本</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">is_last</span><span class="p">:</span>        <span class="nb">bool</span>        <span class="c1"># 是否为 trajectory 的最后一个 step</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">metadata</span><span class="p">:</span>       <span class="nb">dict</span>        <span class="c1"># 辅助数据（数据集字段、来源信息等）</span>
+</span></code></pre></div>
+<h3 id="_3">内部索引<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Index</th>
-<th>Type</th>
-<th>Purpose</th>
+<th>索引</th>
+<th>类型</th>
+<th>用途</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>trajectory_index</code></td>
 <td><code>dict[str, list[int]]</code></td>
-<td>Maps <code>trajectory_uid</code> → list of step indices</td>
+<td><code>trajectory_uid</code> → step 索引列表</td>
 </tr>
 <tr>
 <td><code>trajectory_complete</code></td>
 <td><code>dict[str, bool]</code></td>
-<td>Tracks whether a trajectory has received its <code>is_last</code> step</td>
+<td>追踪 trajectory 是否已收到 <code>is_last</code> step</td>
 </tr>
 <tr>
 <td><code>prompt_groups</code></td>
-<td><code>dict[str, list[str]]</code></td>
-<td>Maps <code>prompt_uid</code> → list of <code>trajectory_uid</code>s</td>
+<td><code>dict[str, PromptGroup]</code></td>
+<td><code>prompt_uid</code> → trajectory 列表和完成状态</td>
 </tr>
 </tbody>
 </table>
 <h2 id="producer-api">Producer API<a class="headerlink" href="#producer-api" title="Permanent link">&para;</a></h2>
-<h3 id="submit_stepstep-step"><code>submit_step(step: Step)</code><a class="headerlink" href="#submit_stepstep-step" title="Permanent link">&para;</a></h3>
-<p>Adds a single step to the pool. Called by the Gateway via Ray RPC (fire-and-forget from the Gateway's perspective).</p>
-<h3 id="submit_stepssteps-liststep"><code>submit_steps(steps: list[Step])</code><a class="headerlink" href="#submit_stepssteps-liststep" title="Permanent link">&para;</a></h3>
-<p>Batch submission of multiple steps. More efficient than calling <code>submit_step</code> in a loop.</p>
-<h3 id="complete_trajectorytrajectory_uid-str"><code>complete_trajectory(trajectory_uid: str)</code><a class="headerlink" href="#complete_trajectorytrajectory_uid-str" title="Permanent link">&para;</a></h3>
-<p>Marks a trajectory as complete (equivalent to submitting a step with <code>is_last=True</code>). Used in black-box online mode where the agent signals trajectory end separately.</p>
+<h3 id="submit_stepstep-step-channeltrain"><code>submit_step(step: Step, channel="train")</code><a class="headerlink" href="#submit_stepstep-step-channeltrain" title="Permanent link">&para;</a></h3>
+<p>添加单个 step 到指定 channel。由 Gateway 通过 Ray RPC 调用。</p>
+<h3 id="submit_stepssteps-liststep-channeltrain"><code>submit_steps(steps: list[Step], channel="train")</code><a class="headerlink" href="#submit_stepssteps-liststep-channeltrain" title="Permanent link">&para;</a></h3>
+<p>批量提交多个 step。比循环调用 <code>submit_step</code> 更高效。</p>
+<h3 id="complete_trajectorytrajectory_uid-rewardnone-channeltrain"><code>complete_trajectory(trajectory_uid, reward=None, channel="train")</code><a class="headerlink" href="#complete_trajectorytrajectory_uid-rewardnone-channeltrain" title="Permanent link">&para;</a></h3>
+<p>标记一条 trajectory 完成。用于黑盒模式，Agent 通过 Gateway 的 <code>v1/complete_trajectory</code> 端点触发。</p>
 <h2 id="consumer-api">Consumer API<a class="headerlink" href="#consumer-api" title="Permanent link">&para;</a></h2>
-<h3 id="fetch_batch-liststep-none"><code>fetch_batch() → list[Step] | None</code><a class="headerlink" href="#fetch_batch-liststep-none" title="Permanent link">&para;</a></h3>
-<p>FIFO pull of the next ready <code>prompt_uid</code> group. A group is "ready" when all its trajectories have received their <code>is_last</code> step.</p>
-<p>Returns <code>None</code> if no complete group is available yet.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Trainer side (simplified)</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">batch</span> <span class="o">=</span> <span class="k">await</span> <span class="n">data_pool</span><span class="o">.</span><span class="n">fetch_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">if</span> <span class="n">batch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">train_on_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+<h3 id="fetch_batchn_rollouts-channeltrain-liststep-none"><code>fetch_batch(n_rollouts, channel="train") → list[Step] | None</code><a class="headerlink" href="#fetch_batchn_rollouts-channeltrain-liststep-none" title="Permanent link">&para;</a></h3>
+<p>FIFO 拉取下一个就绪的 <code>prompt_uid</code> 组。一个组在所有 trajectory 都收到 <code>is_last</code> step 后变为"就绪"。</p>
+<p>当没有完整组可用时返回 <code>None</code>。</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Trainer 侧</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">batch</span> <span class="o">=</span> <span class="k">await</span> <span class="n">data_pool</span><span class="o">.</span><span class="n">fetch_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">n_rollouts</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">if</span> <span class="n">batch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">train_on_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
 </span></code></pre></div>
-<h2 id="capacity-management">Capacity Management<a class="headerlink" href="#capacity-management" title="Permanent link">&para;</a></h2>
-<p>When <code>max_queue_size</code> is set, DataPool drops the oldest ready group when the queue is full. This prevents unbounded memory growth during periods when the Trainer is slower than the agent.</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># async_ppo_trainer.yaml</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">data_pool</span><span class="p">:</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">max_queue_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">   </span><span class="c1"># null = unlimited</span>
+<h2 id="_4">容量管理<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>当设置 <code>max_queue_size</code> 时，DataPool 在队列满时丢弃最旧的就绪组，防止 Trainer 较慢时内存无限增长：</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">async_training</span><span class="p">:</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">max_queue_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">   </span><span class="c1"># null = 无限</span>
 </span></code></pre></div>
-<h2 id="memory-optimization">Memory Optimization<a class="headerlink" href="#memory-optimization" title="Permanent link">&para;</a></h2>
-<p>DataPool performs <strong>lazy cleanup</strong>: consumed entries are not immediately removed. Instead, when more than 50% of stored steps have been consumed, the DataPool compacts its internal arrays to reclaim memory.</p>
-<h2 id="off-policy-support">Off-policy Support<a class="headerlink" href="#off-policy-support" title="Permanent link">&para;</a></h2>
-<p>The Trainer can request batches that include historical (off-policy) data by configuring the staleness threshold:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">async_trainer</span><span class="p">:</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">staleness_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">   </span><span class="c1"># steps with policy_version lag &gt; threshold are off-policy</span>
+<h2 id="training-backend">Training Backend<a class="headerlink" href="#training-backend" title="Permanent link">&para;</a></h2>
+<p>DataPool 使用 <code>TrainingBackend</code> 将 <code>list[Step]</code> 转换为训练引擎的原生格式：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">VerlBackend</span><span class="p">(</span><span class="n">TrainingBackend</span><span class="p">):</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;将 Step 列表转换为 verl DataProto。&quot;&quot;&quot;</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Step</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DataProto</span><span class="p">:</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="c1"># prompt_ids: 左填充到 prompt_length</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="c1"># response_ids: 右填充到 response_length</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="c1"># input_ids: [prompt_ids | response_ids]</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="c1"># attention_mask, position_ids, response_mask 等</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="o">...</span>
 </span></code></pre></div>
-<p>Off-policy steps are still included in the batch but are down-weighted in the loss computation based on importance sampling.</p>
+<h2 id="off-policy">Off-policy 支持<a class="headerlink" href="#off-policy" title="Permanent link">&para;</a></h2>
+<p>Trainer 可以通过 staleness threshold 配置来处理历史（off-policy）数据：</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">async_training</span><span class="p">:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">staleness_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">   </span><span class="c1"># policy_version 滞后 &gt; threshold 的 step 为 off-policy</span>
+</span></code></pre></div>
+<p>Off-policy step 仍包含在 batch 中，但在 loss 计算时通过 importance sampling 进行降权。</p>
 
 
 

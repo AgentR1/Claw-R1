@@ -1,19 +1,20 @@
 # DataPool
 
-DataPool 是一个 **Ray Actor**，作为 Agent 侧（Gateway）和 Training 侧（Trainer）之间的中央 trajectory 缓冲区。
+DataPool 是 Claw-R1 的**数据管理核心** — 一个 Ray Actor，承担着 Agent 交互数据的存储、索引、质量追踪、分区管理和按需供给。它不仅是 Agent 侧与 Training 侧之间的缓冲区，更是整个数据基础设施的中枢。
 
 ## 在架构中的角色
 
 ```
-Gateway ──► DataPool.submit_step()      (异步，fire-and-forget)
-Trainer ◄── DataPool.fetch_batch()      (阻塞拉取，batch-ready 的组)
+Gateway ──► DataPool.submit_steps()     (数据采集：异步写入)
+Trainer ◄── DataPool.fetch_batch()      (数据供给：阻塞拉取就绪组)
+            DataPool.get_statistics()   (数据监控：实时统计)
 ```
 
-DataPool 完全解耦了写入速度（由 Agent 请求频率驱动）和读取速度（由训练吞吐量驱动）。双方互不等待。
+DataPool 完全解耦了数据采集速度（由 Agent 请求频率驱动）和数据消费速度（由训练吞吐量驱动）。双方互不等待。
 
-## Channel 系统
+## Channel 系统（数据分区）
 
-DataPool 通过 **channel** 对数据进行分区。默认 channel 为 `"train"`，验证流程使用 `"val"` channel 以隔离数据。
+DataPool 通过 **channel** 对数据进行分区管理。默认 channel 为 `"train"`，验证流程使用 `"val"` channel 以隔离数据。
 
 ```python
 # 训练数据
@@ -81,18 +82,18 @@ while True:
         train_on_batch(batch)
 ```
 
-## 容量管理
+## 容量管理与背压控制
 
-当设置 `max_queue_size` 时，DataPool 在队列满时丢弃最旧的就绪组，防止 Trainer 较慢时内存无限增长：
+当设置 `max_queue_size` 时，DataPool 在队列满时自动丢弃最旧的就绪组，防止数据堆积导致内存无限增长。这种背压机制也确保了训练侧消费的数据尽可能新鲜：
 
 ```yaml
 async_training:
   max_queue_size: null   # null = 无限
 ```
 
-## Training Backend
+## Training Backend（数据供给适配）
 
-DataPool 使用 `TrainingBackend` 将 `list[Step]` 转换为训练引擎的原生格式：
+DataPool 通过可插拔的 `TrainingBackend` 将 `list[Step]` 转换为任意训练引擎的原生格式，实现数据管理与训练框架的解耦：
 
 ```python
 class VerlBackend(TrainingBackend):
@@ -106,9 +107,9 @@ class VerlBackend(TrainingBackend):
         ...
 ```
 
-## Off-policy 支持
+## Off-policy 支持（数据新鲜度管控）
 
-Trainer 可以通过 staleness threshold 配置来处理历史（off-policy）数据：
+每个 Step 都记录了生成时的 `policy_version`，DataPool 和 Trainer 可以据此判断数据的新鲜度。Trainer 通过 staleness threshold 配置来处理历史（off-policy）数据：
 
 ```yaml
 async_training:

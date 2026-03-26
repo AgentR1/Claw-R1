@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -947,7 +947,7 @@
   <a href="#channel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Channel 系统
+        Channel 系统（数据分区）
       
     </span>
   </a>
@@ -1064,7 +1064,7 @@
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        容量管理
+        容量管理与背压控制
       
     </span>
   </a>
@@ -1075,7 +1075,7 @@
   <a href="#training-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Training Backend
+        Training Backend（数据供给适配）
       
     </span>
   </a>
@@ -1086,7 +1086,7 @@
   <a href="#off-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Off-policy 支持
+        Off-policy 支持（数据新鲜度管控）
       
     </span>
   </a>
@@ -1440,7 +1440,7 @@
   <a href="#channel" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Channel 系统
+        Channel 系统（数据分区）
       
     </span>
   </a>
@@ -1557,7 +1557,7 @@
   <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        容量管理
+        容量管理与背压控制
       
     </span>
   </a>
@@ -1568,7 +1568,7 @@
   <a href="#training-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Training Backend
+        Training Backend（数据供给适配）
       
     </span>
   </a>
@@ -1579,7 +1579,7 @@
   <a href="#off-policy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Off-policy 支持
+        Off-policy 支持（数据新鲜度管控）
       
     </span>
   </a>
@@ -1607,14 +1607,15 @@
 
 
 <h1 id="datapool">DataPool<a class="headerlink" href="#datapool" title="Permanent link">&para;</a></h1>
-<p>DataPool 是一个 <strong>Ray Actor</strong>，作为 Agent 侧（Gateway）和 Training 侧（Trainer）之间的中央 trajectory 缓冲区。</p>
+<p>DataPool 是 Claw-R1 的<strong>数据管理核心</strong> — 一个 Ray Actor，承担着 Agent 交互数据的存储、索引、质量追踪、分区管理和按需供给。它不仅是 Agent 侧与 Training 侧之间的缓冲区，更是整个数据基础设施的中枢。</p>
 <h2 id="_1">在架构中的角色<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Gateway ──► DataPool.submit_step()      (异步，fire-and-forget)
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Trainer ◄── DataPool.fetch_batch()      (阻塞拉取，batch-ready 的组)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Gateway ──► DataPool.submit_steps()     (数据采集：异步写入)
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Trainer ◄── DataPool.fetch_batch()      (数据供给：阻塞拉取就绪组)
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>            DataPool.get_statistics()   (数据监控：实时统计)
 </span></code></pre></div>
-<p>DataPool 完全解耦了写入速度（由 Agent 请求频率驱动）和读取速度（由训练吞吐量驱动）。双方互不等待。</p>
-<h2 id="channel">Channel 系统<a class="headerlink" href="#channel" title="Permanent link">&para;</a></h2>
-<p>DataPool 通过 <strong>channel</strong> 对数据进行分区。默认 channel 为 <code>"train"</code>，验证流程使用 <code>"val"</code> channel 以隔离数据。</p>
+<p>DataPool 完全解耦了数据采集速度（由 Agent 请求频率驱动）和数据消费速度（由训练吞吐量驱动）。双方互不等待。</p>
+<h2 id="channel">Channel 系统（数据分区）<a class="headerlink" href="#channel" title="Permanent link">&para;</a></h2>
+<p>DataPool 通过 <strong>channel</strong> 对数据进行分区管理。默认 channel 为 <code>"train"</code>，验证流程使用 <code>"val"</code> channel 以隔离数据。</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 训练数据</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1680,13 +1681,13 @@
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">if</span> <span class="n">batch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">train_on_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
 </span></code></pre></div>
-<h2 id="_4">容量管理<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<p>当设置 <code>max_queue_size</code> 时，DataPool 在队列满时丢弃最旧的就绪组，防止 Trainer 较慢时内存无限增长：</p>
+<h2 id="_4">容量管理与背压控制<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>当设置 <code>max_queue_size</code> 时，DataPool 在队列满时自动丢弃最旧的就绪组，防止数据堆积导致内存无限增长。这种背压机制也确保了训练侧消费的数据尽可能新鲜：</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">async_training</span><span class="p">:</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">max_queue_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">   </span><span class="c1"># null = 无限</span>
 </span></code></pre></div>
-<h2 id="training-backend">Training Backend<a class="headerlink" href="#training-backend" title="Permanent link">&para;</a></h2>
-<p>DataPool 使用 <code>TrainingBackend</code> 将 <code>list[Step]</code> 转换为训练引擎的原生格式：</p>
+<h2 id="training-backend">Training Backend（数据供给适配）<a class="headerlink" href="#training-backend" title="Permanent link">&para;</a></h2>
+<p>DataPool 通过可插拔的 <code>TrainingBackend</code> 将 <code>list[Step]</code> 转换为任意训练引擎的原生格式，实现数据管理与训练框架的解耦：</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">VerlBackend</span><span class="p">(</span><span class="n">TrainingBackend</span><span class="p">):</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;将 Step 列表转换为 verl DataProto。&quot;&quot;&quot;</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
@@ -1697,8 +1698,8 @@
 </span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="c1"># attention_mask, position_ids, response_mask 等</span>
 </span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>        <span class="o">...</span>
 </span></code></pre></div>
-<h2 id="off-policy">Off-policy 支持<a class="headerlink" href="#off-policy" title="Permanent link">&para;</a></h2>
-<p>Trainer 可以通过 staleness threshold 配置来处理历史（off-policy）数据：</p>
+<h2 id="off-policy">Off-policy 支持（数据新鲜度管控）<a class="headerlink" href="#off-policy" title="Permanent link">&para;</a></h2>
+<p>每个 Step 都记录了生成时的 <code>policy_version</code>，DataPool 和 Trainer 可以据此判断数据的新鲜度。Trainer 通过 staleness threshold 配置来处理历史（off-policy）数据：</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">async_training</span><span class="p">:</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">staleness_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">   </span><span class="c1"># policy_version 滞后 &gt; threshold 的 step 为 off-policy</span>
 </span></code></pre></div>

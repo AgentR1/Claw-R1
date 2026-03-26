@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -766,7 +766,7 @@
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        同步训练的问题
+        为什么需要数据中间件？
       
     </span>
   </a>
@@ -788,7 +788,7 @@
   <a href="#gateway" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Gateway 的设计
+        Gateway：数据采集入口
       
     </span>
   </a>
@@ -799,7 +799,7 @@
   <a href="#datapool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DataPool 的设计
+        DataPool：数据管理核心
       
     </span>
   </a>
@@ -821,7 +821,7 @@
   <a href="#reward" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reward 标注
+        Reward 标注与数据质量评估
       
     </span>
   </a>
@@ -1334,7 +1334,7 @@
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        同步训练的问题
+        为什么需要数据中间件？
       
     </span>
   </a>
@@ -1356,7 +1356,7 @@
   <a href="#gateway" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Gateway 的设计
+        Gateway：数据采集入口
       
     </span>
   </a>
@@ -1367,7 +1367,7 @@
   <a href="#datapool" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DataPool 的设计
+        DataPool：数据管理核心
       
     </span>
   </a>
@@ -1389,7 +1389,7 @@
   <a href="#reward" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reward 标注
+        Reward 标注与数据质量评估
       
     </span>
   </a>
@@ -1417,15 +1417,16 @@
 
 
 <h1 id="middleware-layer">Middleware Layer<a class="headerlink" href="#middleware-layer" title="Permanent link">&para;</a></h1>
-<h2 id="_1">同步训练的问题<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>传统 RL 训练是同步的：生成一个 batch → 训练一步 → 生成下一个 batch。这导致：</p>
+<h2 id="_1">为什么需要数据中间件？<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>Agentic RL 中，Agent 产生交互数据，Trainer 消费数据进行训练。然而在实际场景中，两者之间存在显著的不对称：</p>
 <ul>
-<li>GPU 利用率低（训练时推理空闲，推理时训练空闲）</li>
-<li>无法支持实时服务（训练期间无法响应用户请求）</li>
-<li>扩展困难（推理和训练的资源需求不同）</li>
+<li><strong>数据来源多样</strong>：白盒 Agent、黑盒 Agent、在线服务 Agent，产出的数据格式和频率各不相同</li>
+<li><strong>数据质量参差</strong>：并非所有交互都有训练价值，需要评估和筛选</li>
+<li><strong>产消速率不匹配</strong>：Agent 侧的数据产生速率与 Trainer 侧的消费速率往往不同步</li>
+<li><strong>数据需要管理</strong>：分区、索引、背压控制、统计监控 — 这些不是简单的队列能解决的</li>
 </ul>
+<p>Claw-R1 通过 <strong>Middleware Layer</strong>（Gateway + DataPool）在 Agent 侧和 Training 侧之间建立一层<strong>数据基础设施</strong>，统一解决数据的采集、管理和供给问题。</p>
 <h2 id="gateway-datapool">Gateway + DataPool 架构<a class="headerlink" href="#gateway-datapool" title="Permanent link">&para;</a></h2>
-<p>Claw-R1 通过 <strong>Middleware Layer</strong>（Gateway + DataPool）将 Agent 侧和 Training 侧完全解耦：</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Agent 侧                    Middleware                    Training 侧
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>┌──────────┐           ┌──────────────────┐           ┌──────────────┐
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│ Agent    │──HTTP──►  │  Gateway         │──Ray RPC──►│  DataPool    │
@@ -1438,20 +1439,20 @@
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                                                      │  (Ray Actor) │
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>                                                      └──────────────┘
 </span></code></pre></div>
-<h2 id="gateway">Gateway 的设计<a class="headerlink" href="#gateway" title="Permanent link">&para;</a></h2>
-<p>Gateway 是一个<strong>独立进程</strong>（FastAPI），具有以下特性：</p>
+<h2 id="gateway">Gateway：数据采集入口<a class="headerlink" href="#gateway" title="Permanent link">&para;</a></h2>
+<p>Gateway 是一个<strong>独立进程</strong>（FastAPI），负责从 Agent 交互中采集训练数据：</p>
 <ul>
-<li><strong>纯代理</strong>：不管理任何引擎生命周期，只转发请求和收集数据</li>
-<li><strong>OpenAI 兼容</strong>：黑盒 Agent 通过 <code>base_url</code> 透明接入</li>
+<li><strong>纯代理</strong>：不管理任何引擎生命周期，只转发请求和采集数据</li>
+<li><strong>OpenAI 兼容</strong>：黑盒 Agent 通过 <code>base_url</code> 透明接入，Gateway 自动从对话中构建 Step</li>
 <li><strong>延迟初始化</strong>：HTTP 服务立即可用，tokenizer 在后台加载</li>
 </ul>
-<p>Gateway 支持两种工作模式：</p>
+<p>Gateway 支持两种数据采集模式：</p>
 <table>
 <thead>
 <tr>
 <th>模式</th>
 <th>端点</th>
-<th>数据收集方式</th>
+<th>数据采集方式</th>
 </tr>
 </thead>
 <tbody>
@@ -1468,61 +1469,66 @@
 </tbody>
 </table>
 <p>详见 <a href="../../components/gateway/">Gateway Server</a>。</p>
-<h2 id="datapool">DataPool 的设计<a class="headerlink" href="#datapool" title="Permanent link">&para;</a></h2>
-<p>DataPool 是一个 <strong>Ray Actor</strong>，作为 trajectory 缓冲区：</p>
+<h2 id="datapool">DataPool：数据管理核心<a class="headerlink" href="#datapool" title="Permanent link">&para;</a></h2>
+<p>DataPool 是一个 <strong>Ray Actor</strong>，不仅是 trajectory 缓冲区，更是 Claw-R1 的数据管理中枢：</p>
 <table>
 <thead>
 <tr>
-<th>特性</th>
+<th>能力</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>异步写入</strong></td>
-<td>Gateway 通过 fire-and-forget 的 Ray RPC 提交 Step</td>
+<td><strong>数据存储</strong></td>
+<td>以 Step 粒度存储交互数据，支持多维索引</td>
 </tr>
 <tr>
-<td><strong>阻塞读取</strong></td>
-<td>Trainer 调用 <code>fetch_batch()</code> 等待完整的 prompt 组</td>
+<td><strong>质量追踪</strong></td>
+<td>每个 Step 记录 <code>policy_version</code>，支持新鲜度检测</td>
 </tr>
 <tr>
 <td><strong>Channel 分区</strong></td>
-<td><code>"train"</code> 和 <code>"val"</code> 数据隔离</td>
+<td><code>"train"</code> 和 <code>"val"</code> 数据隔离，互不干扰</td>
 </tr>
 <tr>
-<td><strong>FIFO 队列</strong></td>
-<td>按 <code>prompt_uid</code> 分组，完整组按先进先出顺序消费</td>
+<td><strong>GRPO 分组</strong></td>
+<td>按 <code>prompt_uid</code> 分组，凑齐所有 rollout 后才供给训练</td>
 </tr>
 <tr>
 <td><strong>容量管理</strong></td>
-<td>可配置 <code>max_queue_size</code> 防止内存溢出</td>
+<td>可配置 <code>max_queue_size</code>，超限自动丢弃最旧数据</td>
+</tr>
+<tr>
+<td><strong>统计监控</strong></td>
+<td>实时提供队列深度、produce/consume/drop 速率等指标</td>
 </tr>
 </tbody>
 </table>
 <p>详见 <a href="../../components/datapool/">DataPool</a>。</p>
 <h2 id="step">Step 数据模型<a class="headerlink" href="#step" title="Permanent link">&para;</a></h2>
+<p>Step 是数据管理的原子单位，记录了一次 Agent 交互的完整信息：</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@dataclass</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Step</span><span class="p">:</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">prompt_ids</span><span class="p">:</span>     <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># state: 完整上下文 token IDs</span>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">response_ids</span><span class="p">:</span>   <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>   <span class="c1"># action: LLM 生成的 token IDs</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">reward</span><span class="p">:</span>         <span class="nb">float</span>       <span class="c1"># 即时 reward</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">reward</span><span class="p">:</span>         <span class="nb">float</span>       <span class="c1"># 即时 reward（质量评分）</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">trajectory_uid</span><span class="p">:</span> <span class="nb">str</span>         <span class="c1"># 同一对话的 step 共享此 ID</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">prompt_uid</span><span class="p">:</span>     <span class="nb">str</span>         <span class="c1"># 同一 prompt 的 rollout 共享此 ID</span>
 </span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">step_index</span><span class="p">:</span>     <span class="nb">int</span>         <span class="c1"># trajectory 内的位置</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">policy_version</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># 生成时的策略版本</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">policy_version</span><span class="p">:</span> <span class="nb">int</span>         <span class="c1"># 生成时的策略版本（新鲜度追踪）</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">is_last</span><span class="p">:</span>        <span class="nb">bool</span>        <span class="c1"># 是否为最后一个 step</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">metadata</span><span class="p">:</span>       <span class="nb">dict</span>        <span class="c1"># 辅助数据</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">metadata</span><span class="p">:</span>       <span class="nb">dict</span>        <span class="c1"># 辅助数据（来源、数据集字段等）</span>
 </span></code></pre></div>
-<h2 id="reward">Reward 标注<a class="headerlink" href="#reward" title="Permanent link">&para;</a></h2>
-<p>Reward 计算与 Agent 服务<strong>解耦</strong>：</p>
+<h2 id="reward">Reward 标注与数据质量评估<a class="headerlink" href="#reward" title="Permanent link">&para;</a></h2>
+<p>Reward 计算与 Agent 服务<strong>解耦</strong>，确保数据质量评估不影响 Agent 服务延迟：</p>
 <ol>
-<li>Gateway 提交 Step 时 <code>reward=0.0</code></li>
+<li>Gateway 采集 Step 时 <code>reward=0.0</code>（原始数据）</li>
 <li>DataPool 存储原始 Step</li>
-<li>Trainer 在 PPO 更新前通过 <code>RewardLoopWorker</code> 计算 reward</li>
-<li>更新后的 reward 用于 advantage 计算</li>
+<li>Trainer 在消费数据前通过 <code>RewardLoopWorker</code> 评估数据质量（计算 reward）</li>
+<li>评估后的 reward 用于 advantage 计算和数据筛选</li>
 </ol>
-<p>这确保了即使是慢速的 generative reward model 也不会影响 Agent 服务延迟。</p>
+<p>这种设计使得即使是慢速的 generative reward model 或人类反馈管线也不会影响 Agent 的正常服务。</p>
 
 
 

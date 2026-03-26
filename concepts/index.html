@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -1219,7 +1219,7 @@
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        闭环飞轮
+        数据飞轮
       
     </span>
   </a>
@@ -1247,64 +1247,65 @@
 
 
 <h1 id="core-concepts">Core Concepts<a class="headerlink" href="#core-concepts" title="Permanent link">&para;</a></h1>
-<p>Claw-R1 的设计围绕三个核心概念展开，它们共同构成一个闭环飞轮。</p>
+<p>Claw-R1 的设计围绕三个核心概念展开：<strong>通用数据采集</strong>、<strong>数据中间件管理</strong>和<strong>数据驱动的持续进化</strong>。它们共同构成一个从采集到训练的数据飞轮。</p>
 <div class="grid cards">
 <ul>
 <li>
-<p><strong>Base URL Integration</strong></p>
+<p><strong>Base URL Integration</strong> · 通用数据采集</p>
 <hr />
-<p>零代码侵入的黑盒 Agent 接入机制。任何使用 OpenAI 兼容 API 的 Agent 只需修改 <code>base_url</code> 即可透明接入训练系统。</p>
+<p>零代码侵入的 Agent 数据采集机制。任何使用 OpenAI 兼容 API 的 Agent 只需修改 <code>base_url</code>，Gateway 即可自动采集其交互数据。</p>
 <p><a href="base-url-integration/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Base URL Integration</a></p>
 </li>
 <li>
-<p><strong>Middleware Layer</strong></p>
+<p><strong>Middleware Layer</strong> · 数据中间件</p>
 <hr />
-<p>Gateway + DataPool 中间件架构。完全解耦 Agent 侧和 Training 侧，支持异步数据收集和训练。</p>
+<p>Gateway + DataPool 数据基础设施。统一解决数据的采集入口、质量管理、分区缓冲和按需供给。</p>
 <p><a href="middleware-layer/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Middleware Layer</a></p>
 </li>
 <li>
-<p><strong>Production Scenario</strong></p>
+<p><strong>Production Scenario</strong> · 数据驱动进化</p>
 <hr />
-<p>"部署 = 训练" 范式。Agent 在服务用户的同时持续收集数据和改进，无需离线重训。</p>
+<p>"部署 = 训练" 范式。Agent 在服务用户的同时持续采集交互数据，用户行为天然成为数据质量信号，驱动模型持续进化。</p>
 <p><a href="production-scenario/"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.22 19.03a.75.75 0 0 1 0-1.06L18.19 13H3.75a.75.75 0 0 1 0-1.5h14.44l-4.97-4.97a.749.749 0 0 1 .326-1.275.75.75 0 0 1 .734.215l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0"/></svg></span> Production Scenario</a></p>
 </li>
 </ul>
 </div>
-<h2 id="_1">闭环飞轮<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="_1">数据飞轮<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                    base_url
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                 ┌────────────┐
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                 │ 黑盒 Agent  │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                 │ (任意框架)   │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                 │ 任意 Agent  │
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                 │ (白盒/黑盒) │
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                 └──────┬─────┘
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                        │ OpenAI API
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                        ▼
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>              ┌──────────────────┐
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>              │    Gateway       │ ← Middleware Layer
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>              │  (自动收集数据)   │
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>              │    Gateway       │ ← 数据采集入口
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>              │  (自动采集 Step)  │
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>              └────────┬─────────┘
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>                       │
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                       ▼
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>              ┌──────────────────┐
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>              │    DataPool      │
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>              └────────┬─────────┘
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>                       │
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                       ▼
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>              ┌──────────────────┐
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>              │    Trainer       │ ← Production Scenario
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>              │  (持续训练)       │    (部署 = 训练)
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>              └────────┬─────────┘
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                       │ 权重同步
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                       ▼
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>              ┌──────────────────┐
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>              │    vLLM          │
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>              │  (更好的模型)     │
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>              └──────────────────┘
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>              │    DataPool      │ ← 数据管理核心
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>              │  (评估·筛选·供给) │    (质量评估 + 分区管理)
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>              └────────┬─────────┘
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>                       │
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>                       ▼
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>              ┌──────────────────┐
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>              │    Trainer       │ ← 数据消费
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>              │  (持续训练)       │
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>              └────────┬─────────┘
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                       │ 权重同步
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                       ▼
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>              ┌──────────────────┐
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>              │    vLLM          │
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>              │  (更好的模型)     │
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>              └──────────────────┘
 </span></code></pre></div>
 <p>三个概念的协同：</p>
 <ol>
-<li><strong>Base URL</strong> 让任何 Agent 零成本接入</li>
-<li><strong>Middleware</strong> 异步收集和缓冲训练数据</li>
-<li><strong>Production Scenario</strong> 让模型在服务中持续进化</li>
+<li><strong>Base URL</strong> 让任何 Agent 的交互数据零成本被采集</li>
+<li><strong>Middleware</strong> 管理数据的质量、分区和供给</li>
+<li><strong>Production Scenario</strong> 让人类反馈信号自然融入数据，驱动模型持续进化</li>
 </ol>
 
 

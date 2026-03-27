@@ -59,8 +59,8 @@ Claw-R1 聚焦于这一方向，提供 Agent 与 Trainer 之间的**数据基础
 ## 快速开始
 
 ```bash
-# 安装
-pip install -e .
+# 克隆仓库
+git clone https://github.com/AgentR1/Claw-R1 && cd Claw-R1
 
 # 运行黑盒 GSM8K 训练
 export CUDA_VISIBLE_DEVICES=0,1,2

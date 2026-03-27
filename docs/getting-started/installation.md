@@ -1,65 +1,21 @@
-# Installation
+# Installation Guide
 
-Claw-R1 uses [veRL](https://github.com/volcengine/verl) as its training backend and [Ray](https://docs.ray.io/) for distributed execution.
+Claw-R1 uses the same environment setup as `verl`.
 
-## Prerequisites
+## Base Environment
 
-| Requirement | Version | Notes |
-|---|---|---|
-| Python | 3.10+ | Conda recommended |
-| CUDA | 11.8+ | Required for GPU training |
-| Conda / Mamba | latest | For environment isolation |
-| Git | any | For cloning repositories |
+Follow the official [`verl` installation guide](https://verl.readthedocs.io/en/latest/start/install.html), but make sure the environment ends up with `verl==0.7.0`.
 
-## Step 1 — Create the Environment
+If you want a broader overview of the base training workflow, the [`verl` quickstart](https://verl.readthedocs.io/en/latest/start/quickstart.html) is also useful.
 
-```bash
-conda create -n clawr1 python=3.10 -y
-conda activate clawr1
-```
+## What This Means for Claw-R1
 
-## Step 2 — Install veRL
+Once the `verl` environment is working, Claw-R1 should run in the same environment. In practice, that means you can:
 
-Claw-R1 requires the nightly version of veRL installed from source:
+- prepare a Python environment with `verl==0.7.0`
+- clone this repository
+- run Claw-R1 commands directly from the repository root
 
-```bash
-git clone https://github.com/volcengine/verl && cd verl
-pip install --no-deps -e .
-cd ..
-```
+You do not need to install Claw-R1 as a separate package.
 
-## Step 3 — Install Claw-R1
-
-```bash
-git clone https://github.com/AgentR1/Claw-R1 && cd Claw-R1
-pip install -e .
-```
-
-## Step 4 — Install Ray and FastAPI
-
-```bash
-pip install "ray[default]" fastapi uvicorn
-```
-
-## Verify Installation
-
-Run the following checks to ensure everything is installed correctly:
-
-```bash
-# Check veRL
-python -c "import verl; print('veRL:', verl.__version__)"
-
-# Check Ray
-python -c "import ray; print('Ray:', ray.__version__)"
-
-# Check Claw-R1 gateway
-python -m claw_r1.gateway.gateway --help
-```
-
-!!! tip "GPU Memory"
-    The Gateway Server is CPU-only and lightweight. Rollout workers (vLLM) and Training workers require separate GPU pools. See [Async Training](../components/async-training.md) for multi-GPU configuration.
-
-## What's Next
-
-- [Quick Start](quickstart.md) — run your first training loop
-- [Configuration Reference](../configuration/index.md) — customize the setup for your hardware
+The documentation in this repository intentionally does not duplicate a separate environment guide, so that the infrastructure setup stays aligned with `verl`.

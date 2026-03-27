@@ -36,7 +36,7 @@ As agents grow more capable, a critical question emerges: **How do we systematic
 ## Get Started
 
 - 📖 **[Full Documentation](https://agentr1.github.io/Claw-R1/)**
-- 🚀 [Installation Guide](docs/getting-started/installation.md)
+- 🚀 [Installation Guide](https://agentr1.github.io/Claw-R1/getting-started/installation/)
 - 🛠️ [Architecture Overview](https://agentr1.github.io/Claw-R1/components/)
 
 ## Roadmap

@@ -48,7 +48,7 @@ As agents grow more capable, a critical question emerges: **How do we systematic
 
 ## Contributors
 
-**Team Members**: Daoyu Wang, Jie Ouyang, Shuo Yu
+**Team Members**: Daoyu Wang*, Qingchuan Li*, Jie Ouyang, Shuo Yu
 
 **Supervisors**: Qi Liu, Mingyue Cheng
 
@@ -63,7 +63,7 @@ We extend our gratitude to [Agent-R1](https://github.com/0russwest0/Agent-R1), [
 ```bibtex
 @misc{clawr1-2026,
   title={Claw-R1: The Data Foundation for Agentic Reinforcement Learning},
-  author={Wang, Daoyu and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
+  author={Wang, Daoyu and Li, Qingchuan and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
   year={2025},
   howpublished={\url{https://github.com/AgentR1/Claw-R1}},
   note={GitHub repository}

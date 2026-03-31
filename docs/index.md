@@ -89,7 +89,7 @@ State Key Laboratory of Cognitive Intelligence, USTC
 ```bibtex
 @misc{clawr1-2026,
   title={Claw-R1: The Data Foundation for Agentic Reinforcement Learning},
-  author={Wang, Daoyu and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
+  author={Wang, Daoyu and Li, Qingchuan and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
   year={2025},
   howpublished={\url{https://github.com/AgentR1/Claw-R1}},
   note={GitHub repository}

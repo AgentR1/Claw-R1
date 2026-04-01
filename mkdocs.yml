@@ -118,6 +118,7 @@ nav:
     - Gateway Server: components/gateway.md
     - DataPool: components/datapool.md
     - Agent Flow: components/agent-flow.md
+    - Black-box Agent: components/blackbox-agent.md
     - Async Training: components/async-training.md
     - Reward System: components/reward-system.md
   - Configuration:

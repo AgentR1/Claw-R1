@@ -34,6 +34,11 @@ async_training:
   # null = unlimited (only for testing; production should set a limit)
   max_queue_size: null
 
+  # Enable prefix tree merging in the training backend.
+  # When true, Steps from the same prompt group are merged into a prefix
+  # tree, deduplicating shared token prefixes before the forward pass.
+  enable_prefix_tree_merge: false
+
   # Checkpoint engine for accelerating parameter synchronization
   checkpoint_engine:
     enable: true

@@ -131,11 +131,21 @@ class AsyncTaskRunner:
         # -- DataPool -----------------------------------------------------
         from claw_r1.data_pool import DataPool, DataPoolConfig, VerlBackend
 
-        verl_backend = VerlBackend(
-            tokenizer=tokenizer,
-            prompt_length=config.actor_rollout_ref.rollout.prompt_length,
-            response_length=config.actor_rollout_ref.rollout.response_length,
-        )
+        enable_tree = config.async_training.get("enable_prefix_tree_merge", False)
+        if enable_tree:
+            from claw_r1.data_pool import TreeVerlBackend
+
+            verl_backend = TreeVerlBackend(
+                tokenizer=tokenizer,
+                prompt_length=config.actor_rollout_ref.rollout.prompt_length,
+                response_length=config.actor_rollout_ref.rollout.response_length,
+            )
+        else:
+            verl_backend = VerlBackend(
+                tokenizer=tokenizer,
+                prompt_length=config.actor_rollout_ref.rollout.prompt_length,
+                response_length=config.actor_rollout_ref.rollout.response_length,
+            )
         data_pool_config = DataPoolConfig(
             n_rollouts=config.actor_rollout_ref.rollout.n,
         )

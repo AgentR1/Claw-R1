@@ -579,11 +579,26 @@ class RayAgentTrainer(RayPPOTrainer):
         # ── DataPool ─────────────────────────────────────────────────────────
         from claw_r1.data_pool import DataPool, DataPoolConfig, VerlBackend
 
-        verl_backend = VerlBackend(
-            tokenizer=self.tokenizer,
-            prompt_length=self.config.actor_rollout_ref.rollout.prompt_length,
-            response_length=self.config.actor_rollout_ref.rollout.response_length,
-        )
+        enable_tree = getattr(self.config, "async_training", {})
+        if isinstance(enable_tree, dict):
+            enable_tree = enable_tree.get("enable_prefix_tree_merge", False)
+        else:
+            enable_tree = getattr(enable_tree, "enable_prefix_tree_merge", False)
+
+        if enable_tree:
+            from claw_r1.data_pool import TreeVerlBackend
+
+            verl_backend = TreeVerlBackend(
+                tokenizer=self.tokenizer,
+                prompt_length=self.config.actor_rollout_ref.rollout.prompt_length,
+                response_length=self.config.actor_rollout_ref.rollout.response_length,
+            )
+        else:
+            verl_backend = VerlBackend(
+                tokenizer=self.tokenizer,
+                prompt_length=self.config.actor_rollout_ref.rollout.prompt_length,
+                response_length=self.config.actor_rollout_ref.rollout.response_length,
+            )
         data_pool_config = DataPoolConfig(
             n_rollouts=self.config.actor_rollout_ref.rollout.n,
         )

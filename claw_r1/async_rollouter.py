@@ -54,7 +54,6 @@ class AsyncRollouter:
         self.val_reward_fn = load_reward_manager(
             config,
             tokenizer,
-            num_examine=1,
             **config.reward_model.get("reward_kwargs", {}),
         )
 
@@ -240,8 +239,9 @@ class AsyncRollouter:
         ray_address = ray_ctx.gcs_address
         ray_namespace = ray_ctx.namespace
 
+        import sys
         cmd = [
-            "python",
+            sys.executable,
             "-m",
             "claw_r1.gateway.gateway",
             "--data-pool-name",
@@ -264,13 +264,27 @@ class AsyncRollouter:
             str(gateway_port),
         ]
 
+        # Log gateway output to files for debugging
+        import tempfile
+        gateway_log_dir = os.path.join(
+            self.config.trainer.get("default_local_dir", "/tmp"),
+            "gateway_logs",
+        )
+        os.makedirs(gateway_log_dir, exist_ok=True)
+        self._gateway_stdout = open(os.path.join(gateway_log_dir, "gateway_stdout.log"), "w")
+        self._gateway_stderr = open(os.path.join(gateway_log_dir, "gateway_stderr.log"), "w")
+
         self._gateway_process = subprocess.Popen(
             cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
+            stdout=self._gateway_stdout,
+            stderr=self._gateway_stderr,
             text=True,
         )
-        self._gateway_url = f"http://localhost:{gateway_port}"
+        # Use the actual hostname/IP instead of localhost so that
+        # AgentFlowWorker actors on other nodes can reach the gateway.
+        import socket
+        gateway_host = socket.getfqdn()
+        self._gateway_url = f"http://{gateway_host}:{gateway_port}"
         atexit.register(self._stop_gateway)
 
         for _ in range(120):
@@ -344,10 +358,12 @@ class AsyncRollouter:
                     t.cancel()
             await asyncio.gather(gen_task, monitor_task, return_exceptions=True)
 
-        # Signal DataPool shutdown
-        data_pool = ray.get_actor(self._data_pool_name)
-        ray.get(data_pool.shutdown.remote())
-        logger.info("Rollouter fit completed")
+        # Do NOT shutdown DataPool here — the Trainer may still be consuming
+        # batches.  The Trainer will exit on its own when it reaches
+        # total_train_steps or when the DataPool is empty.
+        # data_pool = ray.get_actor(self._data_pool_name)
+        # ray.get(data_pool.shutdown.remote())
+        logger.info("Rollouter fit completed — generation finished, DataPool remains open for Trainer")
 
     async def _generation_main(self):
         """Iterate over epochs/batches, generate sequences, submit to DataPool."""
@@ -449,7 +465,16 @@ class AsyncRollouter:
 
         val_metrics = None
         if validate and self.val_reward_fn is not None:
-            val_metrics = self._validate()
+            try:
+                val_metrics = self._validate()
+            except Exception as exc:
+                logger.error(
+                    "[AsyncRollouter] Validation failed (version=%d): %s. "
+                    "Skipping validation and continuing training.",
+                    version, exc,
+                    exc_info=True,
+                )
+                val_metrics = None
 
         from ray import cloudpickle as ray_cloudpickle
 

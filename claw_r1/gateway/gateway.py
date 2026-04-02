@@ -25,6 +25,8 @@ import time
 from typing import Any, Optional
 from uuid import uuid4
 
+import asyncio
+
 import httpx
 import ray
 import uvicorn
@@ -101,6 +103,42 @@ def _next_vllm_address() -> str:
     return _normalize_address(next(_vllm_cycle))
 
 
+async def _vllm_post_with_retry(
+    url: str,
+    json: dict[str, Any],
+    timeout: float = 600.0,
+    max_retries: int = 3,
+    retry_delay: float = 5.0,
+) -> httpx.Response:
+    """POST to vLLM with retry on connection errors (ReadError, ConnectError).
+
+    After weight updates, vLLM connections may be stale. This helper retries
+    with exponential backoff to handle transient connection failures.
+    """
+    last_exc = None
+    for attempt in range(max_retries):
+        try:
+            resp = await _http_client.post(url, json=json, timeout=timeout)
+            resp.raise_for_status()
+            return resp
+        except (httpx.ReadError, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
+            last_exc = exc
+            if attempt < max_retries - 1:
+                wait = retry_delay * (2 ** attempt)
+                logger.warning(
+                    "vLLM request failed (attempt %d/%d): %s. Retrying in %.1fs...",
+                    attempt + 1, max_retries, exc, wait,
+                )
+                await asyncio.sleep(wait)
+            else:
+                logger.error(
+                    "vLLM request failed after %d attempts: %s", max_retries, exc,
+                )
+        except httpx.HTTPStatusError:
+            raise
+    raise last_exc
+
+
 # ── White-box endpoints (implemented) ────────────────────────────────────
 
 
@@ -147,8 +185,7 @@ async def generate(req: GenerateRequest):
         vllm_payload["model"] = model
 
     try:
-        resp = await _http_client.post(url, json=vllm_payload, timeout=600.0)
-        resp.raise_for_status()
+        resp = await _vllm_post_with_retry(url, json=vllm_payload, timeout=600.0)
     except httpx.HTTPStatusError as exc:
         raise HTTPException(exc.response.status_code, f"vLLM error: {exc.response.text}") from None
     except httpx.RequestError as exc:
@@ -311,8 +348,9 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str, request: 
         vllm_payload["model"] = model
 
     try:
-        resp = await _http_client.post(f"{base_url}/v1/completions", json=vllm_payload, timeout=600.0)
-        resp.raise_for_status()
+        resp = await _vllm_post_with_retry(
+            f"{base_url}/v1/completions", json=vllm_payload, timeout=600.0,
+        )
     except httpx.HTTPStatusError as exc:
         raise HTTPException(exc.response.status_code, f"vLLM error: {exc.response.text}") from None
     except httpx.RequestError as exc:
@@ -384,17 +422,130 @@ async def complete_trajectory(trajectory_uid: str, prompt_uid: str, req: Complet
     Called by agents via ``POST {base_url}/v1/complete_trajectory``.
     ``trajectory_uid`` is extracted from the URL path.  An optional request
     body can override ``channel`` and supply a ``reward``.
+
+    If no explicit reward is provided and a RewardLoopWorker is available,
+    the Gateway will automatically compute the reward from the last Step's
+    prompt/response tokens and the trajectory metadata (which carries
+    dataset fields like ``data_source`` and ``reward_model``).
     """
     if _data_pool is None:
         raise HTTPException(503, "DataPool not connected")
 
     channel = req.channel if req else _trajectory_channel.get(trajectory_uid, "train")
     reward = req.reward if req else None
+
+    # ── Auto-compute reward for black-box agents ──────────────────────
+    # Black-box agents don't call /compute_reward themselves; they only
+    # call /v1/chat/completions + /v1/complete_trajectory.  When no
+    # explicit reward is supplied, we compute it here from the last Step.
+    if reward is None and _reward_worker is not None:
+        try:
+            reward = await _auto_compute_reward(trajectory_uid)
+            logger.warning(
+                "[DEBUG] Auto reward for %s: %s", trajectory_uid, reward,
+            )
+        except Exception as exc:
+            import traceback
+            logger.warning(
+                "Auto reward computation failed for trajectory %s: %s\n%s",
+                trajectory_uid, exc, traceback.format_exc(),
+            )
+    elif reward is None:
+        logger.warning(
+            "[DEBUG] complete_trajectory %s: reward=None, _reward_worker=%s",
+            trajectory_uid, _reward_worker,
+        )
+
     await _data_pool.complete_trajectory.remote(trajectory_uid, reward=reward, channel=channel)
     _trajectory_step_counter.pop(trajectory_uid, None)
     _trajectory_channel.pop(trajectory_uid, None)
     _trajectory_metadata.pop(trajectory_uid, None)
     return {"status": "ok"}
+
+
+async def _auto_compute_reward(trajectory_uid: str) -> float | None:
+    """Compute reward for the last Step of a trajectory via RewardLoopWorker.
+
+    Retrieves the last Step from the DataPool, builds a DataProto with the
+    Step's prompt/response tokens and the trajectory metadata, then calls
+    the RewardLoopWorker to compute the score.
+
+    Returns the reward score, or None if computation is not possible.
+    """
+    import numpy as np
+    import torch
+    from tensordict import TensorDict
+
+    from verl.protocol import DataProto
+    from verl.utils.model import compute_position_id_with_mask
+
+    # Get the last step from DataPool
+    last_step = await _data_pool.get_last_step.remote(trajectory_uid)
+    if last_step is None:
+        return None
+
+    prompt_ids = last_step.prompt_ids
+    response_ids = last_step.response_ids
+    metadata = _trajectory_metadata.get(trajectory_uid) or last_step.metadata or {}
+
+    if not prompt_ids or not response_ids:
+        return None
+
+    # Pad prompt (left) and response (right) to fixed lengths
+    _tokenizer.padding_side = "left"
+    prompt_out = _tokenizer.pad(
+        {"input_ids": prompt_ids},
+        padding="max_length",
+        max_length=_prompt_length,
+        return_tensors="pt",
+        return_attention_mask=True,
+    )
+    if prompt_out["input_ids"].dim() == 1:
+        prompt_out["input_ids"] = prompt_out["input_ids"].unsqueeze(0)
+        prompt_out["attention_mask"] = prompt_out["attention_mask"].unsqueeze(0)
+
+    _tokenizer.padding_side = "right"
+    response_out = _tokenizer.pad(
+        {"input_ids": response_ids},
+        padding="max_length",
+        max_length=_response_length,
+        return_tensors="pt",
+        return_attention_mask=True,
+    )
+    if response_out["input_ids"].dim() == 1:
+        response_out["input_ids"] = response_out["input_ids"].unsqueeze(0)
+        response_out["attention_mask"] = response_out["attention_mask"].unsqueeze(0)
+
+    attention_mask = torch.cat(
+        [prompt_out["attention_mask"], response_out["attention_mask"]],
+        dim=1,
+    )
+    input_ids = torch.cat(
+        [prompt_out["input_ids"], response_out["input_ids"]],
+        dim=1,
+    )
+    position_ids = compute_position_id_with_mask(attention_mask)
+
+    batch = TensorDict(
+        {
+            "prompts": prompt_out["input_ids"],
+            "responses": response_out["input_ids"],
+            "attention_mask": attention_mask,
+            "input_ids": input_ids,
+            "position_ids": position_ids,
+        },
+        batch_size=1,
+    )
+
+    # Build non_tensor_batch from trajectory metadata
+    non_tensor_batch: dict = {}
+    for k, v in metadata.items():
+        non_tensor_batch[k] = np.array([v], dtype=object)
+
+    data = DataProto(batch=batch, non_tensor_batch=non_tensor_batch)
+    result = await _reward_worker.compute_score.remote(data)
+
+    return result.get("reward_score")
 
 
 @app.post("/{trajectory_uid}/{prompt_uid}/v1/register_trajectory")

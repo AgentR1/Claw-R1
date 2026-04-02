@@ -116,7 +116,7 @@ class AsyncTaskRunner:
 
         validate_config(
             config=config,
-            use_reference_policy=need_reference_policy(role_worker_mapping),
+            use_reference_policy=need_reference_policy(config),
             use_critic=need_critic(config),
         )
 
@@ -240,27 +240,50 @@ class AsyncTaskRunner:
         rollouter_future = self.components["rollouter"].fit.remote()
         trainer_future = self.components["trainer"].fit.remote()
 
-        futures = [rollouter_future, trainer_future]
-
+        # The Rollouter generates data much faster than the Trainer consumes it.
+        # We must wait for the Trainer to finish (it controls the training steps).
+        # The Rollouter finishing first is normal — it just means all data has
+        # been generated.  We should NOT cancel the Trainer when that happens.
         try:
-            while futures:
-                done, remaining = ray.wait(futures, num_returns=1, timeout=None)
+            # Wait for Trainer to finish (the primary task)
+            # Also monitor Rollouter for errors
+            futures = {rollouter_future: "Rollouter", trainer_future: "Trainer"}
+            trainer_done = False
+            rollouter_done = False
+
+            while not trainer_done:
+                done, _ = ray.wait(list(futures.keys()), num_returns=1, timeout=None)
                 for f in done:
+                    name = futures.pop(f)
                     try:
                         ray.get(f)
-                        print("[ASYNC] Component completed successfully")
+                        print(f"[ASYNC] {name} completed successfully")
+                        if name == "Trainer":
+                            trainer_done = True
+                        elif name == "Rollouter":
+                            rollouter_done = True
                     except Exception as e:
-                        print(f"[ASYNC] Component failed: {e}")
-                        for r in remaining:
-                            ray.cancel(r)
+                        print(f"[ASYNC] {name} failed: {e}")
+                        # Cancel remaining futures on error
+                        for remaining_f in futures:
+                            ray.cancel(remaining_f)
                         raise
-                futures = remaining
+
+            # Trainer is done. If Rollouter is still running, cancel it.
+            if not rollouter_done and rollouter_future in futures:
+                ray.cancel(rollouter_future)
+                print("[ASYNC] Cancelled Rollouter (Trainer finished first)")
+
         except Exception as e:
             print(f"[ASYNC] Training failed: {e}")
-            for f in futures:
-                ray.cancel(f)
             raise
         finally:
+            # Shutdown DataPool after Trainer is done
+            try:
+                data_pool = ray.get_actor(self.components["data_pool_name"])
+                ray.get(data_pool.shutdown.remote())
+            except Exception:
+                pass
             print("[ASYNC] Training finished")
 
 
@@ -273,6 +296,18 @@ def main(config):
 
     if not ray.is_initialized():
         default_runtime_env = get_ppo_ray_runtime_env()
+        # Propagate critical env vars to Ray workers so they can find
+        # clawr1_env packages, CUDA libs, and vLLM settings
+        _propagate_vars = [
+            "PYTHONPATH", "PATH", "LD_LIBRARY_PATH",
+            "VLLM_USE_V1", "CUDA_HOME", "CONDA_PREFIX",
+            "SWANLAB_MODE",
+        ]
+        for var in _propagate_vars:
+            val = os.environ.get(var, "")
+            if val:
+                default_runtime_env.setdefault("env_vars", {})[var] = val
+
         ray_init_kwargs = config.ray_kwargs.get("ray_init", {})
         runtime_env_kwargs = ray_init_kwargs.get("runtime_env", {})
         runtime_env = OmegaConf.merge(default_runtime_env, runtime_env_kwargs)

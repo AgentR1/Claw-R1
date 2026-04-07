@@ -40,6 +40,14 @@ Claw-R1 是 Agentic RL 的数据基础设施 — 专注于从任意 Agent 交互
 
     [:octicons-arrow-right-24: Production Scenario](concepts/production-scenario.md)
 
+-   :material-school: **RL Training Internals**
+
+    ---
+
+    强化学习训练核心概念补充材料。以 PPO 为主线讲解 Reward / Value / Advantage / Return / Loss，覆盖 GRPO 等变体，并解释 Claw-R1 Agentic RL 的设计合理性。
+
+    [:octicons-arrow-right-24: RL Training Internals](rl-training-internals/index.md)
+
 </div>
 
 ## Why Claw-R1?

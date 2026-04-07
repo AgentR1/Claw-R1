@@ -80,18 +80,18 @@ class BaseModelConfig(BaseConfig):
 
 @dataclass
 class AgentFlowConfig(BaseConfig):
-    """AgentFlow 配置，兼容 verl 的 AgentLoopConfig 字段。
+    """Agent flow configuration, compatible with verl's AgentLoopConfig fields.
 
-    claw_r1 使用 agent_flow 命名，但同时接受 verl 的 agent_loop 字段以便配置合并。
+    claw_r1 uses the ``agent_flow`` naming convention but also accepts
+    verl's ``agent_loop`` fields so Hydra config merging works seamlessly.
     """
 
     num_workers: int = 8
 
-    # claw_r1 字段
     default_agent_flow: str = "single_step_single_turn_agent"
     agent_flow_config_path: Optional[str] = None
 
-    # 兼容 verl 的旧字段（接受但忽略）
+    # Accept (but ignore) verl's legacy field names for config compatibility
     default_agent_loop: Optional[str] = None
     agent_loop_config_path: Optional[str] = None
 

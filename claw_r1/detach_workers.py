@@ -92,6 +92,33 @@ class _DetachNcclSync(AsyncActorRolloutRefWorker):
 class DetachActorWorker(_DetachNcclSync):
     """Actor worker for async mode — training only, no rollout."""
 
+    @register(dispatch_mode=Dispatch.ONE_TO_ALL)
+    def init_model(self):
+        super().init_model()
+        # Apply tree attention patch after verl's monkey patch has been applied
+        # to the model.  The config flag is propagated via self.config.
+        enable_tree = False
+        if hasattr(self.config, "async_training"):
+            cfg = self.config.async_training
+            if isinstance(cfg, dict):
+                enable_tree = cfg.get("enable_prefix_tree_merge", False)
+            else:
+                enable_tree = getattr(cfg, "enable_prefix_tree_merge", False)
+
+        if enable_tree:
+            from claw_r1.tree_utils.attention_patch import patch_for_tree_attention
+
+            patch_for_tree_attention()
+
+            if self._is_actor and hasattr(self, "actor"):
+                from claw_r1.tree_utils.tree_actor import TreeDataParallelPPOActor
+
+                self.actor = TreeDataParallelPPOActor(
+                    config=self.actor.config,
+                    actor_module=self.actor.actor_module,
+                    actor_optimizer=self.actor.actor_optimizer,
+                )
+
     def _get_actor_params(self):
         assert self._is_actor
         params = self.actor_module_fsdp.state_dict()

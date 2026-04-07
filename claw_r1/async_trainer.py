@@ -18,10 +18,10 @@ from pprint import pprint
 
 import numpy as np
 import ray
+import torch
 from omegaconf import OmegaConf
 from tqdm import tqdm
 
-from claw_r1.ray_agent_trainer import get_valid_data
 from verl.protocol import DataProto, pad_dataproto_to_divisor
 from verl.single_controller.ray import RayClassWithInitArgs, RayWorkerGroup
 from verl.single_controller.ray.base import create_colocated_worker_cls
@@ -33,6 +33,18 @@ from verl.utils.debug import marked_timer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
+
+
+def get_valid_data(data: DataProto) -> tuple[DataProto, torch.Tensor]:
+    """Extract valid (non-padded) data from a DataProto object."""
+    is_pad = data.non_tensor_batch.get("is_pad", None)
+    if is_pad is not None:
+        valid_mask = torch.from_numpy(~is_pad).to(data.batch.device)
+        valid_data = data.select_idxs(valid_mask)
+    else:
+        valid_mask = torch.ones(len(data), dtype=torch.bool, device=data.batch.device)
+        valid_data = data
+    return valid_data, valid_mask
 
 
 @ray.remote(num_cpus=10)

@@ -137,18 +137,31 @@ class TaskRunner:
             self.mapping[role] = "global_pool"
             return actor_rollout_cls, ray_worker_group_cls
 
-        # Note: sync mode validation is now handled in RolloutConfig.__post_init__
-        # Always use async worker since sync mode is deprecated and rejected
+        enable_tree = False
+        if hasattr(config, "async_training"):
+            cfg = config.async_training
+            enable_tree = cfg.get("enable_prefix_tree_merge", False) if isinstance(cfg, dict) else getattr(cfg, "enable_prefix_tree_merge", False)
+
         if config.actor_rollout_ref.actor.strategy in {"fsdp", "fsdp2"}:
             from verl.workers.fsdp_workers import AsyncActorRolloutRefWorker
 
-            actor_rollout_cls = AsyncActorRolloutRefWorker
+            if enable_tree:
+                from claw_r1.tree_utils._worker_factory import make_tree_aware_worker_cls
+
+                actor_rollout_cls = make_tree_aware_worker_cls(AsyncActorRolloutRefWorker)
+            else:
+                actor_rollout_cls = AsyncActorRolloutRefWorker
             ray_worker_group_cls = RayWorkerGroup
 
         elif config.actor_rollout_ref.actor.strategy == "megatron":
             from verl.workers.megatron_workers import AsyncActorRolloutRefWorker
 
-            actor_rollout_cls = AsyncActorRolloutRefWorker
+            if enable_tree:
+                from claw_r1.tree_utils._worker_factory import make_tree_aware_worker_cls
+
+                actor_rollout_cls = make_tree_aware_worker_cls(AsyncActorRolloutRefWorker)
+            else:
+                actor_rollout_cls = AsyncActorRolloutRefWorker
             ray_worker_group_cls = RayWorkerGroup
 
         else:

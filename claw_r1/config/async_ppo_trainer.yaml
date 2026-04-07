@@ -1,5 +1,5 @@
 # Async Agent PPO Trainer configuration
-# Extends the synchronous agent_ppo_trainer config with async-specific settings.
+# Inherits verl's ppo_trainer defaults; adds async-specific settings.
 
 defaults:
   - ppo_trainer

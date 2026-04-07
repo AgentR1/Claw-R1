@@ -1,13 +1,12 @@
-# 只覆盖需要修改的配置项 - agent 部分
-# 其他配置从 verl 的默认配置继承
+# Override only the fields we need — everything else inherits from verl defaults.
 
-# 使用 async 模式
+# Use async rollout mode
 mode: async
 
-# [Experimental] agent flow based rollout configs (覆盖 verl 的 AgentLoopConfig)
+# Agent flow config (replaces verl's AgentLoopConfig)
 agent:
 
-  # 使用 claw_r1 的 AgentFlowConfig 替代 verl 的 AgentLoopConfig
+  # Instantiate claw_r1's AgentFlowConfig instead of verl's AgentLoopConfig
   _target_: claw_r1.config.AgentFlowConfig
 
   # Number of agent flow workers

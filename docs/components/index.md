@@ -52,6 +52,14 @@ Claw-R1 由六个独立可运行的组件组成，通过 HTTP 和 Ray RPC 通信
 
     [:octicons-arrow-right-24: Reward System](reward-system.md)
 
+-   **Prefix Tree Merge**
+
+    ---
+
+    前缀树合并优化。将共享前缀的多条序列合并为一次前向计算，消除 multi-step agent 训练中的冗余 prefix 计算。
+
+    [:octicons-arrow-right-24: Prefix Tree Merge](prefix-tree-merge.md)
+
 </div>
 
 ## 组件交互图

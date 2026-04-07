@@ -1,0 +1,2297 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Empowering OpenClaw with Advanced Agentic RL — A Middleware-based Training Framework">
+      
+      
+        <meta name="author" content="Claw-R1 Team, USTC">
+      
+      
+        <link rel="canonical" href="https://AgentR1.github.io/Claw-R1/rl-training-internals/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.jpeg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>RL Training Internals - Claw-R1</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rl-training-internals" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Claw-R1" class="md-header__button md-logo" aria-label="Claw-R1" data-md-component="logo">
+      
+  <img src="../assets/logo.jpeg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Claw-R1
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RL Training Internals
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/AgentR1/Claw-R1" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    AgentR1/Claw-R1
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../concepts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../components/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Components
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../configuration/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../contributing/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Contributing
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Claw-R1" class="md-nav__button md-logo" aria-label="Claw-R1" data-md-component="logo">
+      
+  <img src="../assets/logo.jpeg" alt="logo">
+
+    </a>
+    Claw-R1
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/AgentR1/Claw-R1" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    AgentR1/Claw-R1
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../getting-started/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../concepts/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/base-url-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base URL Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/middleware-layer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Middleware Layer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/production-scenario/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production Scenario
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../components/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/datapool/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataPool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/agent-flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/async-training/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Training
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/reward-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reward System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../configuration/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gateway API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 训练流程全景
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-mdp-token-level-vs-step-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. MDP 建模：Token-level vs Step-level
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. MDP 建模：Token-level vs Step-level">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rlhftoken-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        传统 RLHF（Token-level）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#claw-r1-agentic-rlstep-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Claw-R1 Agentic RL（Step-level）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 核心概念详解
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 核心概念详解">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-reward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Reward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-valuecritic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Value（Critic 输出）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-advantage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Advantage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-return" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Return
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-advantage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Advantage 估计算法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Advantage 估计算法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-gaegeneralized-advantage-estimationppo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 GAE：Generalized Advantage Estimation（PPO 默认）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-grpogroup-relative-policy-optimization-critic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 GRPO：Group Relative Policy Optimization（无 Critic）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 训练 Loss
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 训练 Loss">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-actorpolicyloss-ppo-clipped-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Actor（Policy）Loss — PPO Clipped Objective
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-criticvalueloss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Critic（Value）Loss
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-entropy-loss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Entropy Loss
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-kl-penalty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 KL Penalty
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 关键 Metrics 解读
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 关键 Metrics 解读">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#actor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Actor 指标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#critic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Critic 指标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        数据指标
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-claw-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 为什么 Claw-R1 的实现是合理的
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 为什么 Claw-R1 的实现是合理的">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-response-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 整段 response 作为原子 action
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-critic-1-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Critic 只在第 1 个 token 位置训练和推理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-gae-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 GAE 在 step 级别递推
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-grpo-trajectory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 GRPO 按 trajectory 聚合
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-actor-loss-token-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Actor loss 仍按 token-level 计算
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-vs-claw-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 传统 vs Claw-R1 对比总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        代码索引
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="rl-training-internals">RL Training Internals<a class="headerlink" href="#rl-training-internals" title="Permanent link">&para;</a></h1>
+<p>本文档以 <strong>PPO（Proximal Policy Optimization）</strong> 训练流程为主线，系统讲解强化学习训练中的核心概念、算法细节和关键 Metrics。同时覆盖 GRPO 等无 Critic 算法的差异，并解释 Claw-R1 在 Agentic RL 场景下的设计改进及其合理性。</p>
+<hr />
+<h2 id="1">1. 训练流程全景<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>PPO 训练两个模型——<strong>Actor（策略网络）</strong> 和 <strong>Critic（价值网络）</strong>，它们各自有独立的训练目标：</p>
+<ul>
+<li><strong>Actor 的目标</strong>：让好动作的概率变大，坏动作的概率变小。衡量好坏的标准就是 <strong>Advantage</strong></li>
+<li><strong>Critic 的目标</strong>：学会预测"从当前状态开始，未来总共能拿到多少回报"。预测值叫 <strong>Value</strong>，预测目标叫 <strong>Return</strong></li>
+</ul>
+<p>对应的两个 loss：</p>
+<ul>
+<li><strong>Actor Loss</strong>：$-\text{clip}(r(\theta), 1\pm\epsilon) \cdot A$，用 advantage 加权的策略梯度。Advantage &gt; 0 → 增大该动作概率；&lt; 0 → 减小</li>
+<li><strong>Critic Loss</strong>：$(V_\theta(s) - R_t)^2$，让 value 预测逼近 return（回归任务）</li>
+</ul>
+<p>一次训练 step 的数据流：</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Rollout（生成 response）
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ▼
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>Reward（环境打分）──► 原始信号，RL 的唯一外部输入
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    │
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    ├──► KL Penalty（可选，融入 reward）
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    │
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ▼
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Compute Values（Critic 前向推理）──► V(s)：Critic 对&quot;未来累积回报&quot;的预测
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    │
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ▼
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>Compute Advantage &amp; Return ◄── GAE / GRPO 算法
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    │
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    │   Advantage = 这个动作比平均好多少（由 reward 和 value 推算）
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    │   Return    = 未来累积回报的估计值（由 reward 和 value 推算）
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    │
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    ├──► Actor Loss：让好动作概率变大 ──► Actor 梯度更新
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    │       权重 = Advantage
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    │
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    └──► Critic Loss：让预测更准 ──► Critic 梯度更新
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>            目标 = Return，预测 = Value
+</span></code></pre></div>
+<p>核心量之间的关系：</p>
+<ul>
+<li><strong>Reward</strong>：环境给的原始信号，是 RL 系统从外部获得的唯一输入</li>
+<li><strong>Value</strong>：Critic 的预测——"从这个状态开始，未来总共能拿到多少回报"</li>
+<li><strong>Return</strong>：对 Value 真实值的更好估计。理想情况下，Return 就是把当前和未来所有 reward 加起来：$R_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots$。但我们不可能等到 trajectory 完全结束才训练，所以实际做法是：<strong>走几步拿到真实 reward，剩下的部分用 Critic 当前的 Value 预测来补上</strong>。这个"用预测补全未来"的操作就叫 <strong>bootstrap</strong>。例如只走一步的情况：$R_t \approx r_t + \gamma V(s_{t+1})$——第一项是真实获得的 reward，第二项是 Critic 对后续所有回报的预测。GAE 通过混合不同步数的 bootstrap 估计来平衡偏差和方差（详见 <a href="#41-gaegeneralized-advantage-estimationppo-默认">4.1 节</a>）。<strong>Critic 的训练目标就是让 Value 逼近 Return</strong></li>
+<li><strong>Advantage</strong>：这个动作比该状态下的"平均表现"好了多少。数值上 $A = R - V$，即 return 减去 value baseline。<strong>Actor 的梯度权重就是 Advantage</strong></li>
+</ul>
+<blockquote>
+<p>注意：在 GAE 的实现中，代码先算 advantage，再通过 $R = A + V$ 反推 return。这只是计算顺序的问题，概念上 Return 是独立定义的量（未来累积折扣回报的估计），不依赖于 Advantage。</p>
+</blockquote>
+<hr />
+<h2 id="2-mdp-token-level-vs-step-level">2. MDP 建模：Token-level vs Step-level<a class="headerlink" href="#2-mdp-token-level-vs-step-level" title="Permanent link">&para;</a></h2>
+<p>RL 训练的第一个设计决策是：<strong>什么是一个 "action"？</strong></p>
+<h3 id="rlhftoken-level">传统 RLHF（Token-level）<a class="headerlink" href="#rlhftoken-level" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>状态  s_t = prompt + 已生成的 token_0..t-1
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>动作  a_t = 生成第 t 个 token
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>V(s_t) = 从 s_t 开始到序列结束的期望回报
+</span></code></pre></div>
+<p>每个 token 是一个独立的决策点。Critic 需要在每个 token 位置输出一个 value，GAE 在 token 维度逐步递推。</p>
+<h3 id="claw-r1-agentic-rlstep-level">Claw-R1 Agentic RL（Step-level）<a class="headerlink" href="#claw-r1-agentic-rlstep-level" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>状态  S_t = 到第 t 步之前的所有交互历史（prompt + 前几轮 response/tool output）
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>动作  A_t = 第 t 步 LLM 生成的整段 response
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>V(S_t) = 从 S_t 开始到 trajectory 结束的期望回报
+</span></code></pre></div>
+<p><strong>整段 response 是一个原子动作</strong>。Critic 只需预测一个标量 V(S_t)，GAE 在 step 维度递推。</p>
+<p>为什么 step-level 建模更适合 agent 场景？详见 <a href="#7-为什么-claw-r1-的实现是合理的">第 7 节</a>。</p>
+<hr />
+<h2 id="3">3. 核心概念详解<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31-reward">3.1 Reward<a class="headerlink" href="#31-reward" title="Permanent link">&para;</a></h3>
+<p>Reward 是环境对 agent 行为的即时反馈，是 RL 训练的原始信号来源。</p>
+<p><strong>数学定义：</strong></p>
+<p>$$r_t = \text{RewardFn}(s_t, a_t)$$</p>
+<p><strong>在代码中的体现：</strong></p>
+<p>Reward 首先以 token-level 的形式存在（<code>token_level_scores</code>），通常只有最后一个 token 有非零值（outcome reward）。在 Claw-R1 中，token-level reward 会被聚合为 step-level：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># claw_r1/core_algos.py</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">rewards</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_level_rewards</span> <span class="o">*</span> <span class="n">response_mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># step-level 标量</span>
+</span></code></pre></div>
+<p><strong>KL Penalty（可选）：</strong> 可以将 KL 惩罚融入 reward，防止策略偏离 reference policy 太远：</p>
+<p>$$r_t^{\text{shaped}} = r_t - \beta \cdot \text{KL}(\pi_\theta | \pi_{\text{ref}})$$</p>
+<p>KL 惩罚有多种估计方式（k1, k2, k3 等），详见 <a href="#54-kl-penalty">5.4 节</a>。</p>
+<h3 id="32-valuecritic">3.2 Value（Critic 输出）<a class="headerlink" href="#32-valuecritic" title="Permanent link">&para;</a></h3>
+<p>Value function（价值函数）是 Critic 模型的输出，预测从当前状态开始、遵循当前策略能获得的期望累积回报。</p>
+<p><strong>数学定义：</strong></p>
+<p>$$V^\pi(s) = \mathbb{E}<em k="0">\pi \left[ \sum</em> \mid s_t = s \right]$$}^{\infty} \gamma^k r_{t+k</p>
+<p><strong>传统实现（verl 原版）：</strong> Critic 在每个 response token 位置输出一个 value，得到 shape 为 <code>(batch_size, response_length)</code> 的张量。</p>
+<p><strong>Claw-R1 实现：</strong> 只使用第 1 个 token 位置的 value：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># claw_r1/core_algos.py — compute_gae_advantage_return</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+</span></code></pre></div>
+<p>这里 <code>values[:, 0]</code> 对应的是 "response 生成前的状态价值"。Critic 模型内部的切片逻辑（<code>dp_critic.py</code>）将 <code>values[:, -response_length-1:-1]</code> 作为输出，所以 <code>[:, 0]</code> 正好对应 prompt 最后一个 token 之后的位置——即状态 $S_t$ 的 value。</p>
+<h3 id="33-advantage">3.3 Advantage<a class="headerlink" href="#33-advantage" title="Permanent link">&para;</a></h3>
+<p>Advantage 衡量的是：在状态 $s$ 下执行动作 $a$，比"平均水平"好了多少。</p>
+<p><strong>数学定义：</strong></p>
+<p>$$A^\pi(s, a) = Q^\pi(s, a) - V^\pi(s)$$</p>
+<p>直觉上，如果 advantage &gt; 0，说明这个动作比该状态下的平均表现更好，应该增大其概率；反之则减小。Advantage 是 actor 策略梯度的核心权重：</p>
+<p>$$\nabla_\theta J \propto \mathbb{E} \left[ A(s, a) \cdot \nabla_\theta \log \pi_\theta(a|s) \right]$$</p>
+<p>减去 baseline $V(s)$ 不会引入偏差，但可以大幅降低梯度估计的方差。</p>
+<h3 id="34-return">3.4 Return<a class="headerlink" href="#34-return" title="Permanent link">&para;</a></h3>
+<p>Return 是对"从当前状态开始，未来总共能拿到多少累积折扣回报"的估计值。它是 <strong>Critic 的训练 target</strong>——Critic 的目标就是让自己的预测 $V_\theta(s)$ 尽可能接近 Return。</p>
+<p><strong>理想定义（蒙特卡洛 return）：</strong></p>
+<p>$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots$$</p>
+<p>如果能等到 trajectory 完全结束，把所有 reward 按折扣加起来，就得到了最精确的 return。但这样方差太大（每次 rollout 的 reward 序列差异很大），而且需要等整条 trajectory 跑完。</p>
+<p><strong>实际做法（Bootstrap）：</strong></p>
+<p>Bootstrap 的意思是"用 Critic 当前的预测来补全我们看不到的未来"。不同步数的 bootstrap 给出不同的 return 估计：</p>
+<table>
+<thead>
+<tr>
+<th>估计方式</th>
+<th>公式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 步 bootstrap</td>
+<td>$R_t \approx r_t + \gamma V(s_{t+1})$</td>
+<td>真实走 1 步，剩下的让 Critic 猜</td>
+</tr>
+<tr>
+<td>2 步 bootstrap</td>
+<td>$R_t \approx r_t + \gamma r_{t+1} + \gamma^2 V(s_{t+2})$</td>
+<td>真实走 2 步，剩下的让 Critic 猜</td>
+</tr>
+<tr>
+<td>$\infty$ 步（MC）</td>
+<td>$R_t = r_t + \gamma r_{t+1} + \cdots$</td>
+<td>全用真实 reward，不猜</td>
+</tr>
+</tbody>
+</table>
+<p>步数越少，偏差越大（因为 Critic 的预测可能不准），但方差越小（因为依赖的随机 reward 更少）；步数越多则反之。GAE 通过 $\lambda$ 参数混合所有步数的 bootstrap，实现偏差-方差的折中（详见 <a href="#41-gaegeneralized-advantage-estimationppo-默认">4.1 节</a>）。</p>
+<p><strong>代码中的计算方式：</strong></p>
+<p>实践中，先通过 GAE 算出 advantage $A_t$，再利用 $R_t = A_t + V_{\text{old}}(s_t)$ 反推 return。这里 $V_{\text{old}}$ 是 Critic 在本轮更新前的旧预测。这不是循环论证——GAE 内部的递推过程已经把真实 reward 和 bootstrap value 融合好了，加回旧 $V$ 只是还原计算过程。<strong>随着训练推进，Critic 会越来越准，bootstrap 的质量也会越来越高，形成正向循环</strong>。</p>
+<p><strong>三者关系：</strong></p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th>含义</th>
+<th>谁使用它</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reward $r_t$</td>
+<td>即时奖励（外部输入）</td>
+<td>GAE / GRPO</td>
+<td>作为计算的原始输入</td>
+</tr>
+<tr>
+<td>Return $R_t$</td>
+<td>未来累积回报的估计</td>
+<td><strong>Critic</strong></td>
+<td>回归 target：$\mathcal{L} = (V_\theta - R_t)^2$</td>
+</tr>
+<tr>
+<td>Advantage $A_t$</td>
+<td>动作相对好坏</td>
+<td><strong>Actor</strong></td>
+<td>策略梯度权重：$\nabla \propto A_t \nabla \log \pi$</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-advantage">4. Advantage 估计算法<a class="headerlink" href="#4-advantage" title="Permanent link">&para;</a></h2>
+<h3 id="41-gaegeneralized-advantage-estimationppo">4.1 GAE：Generalized Advantage Estimation（PPO 默认）<a class="headerlink" href="#41-gaegeneralized-advantage-estimationppo" title="Permanent link">&para;</a></h3>
+<p>GAE 是 PPO 的默认 advantage 估计方法，通过指数加权多步 TD 误差来平衡偏差与方差。</p>
+<p><strong>TD 误差（一步 advantage 估计）：</strong></p>
+<p>$$\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)$$</p>
+<p><strong>GAE（多步加权平均）：</strong></p>
+<p>$$A_t^{\text{GAE}} = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}$$</p>
+<p><strong>$\gamma$ 和 $\lambda$ 的作用：</strong></p>
+<ul>
+<li>$\gamma$（折扣因子）：控制对未来 reward 的重视程度。$\gamma \to 1$ 时更关注长期回报</li>
+<li>$\lambda$（GAE 参数）：控制偏差-方差折中<ul>
+<li>$\lambda = 0$：只看一步 TD 误差，低方差但高偏差</li>
+<li>$\lambda = 1$：退化为蒙特卡洛估计，低偏差但高方差</li>
+</ul>
+</li>
+</ul>
+<p><strong>传统实现（verl 原版）：</strong> 在 token 维度逐步递推，每个 batch row 独立：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># verl/trainer/ppo/core_algos.py — 传统 GAE</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">gen_len</span><span class="p">)):</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">delta</span> <span class="o">=</span> <span class="n">token_level_rewards</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">nextvalues</span> <span class="o">-</span> <span class="n">values</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">lastgaelam</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">lastgaelam</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">nextvalues</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">response_mask</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">response_mask</span><span class="p">[:,</span> <span class="n">t</span><span class="p">])</span> <span class="o">*</span> <span class="n">nextvalues</span>
+</span></code></pre></div>
+<p><strong>Claw-R1 改进 — Step-level GAE：</strong></p>
+<p>在 Claw-R1 中，reward 和 value 都是 step-level 的标量。GAE 递推在 step 维度进行，并通过 <code>trajectory_uids</code> 和 <code>step_indices</code> 将同一条 trajectory 的多个 step 关联起来：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># claw_r1/core_algos.py — compute_gae_advantage_return</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">rewards</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_level_rewards</span> <span class="o">*</span> <span class="n">response_mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 聚合为 step-level</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>                                        <span class="c1"># 只取第 1 个 token</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># 按 trajectory 分组，在 step 维度做 GAE</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">rewards_map</span><span class="p">[</span><span class="n">traj_inv</span><span class="p">,</span> <span class="n">step_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">rewards</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">values_map</span><span class="p">[</span><span class="n">traj_inv</span><span class="p">,</span> <span class="n">step_ids</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">max_step</span><span class="p">)):</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">nextvalues</span> <span class="o">=</span> <span class="n">values_map</span><span class="p">[:,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">max_step</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">delta</span> <span class="o">=</span> <span class="n">rewards_map</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">nextvalues</span> <span class="o">-</span> <span class="n">values_map</span><span class="p">[:,</span> <span class="n">t</span><span class="p">]</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">lastgaelam</span> <span class="o">=</span> <span class="n">delta</span> <span class="o">+</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">lastgaelam</span>
+</span></code></pre></div>
+<p>最终 advantage 先在 step-level 做 whitening，再广播回 token 维度：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">advantages</span> <span class="o">=</span> <span class="p">(</span><span class="n">advantages</span> <span class="o">-</span> <span class="n">advantages</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">advantages</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">advantages</span> <span class="o">=</span> <span class="n">advantages</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">response_mask</span>  <span class="c1"># 广播到 token 维度</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">returns</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">response_mask</span>
+</span></code></pre></div>
+<p><strong>Claw-R1 还提供了 Token-level 跨 Step GAE</strong>（<code>compute_token_gae_advantage_return</code>），它在 token 维度做 GAE 递推，但能跨越多个 step——通过 <code>response_mask</code> 跳过 tool/padding tokens 而不中断递推状态。这比 step-level GAE 更精细，但计算开销更大。</p>
+<h3 id="42-grpogroup-relative-policy-optimization-critic">4.2 GRPO：Group Relative Policy Optimization（无 Critic）<a class="headerlink" href="#42-grpogroup-relative-policy-optimization-critic" title="Permanent link">&para;</a></h3>
+<p>GRPO 是一种不需要 Critic 模型的 advantage 估计方法。核心思想是：对同一个 prompt 采样多条 response，用组内统计量作为 baseline。</p>
+<p><strong>计算方式：</strong></p>
+<p>$$A_i = \frac{\text{score}_i - \text{mean}(\text{scores in group})}{\text{std}(\text{scores in group}) + \epsilon}$$</p>
+<p>其中 group 由同一个 prompt 的多条 response 构成。</p>
+<p><strong>Dr.GRPO 变体：</strong> 不除以 std，避免 std 过小时放大噪声：</p>
+<p>$$A_i = \text{score}_i - \text{mean}(\text{scores in group})$$</p>
+<p><strong>GRPO vs PPO 的核心区别在于 advantage 来源不同</strong>，而 actor loss 的 clipped objective 形式是共通的。GRPO 不需要 Critic 模型，因此没有 critic loss 和 value 计算步骤。</p>
+<p><strong>传统实现（verl 原版）：</strong> 每个 response 独立计算 score：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># verl/trainer/ppo/core_algos.py — 传统 GRPO</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">scores</span> <span class="o">=</span> <span class="n">token_level_rewards</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 每行直接求和</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># 按 index（prompt group）分组做 mean/std 归一化</span>
+</span></code></pre></div>
+<p><strong>Claw-R1 改进 — Trajectory-level GRPO：</strong></p>
+<p>Agent 场景中，一条 trajectory 包含多个 step。Outcome reward（如解题是否成功）属于整条 trajectory 而非单个 step。因此 Claw-R1 先按 <code>trajectory_uids</code> 聚合为 trajectory-level 的总 score，再做 group normalize：</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># claw_r1/core_algos.py — compute_grpo_outcome_advantage</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">step_scores</span> <span class="o">=</span> <span class="p">(</span><span class="n">token_level_rewards</span> <span class="o">*</span> <span class="n">response_mask</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># 1) 按 trajectory 累加 step reward → trajectory-level outcome</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bsz</span><span class="p">):</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="n">traj_uid</span> <span class="o">=</span> <span class="n">trajectory_uids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">traj2total_score</span><span class="p">[</span><span class="n">traj_uid</span><span class="p">]</span> <span class="o">+=</span> <span class="n">step_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="c1"># 2) 按 prompt group 做 GRPO 归一化</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">for</span> <span class="n">traj_uid</span><span class="p">,</span> <span class="n">total_score</span> <span class="ow">in</span> <span class="n">traj2total_score</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    <span class="n">advantage</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_score</span> <span class="o">-</span> <span class="n">group_mean</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">group_std</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c1"># 3) 同一条 trajectory 的所有 step 共享同一个 advantage</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bsz</span><span class="p">):</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="n">scores</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">traj2adv</span><span class="p">[</span><span class="n">trajectory_uids</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+</span></code></pre></div>
+<hr />
+<h2 id="5-loss">5. 训练 Loss<a class="headerlink" href="#5-loss" title="Permanent link">&para;</a></h2>
+<h3 id="51-actorpolicyloss-ppo-clipped-objective">5.1 Actor（Policy）Loss — PPO Clipped Objective<a class="headerlink" href="#51-actorpolicyloss-ppo-clipped-objective" title="Permanent link">&para;</a></h3>
+<p>PPO 的核心创新是 clipped surrogate objective，通过限制策略更新幅度来保证训练稳定性。</p>
+<p><strong>概率比（importance sampling ratio）：</strong></p>
+<p>$$r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)} = \exp(\log \pi_\theta - \log \pi_{\theta_{\text{old}}})$$</p>
+<p><strong>Clipped objective：</strong></p>
+<p>$$\mathcal{L}^{\text{CLIP}} = -\mathbb{E} \left[ \min \left( r_t \cdot A_t, \; \text{clip}(r_t, 1-\epsilon, 1+\epsilon) \cdot A_t \right) \right]$$</p>
+<p>直觉：</p>
+<ul>
+<li>当 $A_t &gt; 0$（好动作）：ratio 被限制不超过 $1+\epsilon$，防止过度增大概率</li>
+<li>当 $A_t &lt; 0$（坏动作）：ratio 被限制不低于 $1-\epsilon$，防止过度减小概率</li>
+</ul>
+<p><strong>Dual-clip 扩展：</strong> 当 $A_t &lt; 0$ 且 $r_t$ 过大时（策略在远离旧策略的方向上增大了坏动作的概率），标准 PPO clip 可能不够保守。Dual-clip 引入下界 $c$（通常 $c=3$）：</p>
+<p>$$\mathcal{L}^{\text{dual}} = \begin{cases} \min\left(\max(L_1, L_2), \; -c \cdot A_t\right) &amp; \text{if } A_t &lt; 0 \ \max(L_1, L_2) &amp; \text{otherwise} \end{cases}$$</p>
+<p><strong>GRPO 的 actor loss 与 PPO 完全相同</strong>——区别仅在于 $A_t$ 的来源不同（GRPO 用 group statistics，PPO 用 GAE）。</p>
+<p>代码位置：<code>verl/trainer/ppo/core_algos.py</code> 中的 <code>compute_policy_loss_vanilla</code>。</p>
+<h3 id="52-criticvalueloss">5.2 Critic（Value）Loss<a class="headerlink" href="#52-criticvalueloss" title="Permanent link">&para;</a></h3>
+<p>Critic 的训练目标是让 $V_\theta(s)$ 逼近 return $R_t$，使用 clipped MSE loss。</p>
+<p><strong>Clipped value loss：</strong></p>
+<p>$$V_{\text{clip}} = \text{clip}(V_\theta, V_{\text{old}} - \epsilon_v, V_{\text{old}} + \epsilon_v)$$</p>
+<p>$$\mathcal{L}^{\text{VF}} = \frac{1}{2} \max \left( (V_\theta - R_t)^2, \; (V_{\text{clip}} - R_t)^2 \right)$$</p>
+<p>Clipping 防止 value function 一次更新变化太大，与 policy clipping 的思路一致。</p>
+<p><strong>Loss 聚合：</strong> 只在 <code>response_mask=1</code> 的位置计算 loss，通过 <code>agg_loss</code> 函数聚合为标量。聚合模式包括：</p>
+<ul>
+<li><code>token-mean</code>：所有有效 token 的平均（默认）</li>
+<li><code>seq-mean-token-sum</code>：先对每条序列做 token 求和，再对序列求平均</li>
+<li><code>seq-mean-token-mean</code>：先对每条序列做 token 平均，再对序列求平均</li>
+</ul>
+<p><strong>Claw-R1 改进 — 仅第 1 个 token 位置训练 Critic：</strong></p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># claw_r1/async_trainer.py — _process_batch</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">response_mask</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;response_mask&quot;</span><span class="p">]</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">value_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">response_mask</span><span class="p">)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">value_mask</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>                          <span class="c1"># 只有第 1 个位置为 1</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">batch</span><span class="o">.</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;response_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value_mask</span>      <span class="c1"># 临时替换</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="n">critic_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">critic_wg</span><span class="o">.</span><span class="n">update_critic</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="n">batch</span><span class="o">.</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;response_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">response_mask</span>   <span class="c1"># 立即恢复</span>
+</span></code></pre></div>
+<p>这使得 critic loss 只在第 1 个 token 位置聚合，其他位置不参与梯度回传。配合 step-level 的 MDP 建模——V(s) 只需一个标量，训练其他位置既无意义也浪费算力。</p>
+<p>代码位置：<code>verl/trainer/ppo/core_algos.py</code> 中的 <code>compute_value_loss</code>。</p>
+<h3 id="53-entropy-loss">5.3 Entropy Loss<a class="headerlink" href="#53-entropy-loss" title="Permanent link">&para;</a></h3>
+<p>Entropy loss 鼓励策略保持一定的探索性，防止过早坍缩到某个确定性动作。</p>
+<p>$$\mathcal{L}^{\text{entropy}} = -H(\pi_\theta) = \sum_a \pi_\theta(a|s) \log \pi_\theta(a|s)$$</p>
+<p>Entropy 越大，策略越"均匀"（探索越多）。将 entropy loss 加入总 loss 中（带负号），相当于鼓励高 entropy。</p>
+<p>代码位置：<code>verl/trainer/ppo/core_algos.py</code> 中的 <code>compute_entropy_loss</code>。</p>
+<h3 id="54-kl-penalty">5.4 KL Penalty<a class="headerlink" href="#54-kl-penalty" title="Permanent link">&para;</a></h3>
+<p>KL penalty 约束当前策略不偏离 reference policy（通常是 SFT 模型）太远，防止 reward hacking。</p>
+<p><strong>常见 KL 估计方式：</strong></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>公式</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>k1 (kl)</td>
+<td>$\log \pi_\theta - \log \pi_{\text{ref}}$</td>
+<td>最简单，单侧</td>
+</tr>
+<tr>
+<td>k2 (mse)</td>
+<td>$\frac{1}{2}(\log \pi_\theta - \log \pi_{\text{ref}})^2$</td>
+<td>梯度无偏</td>
+</tr>
+<tr>
+<td>k3 (low_var_kl)</td>
+<td>$e^{\log \pi_{\text{ref}} - \log \pi_\theta} - (\log \pi_{\text{ref}} - \log \pi_\theta) - 1$</td>
+<td>低方差</td>
+</tr>
+<tr>
+<td>abs</td>
+<td>$|\log \pi_\theta - \log \pi_{\text{ref}}|$</td>
+<td>对称惩罚</td>
+</tr>
+</tbody>
+</table>
+<p><strong>两种使用方式：</strong></p>
+<ol>
+<li><strong>Reward shaping：</strong> 将 KL 惩罚融入 reward，$r_t^{\text{shaped}} = r_t - \beta \cdot \text{KL}_t$</li>
+<li><strong>独立 loss：</strong> 作为额外的 loss term 加入 actor 总 loss</li>
+</ol>
+<p>代码位置：<code>verl/trainer/ppo/core_algos.py</code> 中的 <code>kl_penalty</code> 和 <code>kl_penalty_forward</code>。</p>
+<hr />
+<h2 id="6-metrics">6. 关键 Metrics 解读<a class="headerlink" href="#6-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="actor">Actor 指标<a class="headerlink" href="#actor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>含义</th>
+<th>健康范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>actor/ppo_kl</code></td>
+<td>当前策略与旧策略的近似 KL 散度</td>
+<td>通常 &lt; 0.1；过大说明更新过激</td>
+</tr>
+<tr>
+<td><code>actor/pg_clipfrac</code></td>
+<td>被 PPO clip 截断的 ratio 比例</td>
+<td>通常 0.1-0.3；过高说明策略变化太大</td>
+</tr>
+<tr>
+<td><code>actor/pg_clipfrac_lower</code></td>
+<td>dual-clip 生效的比例（仅 $A&lt;0$ 时）</td>
+<td>应较小</td>
+</tr>
+</tbody>
+</table>
+<h3 id="critic">Critic 指标<a class="headerlink" href="#critic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>含义</th>
+<th>健康范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>critic/vf_loss</code></td>
+<td>Value function 的 MSE loss</td>
+<td>应随训练下降</td>
+</tr>
+<tr>
+<td><code>critic/vf_explained_var</code></td>
+<td>$1 - \text{Var}(R - V) / \text{Var}(R)$，Critic 拟合质量</td>
+<td>趋近 1.0 为好；&lt; 0 说明 Critic 预测比均值还差</td>
+</tr>
+<tr>
+<td><code>critic/vf_clipfrac</code></td>
+<td>value clipping 截断比例</td>
+<td>类似 actor clipfrac</td>
+</tr>
+<tr>
+<td><code>critic/vpred_mean</code></td>
+<td>Critic 预测值的均值</td>
+<td>应与 return 均值接近</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_1">数据指标<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>critic/score/mean</code></td>
+<td>平均 reward score</td>
+</tr>
+<tr>
+<td><code>critic/rewards/mean</code></td>
+<td>平均 shaped reward（含 KL penalty）</td>
+</tr>
+<tr>
+<td><code>critic/advantages/mean</code></td>
+<td>advantage 均值（whitening 后应接近 0）</td>
+</tr>
+<tr>
+<td><code>critic/returns/mean</code></td>
+<td>return 均值</td>
+</tr>
+<tr>
+<td><code>response_length/mean</code></td>
+<td>平均 response token 数</td>
+</tr>
+<tr>
+<td><code>response/aborted_ratio</code></td>
+<td>response 长度为 0 的比例（被截断/放弃的 response）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-claw-r1">7. 为什么 Claw-R1 的实现是合理的<a class="headerlink" href="#7-claw-r1" title="Permanent link">&para;</a></h2>
+<p>Claw-R1 的每个设计决策都可以从 agent 场景的交互结构中自然推导出来，形成一条自洽的逻辑链。</p>
+<h3 id="71-response-action">7.1 整段 response 作为原子 action<a class="headerlink" href="#71-response-action" title="Permanent link">&para;</a></h3>
+<p><strong>论据：</strong></p>
+<ul>
+<li>在 agent 场景中，环境（tool、sandbox、API）无法对单个 token 给出反馈——只有在整段 response 生成完毕后，环境才会返回 observation</li>
+<li>Token 之间不存在独立的"状态转移"。给定前缀后，LLM 的自回归采样是一次性完成的，中间没有环境介入</li>
+<li>因此，将整段 response 视为一个原子 action 符合 agent 交互的真实结构</li>
+</ul>
+<p><strong>推论：</strong> MDP 的 action 粒度从 token 提升到 sequence（step）。</p>
+<h3 id="72-critic-1-token">7.2 Critic 只在第 1 个 token 位置训练和推理<a class="headerlink" href="#72-critic-1-token" title="Permanent link">&para;</a></h3>
+<p><strong>由 7.1 推导：</strong></p>
+<ul>
+<li>既然 action 粒度是整段 response，$V(S_t)$ 只需要一个标量——表示"在执行第 $t$ 步动作之前，未来的期望回报"</li>
+<li>第 1 个 response token 位置对应的正是"prompt 结束后、response 开始前"的状态，恰好是 $V(S_t)$ 的定义位置</li>
+<li>其他 token 位置的 value 预测不参与 advantage 计算，训练它们既无意义也浪费算力</li>
+<li>因此 <code>value_mask[:, 0] = 1</code> 的设计是合理且高效的</li>
+</ul>
+<h3 id="73-gae-step">7.3 GAE 在 step 级别递推<a class="headerlink" href="#73-gae-step" title="Permanent link">&para;</a></h3>
+<p><strong>由 7.1 + 7.2 推导：</strong></p>
+<ul>
+<li>Reward 是 step-level 的（token reward 聚合为 step 标量）</li>
+<li>Value 是 step-level 的（只有第 1 个 token 的 value）</li>
+<li>GAE 的递推公式 $\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)$ 中的每个量都是 step-level 的</li>
+<li>因此 GAE 递推自然应在 step 维度进行</li>
+</ul>
+<p><code>trajectory_uids</code> 和 <code>step_indices</code> 的引入使得同一条 trajectory 的多个 step 可以被关联起来，跨 step 的 bootstrap $V(S_{t+1})$ 提供了 multi-step credit assignment 的能力。</p>
+<h3 id="74-grpo-trajectory">7.4 GRPO 按 trajectory 聚合<a class="headerlink" href="#74-grpo-trajectory" title="Permanent link">&para;</a></h3>
+<p><strong>由 agent 场景的 reward 结构推导：</strong></p>
+<ul>
+<li>Agent 的 outcome reward（如解题是否成功）属于整条 trajectory 而非单个 step</li>
+<li>如果按 step 独立计分，中间 step 的 reward 通常为 0，无法获得有效的 advantage signal</li>
+<li>先按 <code>trajectory_uids</code> 聚合为 trajectory-level 总 score，再做 group normalize，才能正确地将 outcome credit 分配到每个 step</li>
+</ul>
+<h3 id="75-actor-loss-token-level">7.5 Actor loss 仍按 token-level 计算<a class="headerlink" href="#75-actor-loss-token-level" title="Permanent link">&para;</a></h3>
+<p>这看似与 step-level MDP 矛盾，实则不然：</p>
+<ul>
+<li>Advantage 虽然是 step-level 标量，但通过 <code>* response_mask</code> 广播到 token 维度后，同一 step 内的每个 token 共享相同的 advantage</li>
+<li>Actor policy loss 仍逐 token 计算 $\log \pi_\theta(a_t|s_t)$ 的 ratio——因为策略 $\pi(A|S)$ 的对数概率本身就是 token-level 的自回归分解：$\log \pi(A|S) = \sum_t \log \pi(a_t|s, a_{&lt;t})$</li>
+<li>Step-level advantage 乘以 token-level 梯度，效果等价于对整段 response 的 REINFORCE 梯度：</li>
+</ul>
+<p>$$\nabla_\theta J = A(S, A) \cdot \nabla_\theta \sum_t \log \pi_\theta(a_t | s, a_{&lt;t}) = A(S, A) \cdot \nabla_\theta \log \pi_\theta(A|S)$$</p>
+<p>因此 token-level 的 policy loss 计算与 step-level MDP 是完全一致的。</p>
+<hr />
+<h2 id="8-vs-claw-r1">8. 传统 vs Claw-R1 对比总结<a class="headerlink" href="#8-vs-claw-r1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>传统 RLHF / PPO (verl)</th>
+<th>Claw-R1 Agentic RL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MDP action 粒度</td>
+<td>单个 token</td>
+<td>整段 response（一个 step）</td>
+</tr>
+<tr>
+<td>Critic V(s)</td>
+<td>逐 token 输出，<code>(bs, resp_len)</code></td>
+<td>仅第 1 个 token，标量</td>
+</tr>
+<tr>
+<td>Critic 训练 mask</td>
+<td>全部 response token</td>
+<td>仅第 1 个 token 位置</td>
+</tr>
+<tr>
+<td>GAE 递推维度</td>
+<td>token 级别，batch 行独立</td>
+<td>step 级别，按 trajectory 分组</td>
+</tr>
+<tr>
+<td>GRPO reward 聚合</td>
+<td>每个 response 独立 sum</td>
+<td>先按 trajectory 累加，再 group normalize</td>
+</tr>
+<tr>
+<td>额外元数据</td>
+<td>无</td>
+<td><code>trajectory_uids</code>, <code>step_indices</code></td>
+</tr>
+<tr>
+<td>Advantage 广播</td>
+<td>天然是 token-level</td>
+<td>step-level 标量广播到 token 维度</td>
+</tr>
+<tr>
+<td>Actor loss</td>
+<td>逐 token，与 advantage 同维度</td>
+<td>逐 token（不变），advantage 通过广播对齐</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>单轮对话 / RLHF</td>
+<td>多步 agent 交互 / tool use</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">代码索引<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Step-level GAE</td>
+<td><code>claw_r1/core_algos.py</code> <code>compute_gae_advantage_return</code></td>
+<td>跨 trajectory 的 step-level GAE</td>
+</tr>
+<tr>
+<td>Token-level 跨 Step GAE</td>
+<td><code>claw_r1/core_algos.py</code> <code>compute_token_gae_advantage_return</code></td>
+<td>跨 step 的精细 token-level GAE</td>
+</tr>
+<tr>
+<td>Trajectory-level GRPO</td>
+<td><code>claw_r1/core_algos.py</code> <code>compute_grpo_outcome_advantage</code></td>
+<td>按 trajectory 聚合的 GRPO</td>
+</tr>
+<tr>
+<td>Critic mask 替换</td>
+<td><code>claw_r1/async_trainer.py</code> <code>_process_batch</code></td>
+<td>仅第 1 个 token 位置训练 critic</td>
+</tr>
+<tr>
+<td>PPO Policy Loss</td>
+<td><code>verl/trainer/ppo/core_algos.py</code> <code>compute_policy_loss_vanilla</code></td>
+<td>Clipped surrogate + dual-clip</td>
+</tr>
+<tr>
+<td>Value Loss</td>
+<td><code>verl/trainer/ppo/core_algos.py</code> <code>compute_value_loss</code></td>
+<td>Clipped MSE regression</td>
+</tr>
+<tr>
+<td>Entropy Loss</td>
+<td><code>verl/trainer/ppo/core_algos.py</code> <code>compute_entropy_loss</code></td>
+<td>策略熵</td>
+</tr>
+<tr>
+<td>KL Penalty</td>
+<td><code>verl/trainer/ppo/core_algos.py</code> <code>kl_penalty</code></td>
+<td>多种 KL 估计方式</td>
+</tr>
+<tr>
+<td>Training Metrics</td>
+<td><code>verl/trainer/ppo/metric_utils.py</code> <code>compute_data_metrics</code></td>
+<td>训练指标计算</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  <form class="md-feedback" name="feedback" hidden>
+    <fieldset>
+      <legend class="md-feedback__title">
+        Was this page helpful?
+      </legend>
+      <div class="md-feedback__inner">
+        <div class="md-feedback__list">
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page was helpful" data-md-value="1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m7 0c0 .8-.7 1.5-1.5 1.5S14 10.3 14 9.5 14.7 8 15.5 8s1.5.7 1.5 1.5m-5 7.73c-1.75 0-3.29-.73-4.19-1.81L9.23 14c.45.72 1.52 1.23 2.77 1.23s2.32-.51 2.77-1.23l1.42 1.42c-.9 1.08-2.44 1.81-4.19 1.81"/></svg>
+            </button>
+          
+            <button class="md-feedback__icon md-icon" type="submit" title="This page could be improved" data-md-value="0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 8-8m2 0a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10m-6.5-4c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5.7-1.5 1.5-1.5M10 9.5c0 .8-.7 1.5-1.5 1.5S7 10.3 7 9.5 7.7 8 8.5 8s1.5.7 1.5 1.5m2 4.5c1.75 0 3.29.72 4.19 1.81l-1.42 1.42C14.32 16.5 13.25 16 12 16s-2.32.5-2.77 1.23l-1.42-1.42C8.71 14.72 10.25 14 12 14"/></svg>
+            </button>
+          
+        </div>
+        <div class="md-feedback__note">
+          
+            <div data-md-value="1" hidden>
+              
+              
+                
+              
+              
+              
+                
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+            <div data-md-value="0" hidden>
+              
+              
+                
+              
+              
+              
+                
+                
+              
+              Thanks for your feedback!
+            </div>
+          
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Claw-R1 Team · State Key Laboratory of Cognitive Intelligence, USTC
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/AgentR1/Claw-R1" target="_blank" rel="noopener" title="Claw-R1 on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "navigation.footer", "search.highlight", "search.suggest", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "announce.dismiss"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

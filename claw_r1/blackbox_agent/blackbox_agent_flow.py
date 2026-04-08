@@ -7,6 +7,7 @@ touch Gateway or implement any task logic.  Concrete strategies live in
 separate modules (e.g. gsm8k_agent_flow.py).
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -53,6 +54,35 @@ class BlackBoxAgentFlowBase(AgentFlowBase):
         metadata = {k: v for k, v in kwargs.items() if k not in _DEFAULT_SKIP_KEYS}
         return channel, prompt_uid, metadata
 
+    async def _http_post_with_retry(
+        self,
+        url: str,
+        max_retries: int = 3,
+        retry_delay: float = 3.0,
+        timeout: float = 600.0,
+        **kwargs,
+    ) -> httpx.Response:
+        """POST with retry on transient connection errors."""
+        last_exc = None
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient(timeout=httpx.Timeout(timeout)) as http:
+                    resp = await http.post(url, **kwargs)
+                    resp.raise_for_status()
+                    return resp
+            except (httpx.ReadError, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
+                last_exc = exc
+                if attempt < max_retries - 1:
+                    wait = retry_delay * (2 ** attempt)
+                    logger.warning(
+                        "HTTP POST %s failed (attempt %d/%d): %s. Retrying in %.1fs...",
+                        url, attempt + 1, max_retries, exc, wait,
+                    )
+                    await asyncio.sleep(wait)
+                else:
+                    logger.error("HTTP POST %s failed after %d attempts: %s", url, max_retries, exc)
+        raise last_exc
+
     async def run(self, sampling_params: dict[str, Any], **kwargs) -> int:
         channel, prompt_uid, metadata = self._prepare_params(kwargs)
 
@@ -80,17 +110,55 @@ class BlackBoxAgentFlowBase(AgentFlowBase):
                 headers={"content-type": "application/json"},
             )
 
-        # 3. Run the concrete agent.
+        # 3. Run the concrete agent (with retry on transient errors).
+        reward = None
+        num_turns = 0
         try:
-            num_turns = await self._run_agent(base_url, kwargs)
+            result = await self._run_agent(base_url, kwargs)
+            # _run_agent may return int (num_turns) or tuple (num_turns, reward)
+            if isinstance(result, tuple):
+                num_turns, reward = result
+            else:
+                num_turns = result
+        except (httpx.ReadError, httpx.ConnectError, httpx.RemoteProtocolError) as exc:
+            # Agent failed due to transient connection error (e.g. vLLM weight update).
+            # Log warning but still complete the trajectory with reward=0.
+            logger.warning(
+                "Agent run failed with transient error: %s. Completing trajectory with reward=0.",
+                exc,
+            )
+            reward = 0.0
         finally:
-            # 4. Mark trajectory complete.
-            async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as http:
-                await http.post(f"{base_url}/complete_trajectory")
+            # 4. Mark trajectory complete, passing reward if available.
+            # Use retry to handle transient Gateway connection issues.
+            try:
+                body: dict[str, Any] = {}
+                if reward is not None:
+                    body["reward"] = float(reward)
+                if channel:
+                    body["channel"] = channel
+                if body:
+                    await self._http_post_with_retry(
+                        f"{base_url}/complete_trajectory",
+                        json=body,
+                    )
+                else:
+                    await self._http_post_with_retry(
+                        f"{base_url}/complete_trajectory",
+                    )
+            except Exception as exc:
+                logger.error(
+                    "Failed to complete trajectory after retries: %s", exc,
+                )
 
         return num_turns
 
     @abstractmethod
-    async def _run_agent(self, base_url: str, kwargs: dict[str, Any]) -> int:
-        """Create and run the concrete Agent.  Subclasses implement this."""
+    async def _run_agent(self, base_url: str, kwargs: dict[str, Any]) -> int | tuple[int, float]:
+        """Create and run the concrete Agent.  Subclasses implement this.
+
+        Returns either:
+        - ``int``: number of turns used (reward computed by Gateway)
+        - ``tuple[int, float]``: (turns_used, reward) for direct reward passing
+        """
         raise NotImplementedError

@@ -13,7 +13,7 @@ from claw_r1.blackbox_agent.gsm8k_agent import GSM8KAgent
 class BlackBoxGSM8KAgentFlow(BlackBoxAgentFlowBase):
     """Black-box flow that delegates to :class:`GSM8KAgent`."""
 
-    async def _run_agent(self, base_url: str, kwargs: dict[str, Any]) -> int:
+    async def _run_agent(self, base_url: str, kwargs: dict[str, Any]) -> tuple[int, float]:
         raw_prompt = kwargs.get("raw_prompt", [])
         if isinstance(raw_prompt, list) and raw_prompt:
             question = next(

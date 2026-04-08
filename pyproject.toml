@@ -1,4 +1,55 @@
 # -------------------------------
+# build-system
+# -------------------------------
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# -------------------------------
+# project (PEP 621 metadata)
+# -------------------------------
+[project]
+name = "claw_r1"
+version = "0.1.0"
+description = "Claw-R1: Empowering OpenClaw with Advanced Agentic RL"
+license = {text = "Apache-2.0"}
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.10"
+dependencies = [
+  "httpx",
+  "ray[default]",
+  "uvicorn",
+  "fastapi",
+  "hydra-core",
+  "omegaconf",
+  "numpy<2.0.0",
+  "torch",
+  "torchdata",
+  "tensordict>=0.8.0,<=0.10.0,!=0.9.0",
+  "transformers",
+  "pydantic",
+  "Pillow",
+  "msgpack",
+  "idna",
+  "openai",
+  "flash-attn>=2.5.0",
+  "swanlab[dashboard]",
+]
+
+# -------------------------------
+# tool.setuptools - Package discovery
+# -------------------------------
+[tool.setuptools.packages.find]
+include = ["claw_r1*"]
+exclude = ["assets*", "docs*", "example*"]
+
+[tool.setuptools.package-data]
+claw_r1 = [
+  "config/*.yaml",
+  "config/**/*.yaml",
+]
+
+# -------------------------------
 # tool.ruff - Linting configuration
 # -------------------------------
 [tool.ruff]

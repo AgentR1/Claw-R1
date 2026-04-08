@@ -95,6 +95,15 @@ class VerlBackend(TrainingBackend):
         has_reward = any(s.reward is not None for s in steps)
         reward_tensors: list[torch.Tensor] = []
 
+        # DEBUG: log reward status
+        reward_values = [s.reward for s in steps[:5]]  # first 5 steps
+        import logging as _logging
+        _tb_logger = _logging.getLogger("claw_r1.training_backend")
+        _tb_logger.warning(
+            "[DEBUG] VerlBackend.convert: %d steps, has_reward=%s, sample rewards=%s",
+            len(steps), has_reward, reward_values,
+        )
+
         for step in steps:
             padded = self._pad_single_step(step)
             prompt_ids_list.append(padded["prompt_ids"])

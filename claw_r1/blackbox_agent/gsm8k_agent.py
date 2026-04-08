@@ -101,15 +101,17 @@ class GSM8KAgent:
             timeout=600.0,
         )
 
-    async def solve(self, question: str, ground_truth: str, max_turns: int = 3) -> int:
+    async def solve(self, question: str, ground_truth: str, max_turns: int = 3) -> tuple[int, float]:
         """Attempt to solve *question* in up to *max_turns* LLM interactions.
 
-        Returns the number of turns actually used.  Trajectory completion is
-        signaled by the caller (BlackBoxAgentFlowBase or online service entrypoint).
+        Returns a tuple of (turns_used, reward).  ``reward`` is 1.0 if the
+        agent called ``check_answer`` with the correct answer, 0.0 otherwise.
+        Trajectory completion is signaled by the caller.
         """
         messages: list[dict] = [{"role": "user", "content": question}]
 
         turns_used = 0
+        reward = 0.0
         for turn in range(max_turns):
             turns_used = turn + 1
 
@@ -127,9 +129,11 @@ class GSM8KAgent:
                     if tc["name"] == "check_answer":
                         answer = tc["arguments"].get("answer", "")
                         result = check_answer(answer, ground_truth)
+                        if "Correct" in result:
+                            reward = 1.0
                         messages.append({"role": "tool", "content": result})
             else:
                 messages.append({"role": "assistant", "content": content})
                 break
 
-        return turns_used
+        return turns_used, reward

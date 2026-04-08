@@ -58,20 +58,18 @@ class AsyncTrainer:
         self.device_name = device_name or self.config.trainer.device
 
         self.hybrid_engine = False
-        self.use_reference_policy = need_reference_policy(self.role_worker_mapping)
+        self.use_reference_policy = need_reference_policy(self.config)
         self.use_critic = need_critic(self.config)
         self.ref_in_actor = config.actor_rollout_ref.model.get("lora_rank", 0) > 0
 
         self.reward_fn = load_reward_manager(
             config,
             tokenizer,
-            num_examine=0,
             **config.reward_model.get("reward_kwargs", {}),
         )
         self.val_reward_fn = load_reward_manager(
             config,
             tokenizer,
-            num_examine=1,
             **config.reward_model.get("reward_kwargs", {}),
         )
 
@@ -361,6 +359,21 @@ class AsyncTrainer:
 
     def _compute_reward(self, batch: DataProto):
         """Compute or extract reward for training."""
+        has_rm = "rm_scores" in batch.batch
+        has_ds = "data_source" in batch.non_tensor_batch if hasattr(batch, "non_tensor_batch") else False
+        has_gt = "reward_model" in batch.non_tensor_batch if hasattr(batch, "non_tensor_batch") else False
+        print(
+            f"[DEBUG _compute_reward] has_rm_scores={has_rm}, has_data_source={has_ds}, "
+            f"has_reward_model={has_gt}, reward_fn={self.reward_fn is not None}"
+        )
+        if has_rm:
+            rm = batch.batch["rm_scores"]
+            print(f"[DEBUG _compute_reward] rm_scores: sum={rm.sum().item():.4f}, max={rm.max().item():.4f}, nonzero={rm.count_nonzero().item()}")
+        if has_ds:
+            print(f"[DEBUG _compute_reward] data_source sample: {batch.non_tensor_batch['data_source'][:3]}")
+        if has_gt:
+            print(f"[DEBUG _compute_reward] reward_model sample: {batch.non_tensor_batch['reward_model'][:3]}")
+
         if "rm_scores" in batch.batch:
             reward_extra_keys = batch.meta_info.get("reward_extra_keys", [])
             reward_extra_infos_dict = (
@@ -371,7 +384,9 @@ class AsyncTrainer:
         if self.reward_fn is not None:
             from verl.trainer.ppo.reward import compute_reward
 
-            return compute_reward(batch, self.reward_fn)
+            result = compute_reward(batch, self.reward_fn)
+            print(f"[DEBUG _compute_reward] reward_fn result: sum={result[0].sum().item():.4f}, max={result[0].max().item():.4f}, nonzero={result[0].count_nonzero().item()}")
+            return result
 
         raise ValueError("No reward_fn and no pre-computed rm_scores in batch")
 

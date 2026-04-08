@@ -20,7 +20,10 @@ import aiohttp
 import ray
 from omegaconf import DictConfig
 
-from verl.experimental.reward_loop.reward_loop import get_reward_manager_cls
+try:
+    from verl.experimental.reward_loop.reward_manager import get_reward_manager_cls
+except ImportError:
+    from verl.experimental.reward_loop.reward_loop import get_reward_manager_cls
 from verl.protocol import DataProto
 from verl.trainer.ppo.reward import get_custom_reward_fn
 from verl.utils import hf_tokenizer
@@ -66,11 +69,12 @@ class RewardLoopWorker:
 
         # Load reward loop manager class
         # Support both registry and importlib loading methods
-        reward_loop_source = self.config.reward_model.get("reward_loop_source", "register")
+        reward_loop_source = self.config.reward_model.get("reward_loop_source", None) or "register"
 
         if reward_loop_source == "register":
             # Load from registry (default behavior)
-            reward_manager_cls = get_reward_manager_cls(self.config.reward_model.reward_manager)
+            reward_manager_name = self.config.reward_model.get("reward_manager", None) or "naive"
+            reward_manager_cls = get_reward_manager_cls(reward_manager_name)
         elif reward_loop_source == "importlib":
             # Load from external module using importlib
             from verl.utils.import_utils import load_extern_object

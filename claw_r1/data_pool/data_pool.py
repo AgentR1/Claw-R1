@@ -239,6 +239,18 @@ class DataPool:
 
         return True
 
+    def get_last_step(
+        self,
+        trajectory_uid: str,
+        channel: str = DEFAULT_CHANNEL,
+    ) -> Step | None:
+        """Return the last Step of a trajectory, or None if not found."""
+        ch = self._ch(channel)
+        idx_list = ch.trajectory_index.get(trajectory_uid)
+        if not idx_list:
+            return None
+        return ch.steps[idx_list[-1]]
+
     # ── Lifecycle ──────────────────────────────────────────────────────────
 
     def shutdown(self, channel: str | None = None) -> None:
@@ -279,7 +291,7 @@ class DataPool:
             "total_dropped": ch.total_dropped,
             "queue_size": unconsumed,
             "ready_prompt_groups": ready,
-            "max_queue_size": self._max_queue_size,
+            "max_queue_size": self._max_queue_size if self._max_queue_size is not None else -1,
             "shutdown": ch.shutdown,
         }
 

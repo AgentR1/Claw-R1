@@ -285,7 +285,7 @@ class TaskRunner:
         # validate config
         validate_config(
             config=config,
-            use_reference_policy=need_reference_policy(self.role_worker_mapping),
+            use_reference_policy=need_reference_policy(config),
             use_critic=need_critic(config),
         )
 
@@ -305,10 +305,10 @@ class TaskRunner:
 
         # Load the reward manager for training and validation.
         reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=0, **config.reward_model.get("reward_kwargs", {})
+            config, tokenizer, **config.reward_model.get("reward_kwargs", {})
         )
         val_reward_fn = load_reward_manager(
-            config, tokenizer, num_examine=1, **config.reward_model.get("reward_kwargs", {})
+            config, tokenizer, **config.reward_model.get("reward_kwargs", {})
         )
 
         resource_pool_manager = self.init_resource_pool_mgr(config)
@@ -316,7 +316,6 @@ class TaskRunner:
         from verl.trainer.main_ppo import create_rl_dataset, create_rl_sampler
         from verl.utils.dataset.rl_dataset import collate_fn
 
-        # Create training and validation datasets.
         # Create training and validation datasets.
         train_dataset = create_rl_dataset(
             config.data.train_files,
@@ -337,6 +336,9 @@ class TaskRunner:
         train_sampler = create_rl_sampler(config.data, train_dataset)
 
         # Initialize the Agent trainer.
+        # RayAgentTrainer extends RayPPOTrainer which does NOT accept
+        # reward_fn/val_reward_fn as __init__ args. They are set as
+        # attributes after construction instead.
         trainer = RayAgentTrainer(
             config=config,
             tokenizer=tokenizer,
@@ -344,13 +346,15 @@ class TaskRunner:
             role_worker_mapping=self.role_worker_mapping,
             resource_pool_manager=resource_pool_manager,
             ray_worker_group_cls=ray_worker_group_cls,
-            reward_fn=reward_fn,
-            val_reward_fn=val_reward_fn,
             train_dataset=train_dataset,
             val_dataset=val_dataset,
             collate_fn=collate_fn,
             train_sampler=train_sampler,
         )
+        # Set reward functions as attributes (RayPPOTrainer creates them
+        # internally in fit(), but we want to use our pre-loaded ones).
+        trainer.reward_fn = reward_fn
+        trainer.val_reward_fn = val_reward_fn
         # Initialize the workers of the trainer.
         trainer.init_workers()
 

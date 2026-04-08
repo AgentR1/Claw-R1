@@ -11,9 +11,9 @@
 
 ## News
 
-- **[2026.04]** 🌲 **Prefix Tree Merge for Agentic RL Training.** A new algorithm that deduplicates shared prefix computation in multi-step agent training via prefix tree packing + FlexAttention. Currently under testing on the [`prefix-tree-merge`](https://github.com/AgentR1/Claw-R1/tree/prefix-tree-merge) branch. See [documentation](docs/components/prefix-tree-merge.md).
+- **[2026.04]** 🌲 **Prefix Tree Merge for Agentic RL Training.** A new algorithm that deduplicates shared prefix computation in multi-step agent training via prefix tree packing + FlexAttention. Currently under testing on the [`prefix-tree-merge`](https://github.com/AgentR1/Claw-R1/tree/prefix-tree-merge) branch. See [documentation](https://agentr1.github.io/Claw-R1/components/prefix-tree-merge/).
 
-- **[2026.04]** 📚 **RL Training Internals Tutorial.** A comprehensive tutorial covering core RL concepts (Reward / Value / Advantage / Return / Loss), PPO & GRPO algorithms, and Claw-R1's step-level agentic RL design rationale. See [tutorial](docs/rl-training-internals/index.md).
+- **[2026.04]** 📚 **RL Training Internals Tutorial.** A comprehensive tutorial covering core RL concepts (Reward / Value / Advantage / Return / Loss), PPO & GRPO algorithms, and Claw-R1's step-level agentic RL design rationale. See [tutorial](https://agentr1.github.io/Claw-R1/rl-training-internals/).
 
 - **[2026.03.06]** 📖 **Claw-R1 Documentation Released.** Project page and documentation are now available at [Claw-R1 Project Page](https://agentr1.github.io/) and [Claw-R1 docs](https://agentr1.github.io/Claw-R1/).
 

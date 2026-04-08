@@ -78,9 +78,15 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.snippets
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 extra:
   social:
@@ -120,6 +126,9 @@ nav:
     - Agent Flow: components/agent-flow.md
     - Async Training: components/async-training.md
     - Reward System: components/reward-system.md
+    - Prefix Tree Merge: components/prefix-tree-merge.md
+  - RL Training Internals:
+    - rl-training-internals/index.md
   - Configuration:
     - configuration/index.md
   - API Reference:

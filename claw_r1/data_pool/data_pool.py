@@ -77,6 +77,9 @@ class _ChannelState:
         self.total_produced: int = 0
         self.total_consumed: int = 0
         self.total_dropped: int = 0
+        self.curation: dict[str, dict[str, Any]] = {}
+        self.events: list[dict[str, Any]] = []
+        self.event_cursor: int = 0
 
 
 @ray.remote
@@ -148,6 +151,12 @@ class DataPool:
             group.complete_trajectories.add(traj_uid)
 
         ch.total_produced += 1
+        self._append_event(
+            ch,
+            "step_submitted",
+            step,
+            {"channel": channel, "storage_index": idx},
+        )
 
         if self._max_queue_size is not None and channel == DEFAULT_CHANNEL:
             unconsumed = len(ch.fifo_queue) - ch.consume_cursor
@@ -237,7 +246,153 @@ class DataPool:
             group.complete_trajectories.add(trajectory_uid)
             self._check_and_signal(ch)
 
+        self._append_event(
+            ch,
+            "trajectory_completed",
+            last_step,
+            {"channel": channel, "reward": reward},
+        )
         return True
+
+    # ── Dashboard read/curation API ───────────────────────────────────────
+
+    def list_steps(
+        self,
+        channel: str = DEFAULT_CHANNEL,
+        *,
+        prompt_uid: str | None = None,
+        trajectory_uid: str | None = None,
+        agent: str | None = None,
+        quality: str | None = None,
+        trainable: bool | None = None,
+        reward_state: str | None = None,
+        min_reward: float | None = None,
+        max_reward: float | None = None,
+        policy_version: int | None = None,
+        limit: int = 200,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        """Return serialized Step rows for dashboard inspection.
+
+        Curation fields are read from an independent side table keyed by
+        ``trajectory_uid`` and ``step_index``.  The stored Step objects are not
+        modified by curation updates, so training batch conversion is unchanged.
+        """
+        ch = self._ch(channel)
+        rows = [self._serialize_step(ch, step, idx, channel) for idx, step in enumerate(ch.steps)]
+        rows = [
+            row
+            for row in rows
+            if self._matches_step_filters(
+                row,
+                prompt_uid=prompt_uid,
+                trajectory_uid=trajectory_uid,
+                agent=agent,
+                quality=quality,
+                trainable=trainable,
+                reward_state=reward_state,
+                min_reward=min_reward,
+                max_reward=max_reward,
+                policy_version=policy_version,
+            )
+        ]
+        rows.sort(key=lambda r: (r["prompt_uid"], r["trajectory_uid"], r["step_index"]))
+        total = len(rows)
+        end = max(offset, 0) + max(limit, 0)
+        return {"channel": channel, "total": total, "steps": rows[max(offset, 0) : end]}
+
+    def list_trajectories(
+        self,
+        channel: str = DEFAULT_CHANNEL,
+        *,
+        prompt_uid: str | None = None,
+        trajectory_uid: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> dict[str, Any]:
+        """Return trajectory summaries assembled from current channel steps."""
+        ch = self._ch(channel)
+        summaries: list[dict[str, Any]] = []
+        for uid, indices in ch.trajectory_index.items():
+            if trajectory_uid and uid != trajectory_uid:
+                continue
+            steps = [ch.steps[i] for i in indices]
+            if not steps:
+                continue
+            first = steps[0]
+            if prompt_uid and first.prompt_uid != prompt_uid:
+                continue
+            rewards = [s.reward for s in steps if s.reward is not None]
+            curated = [self._curation_for_step(ch, s) for s in steps]
+            summaries.append(
+                {
+                    "trajectory_uid": uid,
+                    "prompt_uid": first.prompt_uid,
+                    "step_count": len(steps),
+                    "complete": ch.trajectory_complete.get(uid, False),
+                    "reward_sum": sum(rewards) if rewards else None,
+                    "reward_min": min(rewards) if rewards else None,
+                    "reward_max": max(rewards) if rewards else None,
+                    "policy_versions": sorted({s.policy_version for s in steps}),
+                    "agents": sorted(
+                        {
+                            str((s.metadata or {}).get("agent"))
+                            for s in steps
+                            if (s.metadata or {}).get("agent") is not None
+                        }
+                    ),
+                    "quality_counts": self._count_values(c.get("quality") for c in curated),
+                    "trainable_steps": sum(1 for c in curated if c.get("trainable", True)),
+                    "metadata": first.metadata or {},
+                }
+            )
+        summaries.sort(key=lambda r: (r["prompt_uid"], r["trajectory_uid"]))
+        total = len(summaries)
+        end = max(offset, 0) + max(limit, 0)
+        return {"channel": channel, "total": total, "trajectories": summaries[max(offset, 0) : end]}
+
+    def get_step_events(
+        self,
+        channel: str = DEFAULT_CHANNEL,
+        *,
+        cursor: int = 0,
+        limit: int = 200,
+    ) -> dict[str, Any]:
+        """Return step/curation events after a monotonic cursor."""
+        ch = self._ch(channel)
+        events = [event for event in ch.events if event["cursor"] > cursor]
+        events = events[: max(limit, 0)]
+        next_cursor = events[-1]["cursor"] if events else cursor
+        return {
+            "channel": channel,
+            "cursor": next_cursor,
+            "events": events,
+            "has_more": bool(ch.events and next_cursor < ch.events[-1]["cursor"]),
+        }
+
+    def update_step_curation(
+        self,
+        updates: list[dict[str, Any]],
+        channel: str = DEFAULT_CHANNEL,
+    ) -> dict[str, Any]:
+        """Update dashboard-only curation fields for one or more steps."""
+        ch = self._ch(channel)
+        updated: list[dict[str, Any]] = []
+        allowed = {"quality", "trainable", "reward_status", "tags", "note"}
+        for item in updates:
+            step = self._find_step_for_curation(ch, item)
+            if step is None:
+                continue
+            key = self._step_key(step)
+            existing = dict(ch.curation.get(key, {}))
+            patch = {k: item[k] for k in allowed if k in item}
+            if "tags" in patch and patch["tags"] is None:
+                patch["tags"] = []
+            existing.update(patch)
+            ch.curation[key] = existing
+            self._append_event(ch, "curation_updated", step, {"curation": existing, "patch": patch})
+            updated.append({"step_key": key, "curation": existing})
+        return {"channel": channel, "updated": updated, "updated_count": len(updated)}
 
     # ── Lifecycle ──────────────────────────────────────────────────────────
 
@@ -281,6 +436,8 @@ class DataPool:
             "ready_prompt_groups": ready,
             "max_queue_size": self._max_queue_size,
             "shutdown": ch.shutdown,
+            "curated_steps": len(ch.curation),
+            "event_cursor": ch.event_cursor,
         }
 
     def stats(self, channel: str = DEFAULT_CHANNEL) -> dict:
@@ -300,6 +457,8 @@ class DataPool:
             "consumed_prompt_groups": consumed,
             "pending_prompt_groups": pending,
             "ready_prompt_groups": ready,
+            "curated_steps": len(ch.curation),
+            "event_cursor": ch.event_cursor,
         }
 
     # ── Internal helpers ──────────────────────────────────────────────────
@@ -369,3 +528,114 @@ class DataPool:
             len(remaining_indices) + ch.consume_cursor,
             len(new_steps),
         )
+
+    def _step_key(self, step: Step) -> str:
+        return f"{step.trajectory_uid}:{step.step_index}"
+
+    def _curation_for_step(self, ch: _ChannelState, step: Step) -> dict[str, Any]:
+        curation = dict(ch.curation.get(self._step_key(step), {}))
+        curation.setdefault("quality", "unreviewed")
+        curation.setdefault("trainable", True)
+        curation.setdefault("reward_status", "present" if step.reward is not None else "missing")
+        curation.setdefault("tags", [])
+        return curation
+
+    def _serialize_step(self, ch: _ChannelState, step: Step, storage_index: int, channel: str) -> dict[str, Any]:
+        curation = self._curation_for_step(ch, step)
+        prompt_len = len(step.prompt_ids or [])
+        response_len = len(step.response_ids or [])
+        metadata = step.metadata or {}
+        return {
+            "step_key": self._step_key(step),
+            "storage_index": storage_index,
+            "channel": channel,
+            "trajectory_uid": step.trajectory_uid,
+            "prompt_uid": step.prompt_uid,
+            "step_index": step.step_index,
+            "is_last": step.is_last,
+            "complete": ch.trajectory_complete.get(step.trajectory_uid, False),
+            "reward": step.reward,
+            "reward_state": "present" if step.reward is not None else "missing",
+            "policy_version": step.policy_version,
+            "prompt_len": prompt_len,
+            "response_len": response_len,
+            "token_count": prompt_len + response_len,
+            "prompt_ids": list(step.prompt_ids or []),
+            "response_ids": list(step.response_ids or []),
+            "action_summary": self._summarize_tokens(step.response_ids),
+            "agent": metadata.get("agent"),
+            "task": metadata.get("task") or metadata.get("data_source") or metadata.get("dataset"),
+            "metadata": metadata,
+            "curation": curation,
+        }
+
+    def _matches_step_filters(self, row: dict[str, Any], **filters: Any) -> bool:
+        if filters["prompt_uid"] and row["prompt_uid"] != filters["prompt_uid"]:
+            return False
+        if filters["trajectory_uid"] and row["trajectory_uid"] != filters["trajectory_uid"]:
+            return False
+        if filters["agent"] and row["agent"] != filters["agent"]:
+            return False
+        if filters["quality"] and row["curation"].get("quality") != filters["quality"]:
+            return False
+        if filters["trainable"] is not None and row["curation"].get("trainable", True) != filters["trainable"]:
+            return False
+        if filters["reward_state"] and row["reward_state"] != filters["reward_state"]:
+            return False
+        if filters["policy_version"] is not None and row["policy_version"] != filters["policy_version"]:
+            return False
+        reward = row["reward"]
+        if filters["min_reward"] is not None and (reward is None or reward < filters["min_reward"]):
+            return False
+        if filters["max_reward"] is not None and (reward is None or reward > filters["max_reward"]):
+            return False
+        return True
+
+    def _find_step_for_curation(self, ch: _ChannelState, item: dict[str, Any]) -> Step | None:
+        step_key = item.get("step_key")
+        for step in ch.steps:
+            if step_key and self._step_key(step) == step_key:
+                return step
+            if (
+                item.get("trajectory_uid") == step.trajectory_uid
+                and item.get("step_index") == step.step_index
+            ):
+                return step
+        return None
+
+    def _append_event(
+        self,
+        ch: _ChannelState,
+        event_type: str,
+        step: Step,
+        payload: dict[str, Any] | None = None,
+    ) -> None:
+        ch.event_cursor += 1
+        ch.events.append(
+            {
+                "cursor": ch.event_cursor,
+                "type": event_type,
+                "step_key": self._step_key(step),
+                "trajectory_uid": step.trajectory_uid,
+                "prompt_uid": step.prompt_uid,
+                "step_index": step.step_index,
+                "policy_version": step.policy_version,
+                "reward": step.reward,
+                "payload": payload or {},
+            }
+        )
+        if len(ch.events) > 5000:
+            ch.events = ch.events[-5000:]
+
+    def _summarize_tokens(self, tokens: list[int] | None, max_items: int = 12) -> str:
+        tokens = tokens or []
+        shown = tokens[:max_items]
+        suffix = " ..." if len(tokens) > max_items else ""
+        return "[" + ", ".join(str(t) for t in shown) + suffix + "]"
+
+    def _count_values(self, values: Any) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for value in values:
+            key = str(value or "unreviewed")
+            counts[key] = counts.get(key, 0) + 1
+        return counts

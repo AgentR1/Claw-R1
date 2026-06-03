@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claw-R1 Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Claw-R1 Dashboard</h1>
+        <p class="subtitle">Data lifecycle monitor for agentic reinforcement learning</p>
+        <p id="connection">Connecting...</p>
+      </div>
+      <div class="toolbar">
+        <label>Channel <input id="channel" value="train" /></label>
+        <button id="refresh">Refresh</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="stats" id="stats"></section>
+
+      <nav class="tabs" aria-label="Dashboard views">
+        <button class="active" data-tab="monitor"><span>01</span>Collection</button>
+        <button data-tab="steps"><span>02</span>Representation</button>
+        <button data-tab="curate"><span>03</span>Curation</button>
+        <button data-tab="optimize"><span>04</span>Optimization</button>
+        <button data-tab="batch"><span>05</span>Consumption</button>
+      </nav>
+
+      <section class="panel active" id="monitor">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Collection</p>
+            <h2>Realtime Trajectory Intake</h2>
+          </div>
+          <span id="eventCursor"></span>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </section>
+
+      <section class="panel" id="steps">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Representation</p>
+            <h2>Step-Level Data Representation</h2>
+          </div>
+        </div>
+        <div class="filters">
+          <input id="filterPrompt" placeholder="prompt_uid" />
+          <input id="filterTrajectory" placeholder="trajectory_uid" />
+          <select id="filterQuality">
+            <option value="">Any quality</option>
+            <option value="unreviewed">Unreviewed</option>
+            <option value="good">Good</option>
+            <option value="bad">Bad</option>
+            <option value="needs_reward">Needs reward</option>
+          </select>
+          <select id="filterTrainable">
+            <option value="">Any trainable</option>
+            <option value="true">Trainable</option>
+            <option value="false">Not trainable</option>
+          </select>
+          <button id="applyFilters">Apply</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll" /></th>
+                <th>Trajectory</th>
+                <th>Step</th>
+                <th>Status</th>
+                <th>State</th>
+                <th>Action</th>
+                <th>Reward</th>
+                <th>Policy</th>
+                <th>Quality</th>
+                <th>Train</th>
+                <th>Metadata</th>
+              </tr>
+            </thead>
+            <tbody id="stepsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="curate">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Curation</p>
+            <h2>Training Candidate Review</h2>
+          </div>
+        </div>
+        <div class="curation-controls">
+          <select id="curationQuality">
+            <option value="good">Good</option>
+            <option value="bad">Bad</option>
+            <option value="needs_reward">Needs reward</option>
+            <option value="unreviewed">Unreviewed</option>
+          </select>
+          <label><input type="checkbox" id="curationTrainable" checked /> Trainable</label>
+          <input id="curationTags" placeholder="tags comma,separated" />
+          <input id="curationNote" placeholder="note" />
+          <button id="applyCuration">Apply to selected</button>
+        </div>
+        <pre id="curationResult"></pre>
+      </section>
+
+      <section class="panel" id="batch">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Consumption</p>
+            <h2>Training Batch Manifest</h2>
+          </div>
+        </div>
+        <div class="batch-grid">
+          <label>Algorithm
+            <select id="batchAlgorithm">
+              <option>PPO</option>
+              <option>GRPO</option>
+            </select>
+          </label>
+          <label>Batch size <input id="batchSize" type="number" value="4" min="1" /></label>
+          <label>n_rollouts <input id="nRollouts" type="number" value="1" min="1" /></label>
+          <label>Policy freshness <input id="policyFreshness" type="number" value="3" min="0" /></label>
+          <button id="previewBatch">Generate Manifest</button>
+        </div>
+        <pre id="batchManifest"></pre>
+      </section>
+
+      <section class="panel" id="optimize">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Optimization</p>
+            <h2>Prefix Tree Preview</h2>
+            <p>This is a visualization preview. It does not change DataPool or training batches.</p>
+          </div>
+          <button id="previewTree">Build Preview</button>
+        </div>
+        <div class="tree-summary" id="treeSummary"></div>
+        <div class="tree-layout">
+          <div>
+            <h3>Nodes</h3>
+            <div id="treeNodes" class="node-list"></div>
+          </div>
+          <div>
+            <h3>Attention Mask</h3>
+            <div id="mask" class="mask"></div>
+          </div>
+        </div>
+        <h3>Sequence Paths</h3>
+        <pre id="sequencePaths"></pre>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

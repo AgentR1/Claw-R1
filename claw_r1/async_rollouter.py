@@ -194,7 +194,10 @@ class AsyncRollouter:
 
     async def _init_rollout_replicas(self):
         """Create and start vLLM replicas on the rollout worker group."""
+        from claw_r1.vllm_server_patch import apply_verl_vllm_server_patches, patch_rollout_replicas
         from verl.workers.rollout.replica import get_rollout_replica_class
+
+        apply_verl_vllm_server_patches()
 
         rollout_config = self.config.actor_rollout_ref.rollout
         model_config = self.config.actor_rollout_ref.model
@@ -220,12 +223,41 @@ class AsyncRollouter:
             )
             for rank in range(num_replicas)
         ]
+        patch_rollout_replicas(self.rollout_replicas)
 
         await asyncio.gather(*[r.init_hybrid(self.rollout_wg) for r in self.rollout_replicas])
 
         self._server_handles = [r._server_handle for r in self.rollout_replicas]
         self._server_addresses = [r._server_address for r in self.rollout_replicas]
         logger.info("Rollout replicas at %s", self._server_addresses)
+        await self._diagnose_rollout_servers()
+
+    async def _diagnose_rollout_servers(self):
+        """Fail early if the rollout HTTP servers returned unusable addresses."""
+        import httpx
+
+        for address in self._server_addresses:
+            base_url = f"http://{address}"
+            print(f"Checking rollout HTTP server: {base_url}")
+            last_error = None
+            for attempt in range(1, 31):
+                try:
+                    async with httpx.AsyncClient(timeout=2.0) as client:
+                        health = await client.get(f"{base_url}/health")
+                        print(f"  attempt {attempt}: GET /health -> {health.status_code}")
+                        models = await client.get(f"{base_url}/v1/models")
+                        print(f"  attempt {attempt}: GET /v1/models -> {models.status_code}")
+                        break
+                except Exception as exc:
+                    last_error = exc
+                    print(f"  attempt {attempt}: unreachable ({type(exc).__name__}: {exc})")
+                    await asyncio.sleep(1)
+            else:
+                raise RuntimeError(
+                    "Rollout HTTP server address was returned but stayed unreachable: "
+                    f"{base_url}. Gateway would fail with 'vLLM unreachable'. "
+                    f"Last error: {type(last_error).__name__}: {last_error}"
+                )
 
     def _init_gateway(self):
         """Start the Gateway Server as a subprocess."""

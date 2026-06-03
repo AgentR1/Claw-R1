@@ -121,13 +121,17 @@ ENV/
 *.lock
 
 # data
+data/
 *.parquet
 
 
 # local logs
 logs
 log
+output/
 outputs
+swanlog/
+swanlab/
 .history
 
 # MkDocs build output

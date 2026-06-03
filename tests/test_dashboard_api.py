@@ -23,7 +23,7 @@ def client():
 
 def test_mock_dashboard_steps_and_stats(client):
     stats = client.get("/api/stats").json()
-    assert stats["total_steps"] == 11
+    assert stats["total_steps"] == 18
 
     steps = client.get("/api/steps", params={"prompt_uid": "prompt-a"}).json()
     assert steps["total"] == 9
@@ -55,6 +55,7 @@ def test_mock_dashboard_curation_and_batch_preview(client):
     ).json()
     assert batch["algorithm"] == "GRPO"
     assert batch["manifest"]["channel"] == "train"
+    assert batch["prompt_groups"]
 
 
 def test_mock_dashboard_prefix_tree_preview(client):

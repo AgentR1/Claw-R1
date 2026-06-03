@@ -564,6 +564,7 @@ class DataPool:
             "response_ids": list(step.response_ids or []),
             "action_summary": self._summarize_tokens(step.response_ids),
             "agent": metadata.get("agent"),
+            "source": metadata.get("source") or metadata.get("data_source") or metadata.get("dataset") or metadata.get("task"),
             "task": metadata.get("task") or metadata.get("data_source") or metadata.get("dataset"),
             "metadata": metadata,
             "curation": curation,

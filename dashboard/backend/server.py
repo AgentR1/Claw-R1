@@ -146,6 +146,25 @@ def create_app(config: DashboardConfig) -> FastAPI:
             grouped.setdefault(step["prompt_uid"], []).append(step)
         selected_prompts = list(grouped.keys())[: req.batch_size]
         selected_steps = [step for uid in selected_prompts for step in grouped[uid]]
+        prompt_groups = []
+        for uid in selected_prompts:
+            group_steps = grouped[uid]
+            rewards = [s["reward"] for s in group_steps if s.get("reward") is not None]
+            quality_counts: dict[str, int] = {}
+            for step in group_steps:
+                quality = (step.get("curation") or {}).get("quality", "unreviewed")
+                quality_counts[quality] = quality_counts.get(quality, 0) + 1
+            prompt_groups.append(
+                {
+                    "prompt_uid": uid,
+                    "trajectory_count": len({s["trajectory_uid"] for s in group_steps}),
+                    "step_count": len(group_steps),
+                    "token_count": sum(s["token_count"] for s in group_steps),
+                    "reward_mean": sum(rewards) / len(rewards) if rewards else None,
+                    "policy_versions": sorted({s["policy_version"] for s in group_steps}),
+                    "quality_counts": quality_counts,
+                }
+            )
         return {
             "mode": "preview_only",
             "algorithm": req.algorithm,
@@ -154,9 +173,16 @@ def create_app(config: DashboardConfig) -> FastAPI:
             "n_rollouts": req.n_rollouts,
             "max_policy_staleness": req.max_policy_staleness,
             "prompt_uids": selected_prompts,
+            "prompt_groups": prompt_groups,
             "step_keys": [s["step_key"] for s in selected_steps],
             "step_count": len(selected_steps),
             "token_count": sum(s["token_count"] for s in selected_steps),
+            "curation_summary": {
+                "trainable_only": req.trainable_only,
+                "quality_filter": req.quality,
+                "selected_prompt_groups": len(selected_prompts),
+                "selected_trajectories": len({s["trajectory_uid"] for s in selected_steps}),
+            },
             "manifest": {
                 "algorithm": req.algorithm,
                 "channel": channel,
@@ -240,7 +266,20 @@ class MockDataPoolClient:
         self.steps = _mock_steps()
         self.curation: dict[str, dict[str, Any]] = {}
         self.events = [
-            {"cursor": i + 1, "type": "step_submitted", "step_key": step["step_key"], "payload": {}}
+            {
+                "cursor": i + 1,
+                "type": "step_submitted" if not step["is_last"] else "trajectory_completed",
+                "step_key": step["step_key"],
+                "prompt_uid": step["prompt_uid"],
+                "trajectory_uid": step["trajectory_uid"],
+                "payload": {
+                    "prompt_uid": step["prompt_uid"],
+                    "trajectory_uid": step["trajectory_uid"],
+                    "reward": step["reward"],
+                    "source": step["source"],
+                    "agent": step["agent"],
+                },
+            }
             for i, step in enumerate(self.steps)
         ]
 
@@ -345,8 +384,10 @@ def _mock_steps() -> list[dict[str, Any]]:
     rubric = [1401, 1402, 1403, 1404]
     task = [1501, 1502, 1503, 1504, 1505]
     shared_context = base_prompt + rubric + task
+    service_prompt = [7001, 7002, 7003, 7004, 7011, 7012, 7013]
+    code_prompt = [8101, 8102, 8103, 8104, 8201, 8202, 8203, 8301]
     samples = [
-        ("prompt-a", "traj-a-0", 0, shared_context, [2101, 2102, 2103, 2104, 2105], 0.32),
+        ("prompt-a", "traj-a-0", 0, shared_context, [2101, 2102, 2103, 2104, 2105], 0.32, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
         (
             "prompt-a",
             "traj-a-0",
@@ -354,6 +395,10 @@ def _mock_steps() -> list[dict[str, Any]]:
             shared_context + [2101, 2102, 2103, 2104, 2105, 3001, 3002, 3003],
             [4101, 4102, 4103, 4104],
             0.74,
+            "whitebox-rollout",
+            "math-planner",
+            "gsm8k-tool",
+            "calculator",
         ),
         (
             "prompt-a",
@@ -362,8 +407,12 @@ def _mock_steps() -> list[dict[str, Any]]:
             shared_context + [2101, 2102, 2103, 2104, 2105, 3001, 3002, 3003, 4101, 4102, 4103, 4104, 5001],
             [6101, 6102, 6103],
             0.91,
+            "whitebox-rollout",
+            "math-planner",
+            "gsm8k-tool",
+            "verifier",
         ),
-        ("prompt-a", "traj-a-1", 0, shared_context, [2101, 2102, 2103, 2104, 2115], 0.28),
+        ("prompt-a", "traj-a-1", 0, shared_context, [2101, 2102, 2103, 2104, 2115], 0.28, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
         (
             "prompt-a",
             "traj-a-1",
@@ -371,8 +420,12 @@ def _mock_steps() -> list[dict[str, Any]]:
             shared_context + [2101, 2102, 2103, 2104, 2115, 3001, 3002, 3014],
             [4101, 4102, 4203],
             0.63,
+            "whitebox-rollout",
+            "math-planner",
+            "gsm8k-tool",
+            "verifier",
         ),
-        ("prompt-a", "traj-a-2", 0, shared_context, [2201, 2202, 2203, 2204], 0.18),
+        ("prompt-a", "traj-a-2", 0, shared_context, [2201, 2202, 2203, 2204], 0.18, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
         (
             "prompt-a",
             "traj-a-2",
@@ -380,8 +433,12 @@ def _mock_steps() -> list[dict[str, Any]]:
             shared_context + [2201, 2202, 2203, 2204, 3301, 3302],
             [4301, 4302, 4303, 4304],
             0.52,
+            "whitebox-rollout",
+            "math-planner",
+            "gsm8k-tool",
+            "verifier",
         ),
-        ("prompt-a", "traj-a-3", 0, shared_context, [2101, 2102, 2103, 2104, 2105], 0.35),
+        ("prompt-a", "traj-a-3", 0, shared_context, [2101, 2102, 2103, 2104, 2105], 0.35, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
         (
             "prompt-a",
             "traj-a-3",
@@ -389,15 +446,27 @@ def _mock_steps() -> list[dict[str, Any]]:
             shared_context + [2101, 2102, 2103, 2104, 2105, 3001, 3002, 3003],
             [4101, 4102, 4103, 4114],
             0.81,
+            "whitebox-rollout",
+            "math-planner",
+            "gsm8k-tool",
+            "verifier",
         ),
-        ("prompt-b", "traj-b-0", 0, [7001, 7002, 7003, 7004], [7101, 7102, 7103], None),
-        ("prompt-b", "traj-b-1", 0, [7001, 7002, 7003, 7004], [7201, 7202], 0.11),
+        ("prompt-b", "traj-b-0", 0, service_prompt, [7101, 7102, 7103], None, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
+        ("prompt-b", "traj-b-0", 1, service_prompt + [7101, 7102, 7103, 7151, 7152], [7161, 7162, 7163, 7164], 0.66, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
+        ("prompt-b", "traj-b-1", 0, service_prompt, [7201, 7202], 0.11, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
+        ("prompt-b", "traj-b-1", 1, service_prompt + [7201, 7202, 7251], [7261, 7262], 0.24, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
+        ("prompt-c", "traj-c-0", 0, code_prompt, [9101, 9102, 9103, 9104], 0.79, "human-feedback", "code-agent", "repo-debug", "shell"),
+        ("prompt-c", "traj-c-0", 1, code_prompt + [9101, 9102, 9103, 9104, 9151, 9152, 9153], [9161, 9162, 9163], 0.88, "human-feedback", "code-agent", "repo-debug", "pytest"),
+        ("prompt-c", "traj-c-1", 0, code_prompt, [9201, 9202, 9203], 0.41, "human-feedback", "code-agent", "repo-debug", "shell"),
+        ("prompt-c", "traj-c-1", 1, code_prompt + [9201, 9202, 9203, 9251, 9252], [9261, 9262, 9263, 9264], 0.57, "human-feedback", "code-agent", "repo-debug", "pytest"),
+        ("prompt-c", "traj-c-2", 0, code_prompt, [9301, 9302, 9303, 9304], 0.93, "human-feedback", "code-agent", "repo-debug", "review"),
     ]
     last_step_by_trajectory = {}
-    for _prompt_uid, traj_uid, step_index, _prompt_ids, _response_ids, _reward in samples:
+    for _prompt_uid, traj_uid, step_index, _prompt_ids, _response_ids, _reward, *_rest in samples:
         last_step_by_trajectory[traj_uid] = max(last_step_by_trajectory.get(traj_uid, 0), step_index)
 
-    for prompt_uid, traj_uid, step_index, prompt_ids, response_ids, reward in samples:
+    for prompt_uid, traj_uid, step_index, prompt_ids, response_ids, reward, source, agent, task_name, tool in samples:
+        policy_version = 5 if prompt_uid == "prompt-a" else 4 if prompt_uid == "prompt-b" else 6
         rows.append(
             {
                 "step_key": f"{traj_uid}:{step_index}",
@@ -409,19 +478,23 @@ def _mock_steps() -> list[dict[str, Any]]:
                 "complete": True,
                 "reward": reward,
                 "reward_state": "present" if reward is not None else "missing",
-                "policy_version": 5 if prompt_uid == "prompt-a" else 4,
+                "policy_version": policy_version,
                 "prompt_len": len(prompt_ids),
                 "response_len": len(response_ids),
                 "token_count": len(prompt_ids) + len(response_ids),
                 "prompt_ids": prompt_ids,
                 "response_ids": response_ids,
                 "action_summary": str(response_ids),
-                "agent": "mock-agent",
-                "task": "prefix-tree-demo" if prompt_uid == "prompt-a" else "baseline-demo",
+                "agent": agent,
+                "task": task_name,
+                "source": source,
                 "metadata": {
-                    "agent": "mock-agent",
-                    "task": "prefix-tree-demo" if prompt_uid == "prompt-a" else "baseline-demo",
-                    "demo": "multi-branch-shared-prefix" if prompt_uid == "prompt-a" else "small-control",
+                    "agent": agent,
+                    "task": task_name,
+                    "source": source,
+                    "tool": tool,
+                    "reward_model": "rule+verifier" if prompt_uid == "prompt-a" else "implicit-feedback" if prompt_uid == "prompt-b" else "human-preference",
+                    "demo": "multi-branch-shared-prefix" if prompt_uid == "prompt-a" else "online-service" if prompt_uid == "prompt-b" else "code-agent-curation",
                 },
             }
         )

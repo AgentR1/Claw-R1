@@ -4,7 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Claw-R1 Dashboard</title>
-    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/static/styles.css?v=20260603-overview-polish" />
   </head>
   <body>
     <header class="topbar">
@@ -23,22 +24,78 @@
       <section class="stats" id="stats"></section>
 
       <nav class="tabs" aria-label="Dashboard views">
-        <button class="active" data-tab="monitor"><span>01</span>Collection</button>
-        <button data-tab="steps"><span>02</span>Representation</button>
-        <button data-tab="curate"><span>03</span>Curation</button>
-        <button data-tab="optimize"><span>04</span>Optimization</button>
-        <button data-tab="batch"><span>05</span>Consumption</button>
+        <button class="active" data-tab="monitor"><span>01</span>Overview</button>
+        <button data-tab="collect"><span>02</span>Collection</button>
+        <button data-tab="steps"><span>03</span>Data Pool</button>
+        <button data-tab="curate"><span>04</span>Curation</button>
+        <button data-tab="optimize"><span>05</span>Optimization</button>
+        <button data-tab="batch"><span>06</span>Consumption</button>
       </nav>
 
       <section class="panel active" id="monitor">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Collection</p>
-            <h2>Realtime Trajectory Intake</h2>
+            <p class="eyebrow">System Overview</p>
+            <h2>Step-Level Data Lifecycle</h2>
           </div>
           <span id="eventCursor"></span>
         </div>
-        <div class="timeline" id="timeline"></div>
+        <div class="overview-hero">
+          <div class="overview-title">
+            <p class="eyebrow">Claw-R1 Middleware</p>
+            <h3>Agent Data Lifecycle</h3>
+            <p>Collect, curate, optimize, and serve step-level trajectories for agentic RL.</p>
+            <div class="overview-metrics" id="overviewMetrics"></div>
+          </div>
+          <div class="overview-flow" id="overviewFlow"></div>
+          <div class="overview-health" id="overviewHealth"></div>
+        </div>
+        <div class="overview-grid">
+          <div class="overview-card">
+            <h3>Data Collection</h3>
+            <div class="source-grid" id="sourceGrid" data-source-grid></div>
+          </div>
+          <div class="overview-card">
+            <h3>Curation Signals</h3>
+            <div class="curation-board" id="overviewCurationBoard"></div>
+          </div>
+          <div class="overview-card">
+            <h3>Optimization Preview</h3>
+            <div class="overview-optimization" id="overviewOptimization"></div>
+          </div>
+          <div class="overview-card">
+            <h3>Consumption Plan</h3>
+            <div class="overview-consumption" id="overviewConsumption"></div>
+          </div>
+          <div class="overview-card overview-events">
+            <h3>Live Events</h3>
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="collect">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Collection</p>
+            <h2>Realtime Trajectory Intake</h2>
+          </div>
+          <span id="collectionCursor"></span>
+        </div>
+        <div class="collection-layout">
+          <div class="collection-main">
+            <h3>Collection Sources</h3>
+            <div class="source-grid collection-sources" id="collectionSourceGrid" data-source-grid></div>
+          </div>
+          <div class="collection-main">
+            <h3>Lifecycle Throughput</h3>
+            <div class="pipeline collection-pipeline" id="pipeline"></div>
+          </div>
+          <div class="collection-main collection-events">
+            <h3>Live Events</h3>
+            <div class="timeline" id="collectionTimeline"></div>
+          </div>
+        </div>
       </section>
 
       <section class="panel" id="steps">
@@ -51,6 +108,7 @@
         <div class="filters">
           <input id="filterPrompt" placeholder="prompt_uid" />
           <input id="filterTrajectory" placeholder="trajectory_uid" />
+          <input id="filterAgent" placeholder="agent" />
           <select id="filterQuality">
             <option value="">Any quality</option>
             <option value="unreviewed">Unreviewed</option>
@@ -65,6 +123,7 @@
           </select>
           <button id="applyFilters">Apply</button>
         </div>
+        <div class="pool-strip" id="poolStrip"></div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -94,6 +153,7 @@
             <h2>Training Candidate Review</h2>
           </div>
         </div>
+        <div class="curation-board" id="curationBoard"></div>
         <div class="curation-controls">
           <select id="curationQuality">
             <option value="good">Good</option>
@@ -106,7 +166,16 @@
           <input id="curationNote" placeholder="note" />
           <button id="applyCuration">Apply to selected</button>
         </div>
-        <pre id="curationResult"></pre>
+        <div class="review-grid">
+          <div>
+            <h3>Review Queue</h3>
+            <div id="reviewQueue" class="review-list"></div>
+          </div>
+          <div>
+            <h3>Latest Curation Patch</h3>
+            <pre id="curationResult"></pre>
+          </div>
+        </div>
       </section>
 
       <section class="panel" id="batch">
@@ -128,6 +197,8 @@
           <label>Policy freshness <input id="policyFreshness" type="number" value="3" min="0" /></label>
           <button id="previewBatch">Generate Manifest</button>
         </div>
+        <div class="manifest-summary" id="manifestSummary"></div>
+        <div class="manifest-groups" id="manifestGroups"></div>
         <pre id="batchManifest"></pre>
       </section>
 
@@ -141,6 +212,7 @@
           <button id="previewTree">Build Preview</button>
         </div>
         <div class="tree-summary" id="treeSummary"></div>
+        <div class="packed-ribbon" id="packedRibbon"></div>
         <div class="tree-layout">
           <div>
             <h3>Nodes</h3>
@@ -156,6 +228,6 @@
       </section>
     </main>
 
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=20260603-overview-polish"></script>
   </body>
 </html>

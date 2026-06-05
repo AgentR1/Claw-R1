@@ -22,6 +22,10 @@
       
       
         
+          <link rel="alternate" href="/Claw-R1/" hreflang="en">
+        
+          <link rel="alternate" href="/Claw-R1/zh/" hreflang="zh">
+        
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
@@ -155,6 +159,32 @@
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/Claw-R1/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/Claw-R1/zh/" hreflang="zh" class="md-select__link">
+              简体中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
     
     
       
@@ -309,6 +339,25 @@
         </a>
       </li>
     
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../dashboard/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dashboard
+
+      </a>
+    </li>
   
 
       
@@ -647,10 +696,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        前置条件
+        Prerequisites
       
     </span>
   </a>
@@ -658,60 +707,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#black-box" class="md-nav__link">
+  <a href="#run-black-box-training" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Black-box 模式（推荐入门）
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Black-box 模式（推荐入门）">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. 准备数据
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. 运行训练
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. 关键配置参数
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#white-box" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        White-box 模式
+        Run Black-Box Training
       
     </span>
   </a>
@@ -719,49 +718,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent" class="md-nav__link">
+  <a href="#start-the-dashboard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        自定义 Agent
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="自定义 Agent">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agent_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        添加黑盒 Agent
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#agent_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        添加白盒 Agent
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        监控训练
+        Start the Dashboard
       
     </span>
   </a>
@@ -769,10 +729,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#key-overrides" class="md-nav__link">
     <span class="md-ellipsis">
       
-        下一步
+        Key Overrides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#white-box-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        White-Box Mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -1223,40 +1205,15 @@
   
   
   
-    
-    
-      
+    <li class="md-nav__item">
+      <a href="../../dashboard/" class="md-nav__link">
         
-          
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../rl-training-internals/" class="md-nav__link ">
-              
   
   
   <span class="md-ellipsis">
     
   
-    RL Training Internals
+    Dashboard
   
 
     
@@ -1264,26 +1221,7 @@
   
   
 
-            </a>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    RL Training Internals
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-          </ul>
-        </nav>
-      
+      </a>
     </li>
   
 
@@ -1320,6 +1258,77 @@
         
           
           <div class="md-nav__link md-nav__container">
+            <a href="../../rl-training-internals/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RL Training Internals
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RL Training Internals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
             <a href="../../configuration/" class="md-nav__link ">
               
   
@@ -1339,8 +1348,8 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1389,7 +1398,7 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1411,14 +1420,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1521,10 +1530,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        前置条件
+        Prerequisites
       
     </span>
   </a>
@@ -1532,60 +1541,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#black-box" class="md-nav__link">
+  <a href="#run-black-box-training" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Black-box 模式（推荐入门）
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Black-box 模式（推荐入门）">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. 准备数据
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. 运行训练
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. 关键配置参数
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#white-box" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        White-box 模式
+        Run Black-Box Training
       
     </span>
   </a>
@@ -1593,49 +1552,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent" class="md-nav__link">
+  <a href="#start-the-dashboard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        自定义 Agent
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="自定义 Agent">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agent_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        添加黑盒 Agent
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#agent_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        添加白盒 Agent
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        监控训练
+        Start the Dashboard
       
     </span>
   </a>
@@ -1643,10 +1563,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#key-overrides" class="md-nav__link">
     <span class="md-ellipsis">
       
-        下一步
+        Key Overrides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#white-box-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        White-Box Mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next Steps
       
     </span>
   </a>
@@ -1674,88 +1616,49 @@
 
 
 <h1 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h1>
-<p>本指南展示如何快速运行 Claw-R1 的异步训练。</p>
-<h2 id="_1">前置条件<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>This guide runs Claw-R1 asynchronous training with a black-box GSM8K agent.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
-<li>已完成 <a href="../installation/">安装</a></li>
-<li>至少 3 张 GPU（2 张训练 + 1 张推理）</li>
-<li>训练数据（parquet 格式）</li>
+<li>Complete the <a href="../installation/">installation guide</a>.</li>
+<li>Prepare at least 3 GPUs for the small example.</li>
+<li>Place GSM8K parquet files where your script expects them.</li>
 </ul>
-<h2 id="black-box">Black-box 模式（推荐入门）<a class="headerlink" href="#black-box" title="Permanent link">&para;</a></h2>
-<p>黑盒模式下，Agent 使用标准 OpenAI API 与 Gateway 交互，无需修改 Agent 代码。以 GSM8K 数学题为例：</p>
-<h3 id="1">1. 准备数据<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># 下载 GSM8K 数据集（parquet 格式）</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1"># 确保 train.parquet 和 test.parquet 在 ~/data/gsm8k/ 下</span>
+<h2 id="run-black-box-training">Run Black-Box Training<a class="headerlink" href="#run-black-box-training" title="Permanent link">&para;</a></h2>
+<p>Black-box mode lets an agent use the standard OpenAI API while Claw-R1 captures the interaction through the Gateway.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>steppo
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>sh<span class="w"> </span>example/test_async_blackbox.sh
 </span></code></pre></div>
-<h3 id="2">2. 运行训练<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>sh<span class="w"> </span>example/test_async_blackbox.sh
+<p>The script starts Ray, creates the DataPool actor, launches the trainer and rollout GPU pools, starts the Gateway on port <code>8100</code>, and runs the registered GSM8K black-box agent flow.</p>
+<h2 id="start-the-dashboard">Start the Dashboard<a class="headerlink" href="#start-the-dashboard" title="Permanent link">&para;</a></h2>
+<p>After the training actors are available, open a second shell:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>steppo
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>sh<span class="w"> </span>example/start_dashboard.sh
 </span></code></pre></div>
-<p>该脚本会：</p>
-<ol>
-<li>启动 Ray 集群</li>
-<li>创建 DataPool（Ray Actor）</li>
-<li>在 GPU 0-1 上部署 Actor + Critic（训练）</li>
-<li>在 GPU 2 上部署 vLLM（推理）</li>
-<li>启动 Gateway（端口 8100）</li>
-<li>运行 <code>BlackBoxGSM8KAgentFlow</code>：<ul>
-<li>为每个样本调用 <code>init_trajectory</code> 获取 <code>base_url</code></li>
-<li>创建 <code>GSM8KAgent</code>，使用 <code>base_url</code> 作为 OpenAI API 的 endpoint</li>
-<li>Agent 通过多轮 tool calling 解题</li>
-<li>Gateway 自动收集每轮对话为 Step 并提交到 DataPool</li>
-</ul>
-</li>
-<li>AsyncTrainer 从 DataPool 拉取 batch 进行 PPO 训练</li>
-<li>定期同步权重到 vLLM</li>
-</ol>
-<h3 id="3">3. 关键配置参数<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># GPU 分配</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>trainer.n_gpus_per_node<span class="o">=</span><span class="m">2</span><span class="w">        </span><span class="c1"># 训练用 2 张 GPU</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>rollout.n_gpus_per_node<span class="o">=</span><span class="m">1</span><span class="w">        </span><span class="c1"># 推理用 1 张 GPU</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># Agent Flow</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>actor_rollout_ref.rollout.agent.default_agent_flow<span class="o">=</span>blackbox_gsm8k_agent
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>actor_rollout_ref.rollout.agent.agent_flow_config_path<span class="o">=</span>claw_r1/blackbox_agent/agent_flow_config.yaml
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1"># 异步训练</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>async_training.trigger_parameter_sync_step<span class="o">=</span><span class="m">1</span><span class="w">   </span><span class="c1"># 每步同步权重</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>actor_rollout_ref.rollout.n<span class="o">=</span><span class="m">5</span><span class="w">                  </span><span class="c1"># 每个 prompt 生成 5 条 trajectory</span>
+<p>Open <code>http://127.0.0.1:8120</code>.</p>
+<p>The dashboard uses real Ray actors and shows collection events, step representation, curation state, prefix-tree preview, and training consumption.</p>
+<h2 id="key-overrides">Key Overrides<a class="headerlink" href="#key-overrides" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>trainer.n_gpus_per_node<span class="o">=</span><span class="m">2</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>rollout.n_gpus_per_node<span class="o">=</span><span class="m">1</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>actor_rollout_ref.rollout.agent.default_agent_flow<span class="o">=</span>blackbox_gsm8k_agent
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>actor_rollout_ref.rollout.agent.agent_flow_config_path<span class="o">=</span>claw_r1/blackbox_agent/agent_flow_config.yaml
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>async_training.trigger_parameter_sync_step<span class="o">=</span><span class="m">1</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>actor_rollout_ref.rollout.n<span class="o">=</span><span class="m">5</span>
 </span></code></pre></div>
-<h2 id="white-box">White-box 模式<a class="headerlink" href="#white-box" title="Permanent link">&para;</a></h2>
-<p>白盒模式下，Agent 逻辑用 Python 编写，直接通过 Gateway 的 <code>/generate</code> 和 <code>/submit_steps</code> 端点交互。</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>sh<span class="w"> </span>example/test_async.sh
+<h2 id="white-box-mode">White-Box Mode<a class="headerlink" href="#white-box-mode" title="Permanent link">&para;</a></h2>
+<p>White-box agents build and submit <code>Step</code> objects directly through Gateway endpoints:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>steppo
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>sh<span class="w"> </span>example/test_async.sh
 </span></code></pre></div>
-<p>白盒模式使用 <code>MultiStepAgentFlow</code> 或 <code>SingleStepSingleTurnAgentFlow</code>，Agent 自行管理 tokenize 和 Step 构建。</p>
-<h2 id="agent">自定义 Agent<a class="headerlink" href="#agent" title="Permanent link">&para;</a></h2>
-<h3 id="agent_1">添加黑盒 Agent<a class="headerlink" href="#agent_1" title="Permanent link">&para;</a></h3>
-<ol>
-<li>实现 Agent 类（只需 <code>base_url</code> 和 OpenAI API）</li>
-<li>实现 <code>BlackBoxAgentFlowBase</code> 子类</li>
-<li>在 <code>agent_flow_config.yaml</code> 中注册</li>
-<li>在训练脚本中指定</li>
-</ol>
-<p>详细步骤见 <a href="../../components/blackbox-agent/">Black-box Agent</a>。</p>
-<h3 id="agent_2">添加白盒 Agent<a class="headerlink" href="#agent_2" title="Permanent link">&para;</a></h3>
-<ol>
-<li>继承 <code>AgentFlowBase</code>（或 <code>MultiStepAgentFlow</code>）</li>
-<li>实现 <code>run()</code> 方法</li>
-<li>使用 <code>@register("name")</code> 注册</li>
-</ol>
-<p>详细步骤见 <a href="../../components/agent-flow/">Agent Flow</a>。</p>
-<h2 id="_2">监控训练<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>训练日志默认输出到控制台。可配置 SwanLab 等日志后端：</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>trainer.logger<span class="o">=</span><span class="s1">&#39;[&quot;console&quot;,&quot;swanlab&quot;]&#39;</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>trainer.project_name<span class="o">=</span><span class="s1">&#39;my_project&#39;</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>trainer.experiment_name<span class="o">=</span><span class="s1">&#39;my_experiment&#39;</span>
-</span></code></pre></div>
-<h2 id="_3">下一步<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../../components/">Components</a> — 了解各组件的详细设计</li>
-<li><a href="../../configuration/">Configuration</a> — 完整配置参考</li>
-<li><a href="../../api/gateway/">Gateway API</a> — HTTP 端点文档</li>
+<li><a href="../../components/">Components</a></li>
+<li><a href="../../dashboard/">Dashboard</a></li>
+<li><a href="../../configuration/">Configuration</a></li>
+<li><a href="../../api/gateway/">Gateway API</a></li>
 </ul>
 
 

@@ -12,11 +12,13 @@
         <meta name="author" content="Claw-R1 Team, USTC">
       
       
-        <link rel="canonical" href="https://AgentR1.github.io/Claw-R1/contributing/">
+        <link rel="canonical" href="https://AgentR1.github.io/Claw-R1/dashboard/">
       
       
-        <link rel="prev" href="../api/gateway/">
+        <link rel="prev" href="../components/prefix-tree-merge/">
       
+      
+        <link rel="next" href="../rl-training-internals/">
       
       
         
@@ -31,7 +33,7 @@
     
     
       
-        <title>Contributing - Claw-R1</title>
+        <title>Dashboard - Claw-R1</title>
       
     
     
@@ -86,7 +88,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#contributing" class="md-skip">
+        <a href="#dashboard" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +123,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Contributing
+              Dashboard
             
           </span>
         </div>
@@ -342,9 +344,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../dashboard/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -427,11 +431,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../contributing/" class="md-tabs__link">
         
   
   
@@ -1083,10 +1085,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../dashboard/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1102,6 +1131,61 @@
   
 
       </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-it-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What It Shows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1358,37 +1442,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contributing
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
         
   
   
@@ -1404,133 +1461,6 @@
   
 
       </a>
-      
-        
-
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        项目结构
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        代码风格
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        贡献方向
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="贡献方向">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        高优先级
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        文档
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        研究
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pr" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR 流程
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        本地构建文档
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        联系
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1564,10 +1494,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#what-it-shows" class="md-nav__link">
     <span class="md-ellipsis">
       
-        项目结构
+        What It Shows
       
     </span>
   </a>
@@ -1575,10 +1505,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#start-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        代码风格
+        Start It
       
     </span>
   </a>
@@ -1586,82 +1516,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        贡献方向
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="贡献方向">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        高优先级
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        文档
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        研究
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pr" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR 流程
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        本地构建文档
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        联系
+        Configuration
       
     </span>
   </a>
@@ -1688,76 +1546,81 @@
   
 
 
-<h1 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h1>
-<p>感谢你对 Claw-R1 的关注！欢迎贡献代码、文档和想法。</p>
-<h2 id="_1">项目结构<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>claw_r1/
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── agent_flow/           # Agent 执行框架（白盒 + 管理器）
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── blackbox_agent/       # 黑盒 Agent 系统（Flow + Agent 实现）
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── config/               # Hydra 配置文件
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── data_pool/            # DataPool（Ray Actor + Training Backend）
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── gateway/              # Gateway Server（FastAPI）
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── async_main.py         # 异步训练入口
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── async_rollouter.py    # AsyncRollouter（Rollout GPU Pool）
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>├── async_trainer.py      # AsyncTrainer（Training GPU Pool）
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── param_sync.py         # ParameterSynchronizer
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>├── detach_workers.py     # 分离式 Actor/Rollout Worker
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>├── core_algos.py         # PPO/GAE/GRPO 核心算法
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── reward_loop.py        # RewardLoopWorker
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>├── metric_utils.py       # 指标聚合
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>├── ray_agent_trainer.py  # 同步 Ray PPO Trainer
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>└── main_agent_ppo.py     # 同步训练入口
+<h1 id="dashboard">Dashboard<a class="headerlink" href="#dashboard" title="Permanent link">&para;</a></h1>
+<p>The Claw-R1 dashboard is the live control surface for Agentic RL data lifestyle management. It connects to the real Ray DataPool actor and parameter synchronizer, so every view reflects the running training system rather than sample data.</p>
+<h2 id="what-it-shows">What It Shows<a class="headerlink" href="#what-it-shows" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Overview</strong>: end-to-end collection, reward, curation, optimization, and consumption status.</li>
+<li><strong>Collection</strong>: live DataPool events and source breakdowns across selected channels.</li>
+<li><strong>Representation</strong>: step-level prompt/action token IDs, trajectory IDs, reward state, policy version, and metadata.</li>
+<li><strong>Curation</strong>: batch quality labels, trainability switches, tags, and notes stored in the dashboard curation table.</li>
+<li><strong>Optimization</strong>: prefix-tree preview built from real DataPool steps for a prompt group.</li>
+<li><strong>Consumption</strong>: fetch-batch counters, consumed prompt groups, policy sync version, and last sync status.</li>
+</ul>
+<h2 id="start-it">Start It<a class="headerlink" href="#start-it" title="Permanent link">&para;</a></h2>
+<p>Run from the repository root after a training job has created the Ray actors:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>steppo
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sh<span class="w"> </span>example/start_dashboard.sh
 </span></code></pre></div>
-<h2 id="_2">代码风格<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<ul>
-<li>使用 <a href="https://docs.astral.sh/ruff/">Ruff</a> 进行 lint 和格式化</li>
-<li>遵循 PEP 8</li>
-<li>类型注解（Python 3.10+ 语法）</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 安装 pre-commit hooks</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span>pre-commit
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pre-commit<span class="w"> </span>install
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># 手动检查</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>ruff<span class="w"> </span>check<span class="w"> </span>.
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>ruff<span class="w"> </span>format<span class="w"> </span>.
+<p>The default server is <code>http://127.0.0.1:8120</code>.</p>
+<p>You can override any server option:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>sh<span class="w"> </span>example/start_dashboard.sh<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--ray-address<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>--ray-namespace<span class="w"> </span>claw_r1_async<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--actor-name<span class="w"> </span>data_pool<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span>--sync-actor-name<span class="w"> </span>parameter_synchronizer<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span>--channel<span class="w"> </span>train,val<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span>--port<span class="w"> </span><span class="m">8120</span>
 </span></code></pre></div>
-<h2 id="_3">贡献方向<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<h3 id="_4">高优先级<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
-<ul>
-<li>新的黑盒 Agent 实现（参考 <code>blackbox_agent/gsm8k_agent.py</code>）</li>
-<li>新的 Reward 函数</li>
-<li>性能优化（DataPool 吞吐、Gateway 延迟）</li>
-</ul>
-<h3 id="_5">文档<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
-<ul>
-<li>教程和示例</li>
-<li>API 文档补充</li>
-<li>中英文翻译</li>
-</ul>
-<h3 id="_6">研究<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
-<ul>
-<li>新的 advantage 计算算法</li>
-<li>在线学习策略</li>
-<li>多 Agent 协作训练</li>
-</ul>
-<h2 id="pr">PR 流程<a class="headerlink" href="#pr" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Fork 仓库</li>
-<li>创建 feature branch：<code>git checkout -b feature/my-feature</code></li>
-<li>编写代码和测试</li>
-<li>确保 <code>ruff check .</code> 通过</li>
-<li>提交 PR，描述改动内容和动机</li>
-</ol>
-<h2 id="_7">本地构建文档<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>mkdocs-material
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>mkdocs<span class="w"> </span>serve
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># 访问 http://localhost:8000</span>
-</span></code></pre></div>
-<h2 id="_8">联系<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
-<ul>
-<li>GitHub Issues: <a href="https://github.com/AgentR1/Claw-R1/issues">AgentR1/Claw-R1</a></li>
-</ul>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>The dashboard accepts CLI flags, environment variables, or <code>dashboard/config.example.yaml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th style="text-align: right;">Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ray_address</code></td>
+<td style="text-align: right;"><code>auto</code></td>
+<td>Ray cluster address.</td>
+</tr>
+<tr>
+<td><code>ray_namespace</code></td>
+<td style="text-align: right;"><code>null</code></td>
+<td>Ray namespace used by the training job.</td>
+</tr>
+<tr>
+<td><code>actor_name</code></td>
+<td style="text-align: right;"><code>data_pool</code></td>
+<td>Named DataPool Ray actor.</td>
+</tr>
+<tr>
+<td><code>sync_actor_name</code></td>
+<td style="text-align: right;"><code>parameter_synchronizer</code></td>
+<td>Named parameter synchronizer Ray actor.</td>
+</tr>
+<tr>
+<td><code>channel</code></td>
+<td style="text-align: right;"><code>train</code></td>
+<td>One or more comma-separated DataPool channels.</td>
+</tr>
+<tr>
+<td><code>refresh_interval_ms</code></td>
+<td style="text-align: right;"><code>2000</code></td>
+<td>Frontend polling interval.</td>
+</tr>
+<tr>
+<td><code>host</code> / <code>port</code></td>
+<td style="text-align: right;"><code>0.0.0.0</code> / <code>8120</code></td>
+<td>Dashboard bind address.</td>
+</tr>
+</tbody>
+</table>
+<p>The dashboard no longer ships a mock-data mode. If the DataPool actor is unavailable, API calls return a service-unavailable error so deployment problems are visible immediately.</p>
 
 
 
@@ -1847,7 +1710,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../api/gateway/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Gateway API">
+          <a href="../components/prefix-tree-merge/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Prefix Tree Merge">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1857,11 +1720,27 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Gateway API
+                Prefix Tree Merge
               </div>
             </div>
           </a>
         
+        
+          
+          <a href="../rl-training-internals/" class="md-footer__link md-footer__link--next" aria-label="Next: RL Training Internals">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                RL Training Internals
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
         
       </nav>
     

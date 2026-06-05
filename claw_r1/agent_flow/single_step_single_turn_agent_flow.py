@@ -73,6 +73,7 @@ class SingleStepSingleTurnAgentFlow(AgentFlowBase):
             trajectory_uid=trajectory_uid,
             prompt_uid=prompt_uid,
             step_index=0,
+            policy_version=int(kwargs.get("policy_version", 0) or 0),
             is_last=True,
             metadata=metadata,
         )

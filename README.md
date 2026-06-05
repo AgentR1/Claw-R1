@@ -11,6 +11,8 @@
 
 ## News
 
+- **[2026.06]** **Claw-R1 Dashboard Released.** The live dashboard adds Agentic RL data lifestyle management: collection monitoring, step-level representation, curation signals, prefix-tree optimization preview, and training consumption tracking.
+
 - **[2026.04]** 🌲 **Prefix Tree Merge for Agentic RL Training.** A new algorithm that deduplicates shared prefix computation in multi-step agent training via prefix tree packing + FlexAttention. Currently under testing on the [`prefix-tree-merge`](https://github.com/AgentR1/Claw-R1/tree/prefix-tree-merge) branch. See [documentation](https://agentr1.github.io/Claw-R1/components/prefix-tree-merge/).
 
 - **[2026.04]** 📚 **RL Training Internals Tutorial.** A comprehensive tutorial covering core RL concepts (Reward / Value / Advantage / Return / Loss), PPO & GRPO algorithms, and Claw-R1's step-level agentic RL design rationale. See [tutorial](https://agentr1.github.io/Claw-R1/rl-training-internals/).
@@ -45,7 +47,7 @@ As agents grow more capable, a critical question emerges: **How do we systematic
 
 ## Roadmap
 
-- [ ] **Data Quality Dashboard**: Visual monitoring of data quality metrics, reward distributions, and collection statistics.
+- [x] **Data Quality Dashboard**: Visual monitoring of collection, curation, optimization, and consumption signals.
 - [ ] **Human Feedback Pipeline**: Structured pipeline for capturing and integrating explicit and implicit human feedback signals from online agent services.
 - [ ] **Dataset Export & Versioning**: Export curated datasets with full provenance tracking for reproducibility and sharing.
 - [ ] **Extended TrainingBackend Support**: Native adapters for additional RL frameworks beyond verl.

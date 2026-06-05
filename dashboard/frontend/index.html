@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Claw-R1 Dashboard</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/static/styles.css?v=20260605-live-dashboard" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Claw-R1 Dashboard</h1>
+        <p class="subtitle">Data lifecycle monitor for agentic reinforcement learning</p>
+        <p id="connection">Connecting...</p>
+      </div>
+      <div class="toolbar">
+        <fieldset class="channel-checks" id="channel">
+          <legend>Channel</legend>
+          <label><input type="checkbox" value="train" checked /> train</label>
+          <label><input type="checkbox" value="val" /> val</label>
+        </fieldset>
+        <button id="refresh">Refresh</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="stats" id="stats"></section>
+
+      <nav class="tabs" aria-label="Dashboard views">
+        <button class="active" data-tab="monitor"><span>01</span>Overview</button>
+        <button data-tab="collect"><span>02</span>Collection</button>
+        <button data-tab="steps"><span>03</span>Representation</button>
+        <button data-tab="curate"><span>04</span>Curation</button>
+        <button data-tab="optimize"><span>05</span>Optimization</button>
+        <button data-tab="batch"><span>06</span>Consumption</button>
+      </nav>
+
+      <section class="panel active" id="monitor">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">System Overview</p>
+            <h2>Step-Level Data Lifecycle</h2>
+          </div>
+          <span id="eventCursor"></span>
+        </div>
+        <div class="overview-hero">
+          <div class="overview-title">
+            <p class="eyebrow">Claw-R1 Middleware</p>
+            <h3>Agent Data Lifecycle</h3>
+            <p>Collect, curate, optimize, and serve step-level trajectories for agentic RL.</p>
+            <div class="overview-metrics" id="overviewMetrics"></div>
+          </div>
+          <div class="overview-flow" id="overviewFlow"></div>
+          <div class="overview-health" id="overviewHealth"></div>
+        </div>
+        <div class="overview-grid">
+          <div class="overview-card">
+            <h3>Data Collection</h3>
+            <div class="source-grid" id="sourceGrid" data-source-grid></div>
+          </div>
+          <div class="overview-card">
+            <h3>Curation Signals</h3>
+            <div class="curation-board" id="overviewCurationBoard"></div>
+          </div>
+          <div class="overview-card">
+            <h3>Optimization Preview</h3>
+            <div class="overview-optimization" id="overviewOptimization"></div>
+          </div>
+          <div class="overview-card">
+            <h3>Consumption Plan</h3>
+            <div class="overview-consumption" id="overviewConsumption"></div>
+          </div>
+          <div class="overview-card overview-events">
+            <h3>Live Events</h3>
+            <div class="timeline" id="timeline"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="collect">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Collection</p>
+            <h2>Realtime Trajectory Intake</h2>
+          </div>
+          <span id="collectionCursor"></span>
+        </div>
+        <div class="collection-layout">
+          <div class="collection-main">
+            <h3>Collection Sources</h3>
+            <div class="source-grid collection-sources" id="collectionSourceGrid" data-source-grid></div>
+          </div>
+          <div class="collection-main">
+            <h3>Lifecycle Throughput</h3>
+            <div class="pipeline collection-pipeline" id="pipeline"></div>
+          </div>
+          <div class="collection-main collection-events">
+            <h3>Live Events</h3>
+            <div class="timeline" id="collectionTimeline"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="steps">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Representation</p>
+            <h2>Step-Level Data Representation</h2>
+          </div>
+        </div>
+        <div class="filters">
+          <input id="filterPrompt" placeholder="prompt_uid" />
+          <input id="filterTrajectory" placeholder="trajectory_uid" />
+          <input id="filterAgent" placeholder="agent" />
+          <select id="filterQuality">
+            <option value="">Any quality</option>
+            <option value="unreviewed">Unreviewed</option>
+            <option value="correct">Correct</option>
+            <option value="incorrect">Incorrect</option>
+            <option value="missing">Missing reward</option>
+          </select>
+          <select id="filterTrainable">
+            <option value="">Any trainable</option>
+            <option value="true">Trainable</option>
+            <option value="false">Not trainable</option>
+          </select>
+          <button id="applyFilters">Apply</button>
+        </div>
+        <div class="pool-strip" id="poolStrip"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAll" /></th>
+                <th>Trajectory</th>
+                <th>Step</th>
+                <th>Status</th>
+                <th>State</th>
+                <th>Action</th>
+                <th>Reward</th>
+                <th>Policy</th>
+                <th>Quality</th>
+                <th>Train</th>
+                <th>Metadata</th>
+              </tr>
+            </thead>
+            <tbody id="stepsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="curate">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Curation</p>
+            <h2>Training Candidate Review</h2>
+          </div>
+        </div>
+        <div class="curation-board" id="curationBoard"></div>
+        <div class="curation-controls">
+          <select id="curationQuality">
+            <option value="correct">Correct</option>
+            <option value="incorrect">Incorrect</option>
+            <option value="missing">Missing reward</option>
+            <option value="unreviewed">Unreviewed</option>
+          </select>
+          <label><input type="checkbox" id="curationTrainable" checked /> Trainable</label>
+          <input id="curationTags" placeholder="tags comma,separated" />
+          <input id="curationNote" placeholder="note" />
+          <button id="applyCuration">Apply to selected</button>
+        </div>
+        <div class="review-grid">
+          <div>
+            <h3>Review Queue</h3>
+            <div id="reviewQueue" class="review-list"></div>
+          </div>
+          <div>
+            <h3>Latest Curation Patch</h3>
+            <pre id="curationResult"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="batch">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Consumption</p>
+            <h2>Training Consumption</h2>
+          </div>
+        </div>
+        <div class="overview-consumption consumption-status" id="consumptionStatus"></div>
+        <div class="batch-grid">
+          <label>Algorithm
+            <select id="batchAlgorithm">
+              <option>PPO</option>
+              <option>GRPO</option>
+            </select>
+          </label>
+          <label>Batch size <input id="batchSize" type="number" value="4" min="1" /></label>
+          <label>n_rollouts <input id="nRollouts" type="number" value="1" min="1" /></label>
+          <label>Policy freshness <input id="policyFreshness" type="number" value="3" min="0" /></label>
+          <button id="previewBatch">Generate Manifest</button>
+        </div>
+        <div class="manifest-summary" id="manifestSummary"></div>
+        <div class="manifest-groups" id="manifestGroups"></div>
+        <pre id="batchManifest"></pre>
+      </section>
+
+      <section class="panel" id="optimize">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Optimization</p>
+            <h2>Prefix Tree Preview</h2>
+            <p>This is a visualization preview. It does not change DataPool or training batches.</p>
+          </div>
+          <button id="previewTree">Build Preview</button>
+        </div>
+        <div class="tree-summary" id="treeSummary"></div>
+        <div class="packed-ribbon" id="packedRibbon"></div>
+        <div class="tree-layout">
+          <div>
+            <h3>Nodes</h3>
+            <div id="treeNodes" class="node-list"></div>
+          </div>
+          <div>
+            <h3>Attention Mask</h3>
+            <div id="mask" class="mask"></div>
+          </div>
+        </div>
+        <h3>Sequence Paths</h3>
+        <pre id="sequencePaths"></pre>
+      </section>
+    </main>
+
+    <script src="/static/app.js?v=20260605-live-dashboard"></script>
+  </body>
+</html>

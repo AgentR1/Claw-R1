@@ -5,9 +5,12 @@
 **/_build/
 **/*.ckpt
 **/outputs
+outputs/
+**/outputs/
 **/*.tar.gz
 **/playground
 **/wandb
+**/swanlog/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -121,13 +124,17 @@ ENV/
 *.lock
 
 # data
+data/
 *.parquet
 
 
 # local logs
 logs
 log
+output/
 outputs
+swanlog/
+swanlab/
 .history
 
 # MkDocs build output

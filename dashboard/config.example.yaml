@@ -1,0 +1,7 @@
+ray_address: auto
+ray_namespace: claw_r1_async
+actor_name: data_pool
+channel: train
+refresh_interval_ms: 2000
+host: 0.0.0.0
+port: 8120

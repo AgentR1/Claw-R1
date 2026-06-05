@@ -160,8 +160,49 @@ button:focus {
   font-size: 15px;
 }
 
-.toolbar input {
-  width: 112px;
+.toolbar input,
+.toolbar select {
+  width: 132px;
+}
+
+.toolbar select[multiple] {
+  min-height: 68px;
+}
+
+.channel-checks {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.channel-checks legend {
+  padding: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.channel-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 0 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.channel-checks input {
+  min-height: 0;
+  width: 14px;
+  height: 14px;
+  padding: 0;
 }
 
 .stats {
@@ -544,9 +585,16 @@ button:focus {
   color: #263548;
 }
 
+.overview-events {
+  min-height: 204px;
+}
+
 .overview-events .timeline {
-  max-height: 130px;
-  overflow: hidden;
+  align-content: start;
+  max-height: 270px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .pipeline {
@@ -850,6 +898,11 @@ button:focus {
   background: var(--stage-4);
 }
 
+.preview-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .overview-consumption {
   display: grid;
   gap: 7px;
@@ -857,15 +910,11 @@ button:focus {
 
 .consume-row {
   display: grid;
-  grid-template-columns: minmax(74px, 1fr) auto auto;
+  grid-template-columns: minmax(118px, 1fr) auto minmax(90px, 1.2fr);
   gap: 8px;
   align-items: center;
   min-height: 38px;
   padding: 6px 8px;
-}
-
-.consume-row span:nth-of-type(2) {
-  display: none;
 }
 
 .consume-row span {
@@ -876,6 +925,15 @@ button:focus {
 .consume-row strong {
   color: var(--stage-5);
   font-size: 18px;
+}
+
+.consume-row small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .empty-note {
@@ -1139,7 +1197,7 @@ pre {
 
 .tree-summary {
   display: grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 10px;
   margin-bottom: 14px;
 }
@@ -1172,6 +1230,17 @@ pre {
   background: linear-gradient(180deg, #ffffff 0, #f8fbff 100%);
 }
 
+.ribbon-node.shared,
+.node.shared {
+  border-color: #7aa6a0;
+  background: linear-gradient(180deg, #ffffff 0, #f1faf8 100%);
+}
+
+.ribbon-node.branch,
+.node.branch {
+  border-color: #9c8cc2;
+}
+
 .ribbon-node span {
   display: block;
   color: var(--accent);
@@ -1193,6 +1262,14 @@ pre {
   border-left: 4px solid var(--stage-4);
   border-radius: 8px;
   background: linear-gradient(180deg, #ffffff 0, #fbfdff 100%);
+}
+
+.node.shared {
+  border-left-color: #4b847d;
+}
+
+.node.branch {
+  border-left-color: #6c6f9f;
 }
 
 .node small {

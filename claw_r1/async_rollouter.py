@@ -450,6 +450,10 @@ class AsyncRollouter:
             [default_flow] * len(gen_batch),
             dtype=object,
         )
+        gen_batch.non_tensor_batch["policy_version"] = np.array(
+            [self.current_param_version] * len(gen_batch),
+            dtype=np.int64,
+        )
 
         return gen_batch
 

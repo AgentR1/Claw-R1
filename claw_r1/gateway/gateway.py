@@ -66,6 +66,7 @@ _gateway_port: int = 8100
 _trajectory_step_counter: dict[str, int] = {}  # trajectory_uid -> next step_index
 _trajectory_channel: dict[str, str] = {}  # trajectory_uid -> DataPool channel
 _trajectory_metadata: dict[str, dict] = {}  # trajectory_uid -> Step metadata
+_trajectory_policy_version: dict[str, int] = {}  # trajectory_uid -> rollout policy version
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────
@@ -344,6 +345,7 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str, request: 
         trajectory_uid=trajectory_uid,
         prompt_uid=prompt_uid,
         step_index=step_index,
+        policy_version=_trajectory_policy_version.get(trajectory_uid, 0),
         is_last=False,
         metadata=_trajectory_metadata.get(trajectory_uid),
     )
@@ -394,6 +396,7 @@ async def complete_trajectory(trajectory_uid: str, prompt_uid: str, req: Complet
     _trajectory_step_counter.pop(trajectory_uid, None)
     _trajectory_channel.pop(trajectory_uid, None)
     _trajectory_metadata.pop(trajectory_uid, None)
+    _trajectory_policy_version.pop(trajectory_uid, None)
     return {"status": "ok"}
 
 
@@ -412,28 +415,25 @@ async def register_trajectory(trajectory_uid: str, prompt_uid: str, request: Req
     _trajectory_channel[trajectory_uid] = channel
     if metadata:
         _trajectory_metadata[trajectory_uid] = metadata
+        _trajectory_policy_version[trajectory_uid] = int(metadata.get("policy_version", 0) or 0)
     return {"status": "ok"}
 
 
 @app.post("/init_trajectory", response_model=InitTrajectoryResponse)
-async def init_trajectory():
+async def init_trajectory(request: Request):
     """Allocate a new trajectory and return a base_url for the agent.
 
     Used in online service mode where the agent is an independent process.
     """
-    import socket
-
     trajectory_uid = uuid4().hex
     prompt_uid = "1"
     _trajectory_step_counter[trajectory_uid] = 0
     # 0.0.0.0 is a valid listen address but not a valid destination for clients.
-    # Use the machine's hostname (or fallback to 127.0.0.1) for the returned URL.
+    # Reuse the host that the caller already reached for init_trajectory, so
+    # follow-up black-box calls do not switch to an unreachable hostname.
     host = _gateway_host
     if host == "0.0.0.0":
-        try:
-            host = socket.gethostname()
-        except Exception:
-            host = "127.0.0.1"
+        host = request.url.hostname or "127.0.0.1"
     base_url = f"http://{host}:{_gateway_port}/{trajectory_uid}/{prompt_uid}/v1"
     return InitTrajectoryResponse(trajectory_uid=trajectory_uid, base_url=base_url)
 

@@ -19,6 +19,7 @@ Responsibilities:
 import asyncio
 import logging
 import os
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -77,6 +78,8 @@ class _ChannelState:
         self.total_produced: int = 0
         self.total_consumed: int = 0
         self.total_dropped: int = 0
+        self.fetch_count: int = 0
+        self.last_fetch: dict[str, Any] | None = None
         self.curation: dict[str, dict[str, Any]] = {}
         self.events: list[dict[str, Any]] = []
         self.event_cursor: int = 0
@@ -214,6 +217,15 @@ class DataPool:
 
         ch.consume_cursor += batch_size
         ch.total_consumed += batch_size
+        ch.fetch_count += 1
+        ch.last_fetch = {
+            "fetch_count": ch.fetch_count,
+            "batch_size": batch_size,
+            "n_rollouts": effective_n,
+            "prompt_uids": list(consumed_uids),
+            "step_count": len(batch_steps),
+            "fetched_at": time.time(),
+        }
         self._cleanup(ch, consumed_uids)
 
         return result
@@ -432,6 +444,8 @@ class DataPool:
             "total_produced": ch.total_produced,
             "total_consumed": ch.total_consumed,
             "total_dropped": ch.total_dropped,
+            "fetch_count": ch.fetch_count,
+            "last_fetch": ch.last_fetch,
             "queue_size": unconsumed,
             "ready_prompt_groups": ready,
             "max_queue_size": self._max_queue_size,
@@ -455,6 +469,8 @@ class DataPool:
             "complete_trajectories": sum(1 for v in ch.trajectory_complete.values() if v),
             "total_prompt_groups": total_groups,
             "consumed_prompt_groups": consumed,
+            "fetch_count": ch.fetch_count,
+            "last_fetch": ch.last_fetch,
             "pending_prompt_groups": pending,
             "ready_prompt_groups": ready,
             "curated_steps": len(ch.curation),
@@ -577,7 +593,7 @@ class DataPool:
             return False
         if filters["agent"] and row["agent"] != filters["agent"]:
             return False
-        if filters["quality"] and row["curation"].get("quality") != filters["quality"]:
+        if filters["quality"] and self._display_quality(row) != filters["quality"]:
             return False
         if filters["trainable"] is not None and row["curation"].get("trainable", True) != filters["trainable"]:
             return False
@@ -640,3 +656,12 @@ class DataPool:
             key = str(value or "unreviewed")
             counts[key] = counts.get(key, 0) + 1
         return counts
+
+    def _display_quality(self, row: dict[str, Any]) -> str:
+        quality = row["curation"].get("quality")
+        if quality and quality != "unreviewed":
+            return quality
+        reward = row.get("reward")
+        if reward is None:
+            return "missing"
+        return "correct" if reward > 0 else "incorrect"

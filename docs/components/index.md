@@ -1,103 +1,89 @@
 # Components
 
-Claw-R1 的组件围绕**数据流**组织：从 Agent 交互的采集，到数据的管理与质量评估，再到向训练引擎的供给。各组件通过 HTTP 和 Ray RPC 通信。
+Claw-R1 components are organized around the data flow from agent interaction to training consumption. HTTP handles agent-facing traffic, while Ray actors handle stateful data and training coordination.
 
 <div class="grid cards" markdown>
 
--   **Gateway Server** · 数据采集入口
+-   **Gateway Server**
 
     ---
 
-    FastAPI HTTP 服务。所有 Agent LLM 调用的统一入口，自动从交互中采集训练数据（Step）并提交到 DataPool。支持白盒显式提交和黑盒自动采集两种模式。
+    FastAPI service that receives white-box step submissions and black-box OpenAI-compatible chat traffic, then submits normalized `Step` records to DataPool.
 
-    [:octicons-arrow-right-24: Gateway Server](gateway.md)
+    [Gateway Server](gateway.md)
 
--   **DataPool** · 数据管理核心
-
-    ---
-
-    Ray Actor。Claw-R1 的数据管理中枢 — 存储、索引、分区和供给交互数据。支持 Channel 隔离、GRPO 分组、容量背压控制和实时统计监控。
-
-    [:octicons-arrow-right-24: DataPool](datapool.md)
-
--   **Reward System** · 数据质量评估
+-   **DataPool**
 
     ---
 
-    `RewardLoopWorker` Ray Actor。多维度数据质量评估：rule-based、discriminative RM、generative RM，以及人类反馈信号的整合。
+    Ray actor that stores, indexes, partitions, curates, and serves step-level data by channel and prompt group.
 
-    [:octicons-arrow-right-24: Reward System](reward-system.md)
+    [DataPool](datapool.md)
 
--   **Agent Flow** · 白盒数据采集
-
-    ---
-
-    Agent 执行生命周期管理。白盒 Agent 通过 Python API 显式提交 Step，完整控制数据采集过程。
-
-    [:octicons-arrow-right-24: Agent Flow](agent-flow.md)
-
--   **Black-box Agent** · 黑盒数据采集
+-   **Dashboard**
 
     ---
 
-    零代码侵入的黑盒 Agent 接入。任何使用 OpenAI 兼容 API 的 Agent 通过 `base_url` 透明接入，Gateway 自动采集交互数据。
+    Live UI for Agentic RL data lifestyle management: collection, representation, curation, optimization preview, and training consumption.
 
-    [:octicons-arrow-right-24: Black-box Agent](blackbox-agent.md)
+    [Dashboard](../dashboard.md)
 
--   **Async Training** · 数据消费与训练
-
-    ---
-
-    `AsyncTrainer` 和 `AsyncRollouter` Ray Actor。持续从 DataPool 消费高质量数据进行训练，带参数同步。
-
-    [:octicons-arrow-right-24: Async Training](async-training.md)
-
--   **Prefix Tree Merge** · 前缀去重优化
+-   **Reward System**
 
     ---
 
-    将共享前缀的多条序列合并为一次前向计算，消除 multi-step agent 训练中的冗余 prefix 计算。目前在 [`prefix-tree-merge`](https://github.com/AgentR1/Claw-R1/tree/prefix-tree-merge) 分支测试中。
+    Reward workers compute or attach quality signals from rule checks, reward models, generative judges, and human feedback.
 
-    [:octicons-arrow-right-24: Prefix Tree Merge](prefix-tree-merge.md)
+    [Reward System](reward-system.md)
+
+-   **Agent Flow**
+
+    ---
+
+    Agent execution lifecycle. White-box flows submit steps explicitly; black-box flows wrap agents that only know an OpenAI-compatible `base_url`.
+
+    [Agent Flow](agent-flow.md)
+
+-   **Async Training**
+
+    ---
+
+    Separate Ray actors for rollout generation and policy training, coordinated through DataPool and parameter synchronization.
+
+    [Async Training](async-training.md)
+
+-   **Prefix Tree Merge**
+
+    ---
+
+    Shared-prefix packing for multi-step agent training. The dashboard can preview prefix-tree structure from real DataPool steps.
+
+    [Prefix Tree Merge](prefix-tree-merge.md)
 
 </div>
 
-## 数据流全景
+## Data Flow
 
+```text
+Black-box Agent         White-box Agent
+      |                       |
+      v                       v
+   Gateway Server  <---- explicit Step APIs
+      |
+      v
+   DataPool  <---- Dashboard reads stats, steps, events, curation, and prefix-tree previews
+      |
+      v
+   Async Trainer ---- Parameter Synchronizer ---- Async Rollouter / vLLM
 ```
-                        数据采集层
-                      ┌─────────────────────────────────────────┐
-  黑盒 Agent ────────►│                                         │
-  (base_url)          │         GATEWAY SERVER                  │
-                      │         (FastAPI, 端口 8100)             │
-  白盒 Agent ────────►│         自动采集交互 Step                 │
-  (AgentFlow)         └────────────┬────────────────────────────┘
-                                   │ Ray RPC (submit_steps)
-                                   ▼
-                        数据管理层
-                      ┌─────────────────────────────────────────┐
-                      │         DATAPOOL                         │
-                      │         (Ray Actor)                      │
-                      │                                          │
-                      │  • 存储与索引    • Channel 分区            │
-                      │  • GRPO 分组     • 容量背压控制            │
-                      │  • 质量评估      • 实时统计监控            │
-                      └──────────────────┬──────────────────────┘
-                                         │ fetch_batch()
-                                         ▼
-                        数据消费层
-                      ┌─────────────────────────────────────────┐
-                      │         ASYNC TRAINER                    │
-                      │         (Ray Actor, Training GPU Pool)   │
-                      │   ┌─────────────────────────────────┐   │
-                      │   │  Actor │ Critic │ RefPolicy      │   │
-                      │   └─────────────────────────────────┘   │
-                      └────────────────┬────────────────────────┘
-                                       │ NCCL weight sync
-                                       ▼
-                      ┌─────────────────────────────────────────┐
-                      │         ASYNC ROLLOUTER                  │
-                      │         (Ray Actor, Rollout GPU Pool)    │
-                      │         vLLM servers                     │
-                      └─────────────────────────────────────────┘
-```
+
+## Lifecycle Mapping
+
+| Lifecycle stage | Primary component | Dashboard view |
+|---|---|---|
+| Collect interactions | Gateway, Agent Flow | Collection |
+| Store representation | DataPool | Representation |
+| Evaluate quality | Reward System | Curation Signals |
+| Curate candidates | DataPool curation APIs | Curation |
+| Optimize shared context | Prefix Tree Merge preview | Optimization |
+| Serve training data | DataPool, Async Trainer | Consumption |

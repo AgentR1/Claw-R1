@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Claw-R1 Dashboard</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="/static/styles.css?v=20260603-overview-polish" />
+    <link rel="stylesheet" href="/static/styles.css?v=20260605-live-dashboard" />
   </head>
   <body>
     <header class="topbar">
@@ -15,7 +15,11 @@
         <p id="connection">Connecting...</p>
       </div>
       <div class="toolbar">
-        <label>Channel <input id="channel" value="train" /></label>
+        <fieldset class="channel-checks" id="channel">
+          <legend>Channel</legend>
+          <label><input type="checkbox" value="train" checked /> train</label>
+          <label><input type="checkbox" value="val" /> val</label>
+        </fieldset>
         <button id="refresh">Refresh</button>
       </div>
     </header>
@@ -26,7 +30,7 @@
       <nav class="tabs" aria-label="Dashboard views">
         <button class="active" data-tab="monitor"><span>01</span>Overview</button>
         <button data-tab="collect"><span>02</span>Collection</button>
-        <button data-tab="steps"><span>03</span>Data Pool</button>
+        <button data-tab="steps"><span>03</span>Representation</button>
         <button data-tab="curate"><span>04</span>Curation</button>
         <button data-tab="optimize"><span>05</span>Optimization</button>
         <button data-tab="batch"><span>06</span>Consumption</button>
@@ -112,9 +116,9 @@
           <select id="filterQuality">
             <option value="">Any quality</option>
             <option value="unreviewed">Unreviewed</option>
-            <option value="good">Good</option>
-            <option value="bad">Bad</option>
-            <option value="needs_reward">Needs reward</option>
+            <option value="correct">Correct</option>
+            <option value="incorrect">Incorrect</option>
+            <option value="missing">Missing reward</option>
           </select>
           <select id="filterTrainable">
             <option value="">Any trainable</option>
@@ -156,9 +160,9 @@
         <div class="curation-board" id="curationBoard"></div>
         <div class="curation-controls">
           <select id="curationQuality">
-            <option value="good">Good</option>
-            <option value="bad">Bad</option>
-            <option value="needs_reward">Needs reward</option>
+            <option value="correct">Correct</option>
+            <option value="incorrect">Incorrect</option>
+            <option value="missing">Missing reward</option>
             <option value="unreviewed">Unreviewed</option>
           </select>
           <label><input type="checkbox" id="curationTrainable" checked /> Trainable</label>
@@ -182,9 +186,10 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">Consumption</p>
-            <h2>Training Batch Manifest</h2>
+            <h2>Training Consumption</h2>
           </div>
         </div>
+        <div class="overview-consumption consumption-status" id="consumptionStatus"></div>
         <div class="batch-grid">
           <label>Algorithm
             <select id="batchAlgorithm">
@@ -228,6 +233,6 @@
       </section>
     </main>
 
-    <script src="/static/app.js?v=20260603-overview-polish"></script>
+    <script src="/static/app.js?v=20260605-live-dashboard"></script>
   </body>
 </html>

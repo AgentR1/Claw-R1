@@ -1,7 +1,8 @@
 const state = {
-  channel: "train",
+  channels: ["train"],
   steps: [],
   stats: {},
+  sync: {},
   treePreview: null,
   selected: new Set(),
   eventCursor: 0,
@@ -22,22 +23,48 @@ async function api(path, options = {}) {
 }
 
 function channel() {
-  state.channel = $("channel").value || "train";
-  return state.channel;
+  const el = $("channel");
+  if (el?.matches("fieldset")) {
+    const selected = [...el.querySelectorAll('input[type="checkbox"]:checked')]
+      .map((input) => input.value)
+      .filter(Boolean);
+    state.channels = selected.length ? selected : ["train"];
+  } else if (el?.multiple) {
+    const selected = [...el.selectedOptions].map((option) => option.value).filter(Boolean);
+    state.channels = selected.length ? selected : ["train"];
+  } else {
+    state.channels = [(el?.value || "train").trim()].filter(Boolean);
+  }
+  return state.channels.join(",");
 }
 
 async function loadConfig() {
   const cfg = await api("/api/config");
-  $("channel").value = cfg.channel;
-  state.channel = cfg.channel;
-  $("connection").textContent = cfg.mock
-    ? `DataPool stream · refresh ${cfg.refresh_interval_ms}ms`
-    : `Ray actor ${cfg.actor_name} · refresh ${cfg.refresh_interval_ms}ms`;
+  const configured = (cfg.channel || "train").split(",").map((x) => x.trim()).filter(Boolean);
+  state.channels = configured.length ? configured : ["train"];
+  if ($("channel").matches("fieldset")) {
+    $("channel").querySelectorAll('input[type="checkbox"]').forEach((input) => {
+      input.checked = state.channels.includes(input.value);
+    });
+  } else if ($("channel").multiple) {
+    [...$("channel").options].forEach((option) => {
+      option.selected = state.channels.includes(option.value);
+    });
+  } else {
+    $("channel").value = state.channels[0];
+  }
+  $("connection").textContent = `Ray actor ${cfg.actor_name} · sync ${cfg.sync_actor_name} · refresh ${cfg.refresh_interval_ms}ms`;
+  return cfg;
 }
 
 async function refreshAll() {
-  await Promise.all([loadStats(), loadSteps(), loadEvents(), loadOverviewTree()]);
+  await Promise.all([loadStats(), loadSync(), loadSteps(), loadEvents(), loadOverviewTree()]);
   renderOverview();
+}
+
+async function loadSync() {
+  state.sync = await api("/api/sync");
+  renderConsumption();
 }
 
 async function loadStats() {
@@ -48,13 +75,14 @@ async function loadStats() {
     ["total_trajectories", "Trajectories"],
     ["complete_trajectories", "Complete"],
     ["ready_prompt_groups", "Ready prompts"],
-    ["curated_steps", "Curated"],
-    ["event_cursor", "Cursor"],
+    ["fetch_count", "Fetches"],
+    ["consumed_prompt_groups", "Consumed"],
   ];
   $("stats").innerHTML = keys
     .map(([key, label]) => `<div class="stat"><span>${label}</span><strong>${stats[key] ?? 0}</strong></div>`)
     .join("");
   renderLifecycle();
+  renderConsumption();
 }
 
 function eventLabel(type = "") {
@@ -100,7 +128,7 @@ function renderSteps() {
     .map((step) => {
       const checked = state.selected.has(step.step_key) ? "checked" : "";
       const expanded = state.expanded.has(step.step_key);
-      const quality = step.curation?.quality || "unreviewed";
+      const quality = qualityForStep(step);
       const trainable = step.curation?.trainable !== false;
       const reward = step.reward === null || step.reward === undefined ? "missing" : Number(step.reward).toFixed(3);
       const metadata = metadataLine(step);
@@ -190,8 +218,8 @@ function formatTokens(tokens = []) {
 }
 
 function qualityClass(quality) {
-  if (quality === "good") return "good";
-  if (quality === "bad") return "bad";
+  if (quality === "correct" || quality === "good") return "good";
+  if (quality === "incorrect" || quality === "bad") return "bad";
   if (quality === "needs_reward") return "warn";
   return "";
 }
@@ -220,7 +248,7 @@ async function loadEvents() {
 
 function renderLifecycle() {
   if (!$("pipeline") || !state.steps.length) return;
-  const reviewed = state.steps.filter((s) => (s.curation?.quality || "unreviewed") !== "unreviewed").length;
+  const reviewed = state.steps.filter((s) => qualityForStep(s) !== "missing").length;
   const trainable = state.steps.filter((s) => s.curation?.trainable !== false).length;
   const rewarded = state.steps.filter((s) => s.reward !== null && s.reward !== undefined).length;
   const ready = state.stats.ready_prompt_groups ?? new Set(state.steps.map((s) => s.prompt_uid)).size;
@@ -244,9 +272,9 @@ function renderLifecycle() {
 
 function renderOverview() {
   if (!$("overviewFlow") || !state.steps.length) return;
-  const latestPolicy = Math.max(...state.steps.map((s) => s.policy_version || 0));
+  const latestPolicy = state.sync.policy_version ?? Math.max(...state.steps.map((s) => s.policy_version || 0));
   const rewarded = state.steps.filter((s) => s.reward !== null && s.reward !== undefined).length;
-  const reviewed = state.steps.filter((s) => (s.curation?.quality || "unreviewed") !== "unreviewed").length;
+  const reviewed = state.steps.filter((s) => qualityForStep(s) !== "missing").length;
   const trainable = state.steps.filter((s) => s.curation?.trainable !== false).length;
   const highReward = state.steps.filter((s) => Number(s.reward ?? -1) >= 0.7).length;
   const tokenTotal = sum(state.steps.map((s) => s.token_count || ((s.prompt_len || 0) + (s.response_len || 0))));
@@ -281,10 +309,10 @@ function renderOverview() {
     .join("");
 
   $("overviewHealth").innerHTML = [
-    ["Policy", `v${latestPolicy}`, "latest"],
+    ["Policy", `v${latestPolicy ?? 0}`, "synced"],
     ["Trainable", `${trainable}/${state.steps.length}`, "eligible"],
-    ["Reviewed", reviewed, "decisions"],
-    ["Saved", savedTokens, "tokens"],
+    ["Fetches", state.stats.fetch_count ?? 0, "batches"],
+    ["Synced", state.sync.sync_count ?? 0, "times"],
   ]
     .map(([label, value, hint]) => `<div class="health-row">
       <span>${label}</span>
@@ -341,16 +369,15 @@ function renderCurationBoard() {
     return;
   }
   const selected = state.selected.size;
-  const highReward = state.steps.filter((s) => Number(s.reward ?? -1) >= 0.7).length;
-  const stale = state.steps.filter((s) => {
-    const latest = Math.max(...state.steps.map((x) => x.policy_version || 0));
-    return latest - (s.policy_version || 0) > 1;
-  }).length;
+  const correct = state.steps.filter((s) => qualityForStep(s) === "correct").length;
+  const incorrect = state.steps.filter((s) => qualityForStep(s) === "incorrect").length;
+  const missing = state.steps.filter((s) => qualityForStep(s) === "missing").length;
   const blocked = state.steps.filter((s) => s.curation?.trainable === false).length;
   $("curationBoard").innerHTML = [
-    ["Selected", selected, "Rows staged for batch update"],
-    ["High reward", highReward, "Reward >= 0.70 candidate steps"],
-    ["Policy stale", stale, "Older than latest policy by more than one version"],
+    ["Selected", selected, "Rows staged for curation"],
+    ["Correct", correct, "Reward-positive steps"],
+    ["Incorrect", incorrect, "Zero or negative reward"],
+    ["Missing", missing, "No reward yet"],
     ["Excluded", blocked, "Marked non-trainable"],
   ]
     .map(([label, value, hint]) => `<div class="curation-card"><span>${label}</span><strong>${value}</strong><small>${hint}</small></div>`)
@@ -361,15 +388,14 @@ function renderCurationBoard() {
 
 function renderOverviewCuration() {
   if (!$("overviewCurationBoard") || !state.steps.length) return;
-  const latest = Math.max(...state.steps.map((x) => x.policy_version || 0));
-  const highReward = state.steps.filter((s) => Number(s.reward ?? -1) >= 0.7).length;
+  const correct = state.steps.filter((s) => qualityForStep(s) === "correct").length;
+  const incorrect = state.steps.filter((s) => qualityForStep(s) === "incorrect").length;
   const missingReward = state.steps.filter((s) => s.reward === null || s.reward === undefined).length;
-  const stale = state.steps.filter((s) => latest - (s.policy_version || 0) > 1).length;
   const trainable = state.steps.filter((s) => s.curation?.trainable !== false).length;
   $("overviewCurationBoard").innerHTML = [
-    ["High r", highReward],
+    ["Correct", correct],
+    ["Incorrect", incorrect],
     ["No reward", missingReward],
-    ["Stale", stale],
     ["Trainable", trainable],
   ]
     .map(([label, value]) => `<div class="mini-signal"><span>${label}</span><strong>${value}</strong></div>`)
@@ -383,36 +409,22 @@ function renderOverviewOptimization() {
     $("overviewOptimization").innerHTML = `<div class="empty-note">Prefix-tree preview pending</div>`;
     return;
   }
+  const shared = sharedNodes(tree).length;
+  const branches = branchNodes(tree).length;
   $("overviewOptimization").innerHTML = `<div class="optimization-meter">
     <div><span>Original</span><strong>${compact(tree.original_tokens)}</strong></div>
     <div><span>Packed</span><strong>${compact(tree.packed_tokens)}</strong></div>
     <div><span>Saved</span><strong>${compact(tree.saved_tokens)}</strong></div>
     <div><span>Ratio</span><strong>${(tree.token_ratio * 100).toFixed(1)}%</strong></div>
+    <div><span>Shared nodes</span><strong>${shared}</strong></div>
+    <div><span>Branches</span><strong>${branches}</strong></div>
   </div>
-  <div class="ratio-bar"><span style="width:${Math.max(4, tree.token_ratio * 100)}%"></span></div>`;
+  <div class="ratio-bar"><span style="width:${Math.max(4, tree.token_ratio * 100)}%"></span></div>
+  <small class="preview-note">Live prefix-tree merge preview · ${tree.prompt_uid || "latest prompt"}</small>`;
 }
 
 function renderOverviewConsumption() {
-  if (!$("overviewConsumption") || !state.steps.length) return;
-  const groups = groupBy(state.steps.filter((s) => s.curation?.trainable !== false), (s) => s.prompt_uid);
-  const rows = Object.entries(groups).map(([promptUid, steps]) => {
-    const rewards = steps.map((s) => s.reward).filter((x) => x !== null && x !== undefined);
-    return {
-      promptUid,
-      steps: steps.length,
-      trajectories: new Set(steps.map((s) => s.trajectory_uid)).size,
-      reward: rewards.length ? mean(rewards) : null,
-    };
-  });
-  $("overviewConsumption").innerHTML = rows
-    .slice(0, 3)
-    .map((row) => `<div class="consume-row">
-      <code>${row.promptUid}</code>
-      <span>${row.trajectories} traj</span>
-      <span>${row.steps} stp</span>
-      <strong>${formatMaybe(row.reward)}</strong>
-    </div>`)
-    .join("");
+  renderConsumption("overviewConsumption");
 }
 
 function renderReviewQueue() {
@@ -485,24 +497,57 @@ function renderManifest(result) {
     .join("");
 }
 
+function renderConsumption(targetId = "consumptionStatus") {
+  const target = $(targetId);
+  if (!target) return;
+  const lastFetch = state.stats.last_fetch || {};
+  const lastSync = state.sync.last_sync || {};
+  target.innerHTML = [
+    ["Fetch batches", state.stats.fetch_count ?? 0, "trainer fetch_batch calls"],
+    ["Consumed prompts", state.stats.consumed_prompt_groups ?? 0, "prompt groups"],
+    ["Policy version", `v${state.sync.policy_version ?? state.sync.current_version ?? 0}`, "weight sync version"],
+    ["Weight syncs", state.sync.sync_count ?? 0, "completed syncs"],
+    ["Last fetch", lastFetch.batch_size ? `${lastFetch.batch_size} prompts` : "pending", lastFetch.prompt_uids?.slice(0, 3).join(" · ") || "no batch fetched"],
+    ["Last sync step", lastSync.global_steps ?? "pending", lastSync.validate ? "validation sync" : "train sync"],
+  ]
+    .map(([label, value, hint]) => `<div class="consume-row">
+      <span>${label}</span>
+      <strong>${value}</strong>
+      <small>${hint}</small>
+    </div>`)
+    .join("");
+}
+
+function qualityForStep(step) {
+  const curated = step.curation?.quality;
+  if (curated && curated !== "unreviewed") return curated;
+  if (step.reward === null || step.reward === undefined) return "missing";
+  return Number(step.reward) > 0 ? "correct" : "incorrect";
+}
+
 async function previewTree() {
   const prompt = $("filterPrompt").value;
   const params = new URLSearchParams({ channel: channel(), limit: "500" });
   if (prompt) params.set("prompt_uid", prompt);
   const result = await api(`/api/prefix-tree-preview?${params.toString()}`);
+  state.treePreview = result;
+  const shared = sharedNodes(result).length;
+  const branches = branchNodes(result).length;
   $("treeSummary").innerHTML = [
     ["Sequences", result.sequence_count],
     ["Original tokens", result.original_tokens],
     ["Packed tokens", result.packed_tokens],
     ["Saved tokens", result.saved_tokens],
     ["Token ratio", `${(result.token_ratio * 100).toFixed(1)}%`],
+    ["Shared nodes", shared],
+    ["Branch points", branches],
   ]
     .map(([label, value]) => `<div class="stat"><span>${label}</span><strong>${value}</strong></div>`)
     .join("");
   $("treeNodes").innerHTML = result.nodes
-    .map((node) => `<div class="node">
+    .map((node) => `<div class="node ${node.sequence_ids.length > 1 ? "shared" : ""} ${node.child_ids.length > 1 ? "branch" : ""}">
       <strong>Node ${node.node_id}</strong>
-      <small>pos [${node.start_pos}, ${node.end_pos}] · seqs ${node.sequence_ids.join(",")}</small>
+      <small>pos [${node.start_pos}, ${node.end_pos}] · seqs ${node.sequence_ids.join(",")} · ${node.sequence_ids.length > 1 ? "shared prefix" : "private span"}${node.child_ids.length > 1 ? " · branch point" : ""}</small>
       <code>${JSON.stringify(node.tokens.slice(0, 32))}${node.tokens.length > 32 ? " ..." : ""}</code>
     </div>`)
     .join("");
@@ -518,12 +563,21 @@ function renderPackedRibbon(result) {
     .slice(0, 18)
     .map((node) => {
       const width = Math.max(7, (node.num_tokens / maxTokens) * 100);
-      return `<div class="ribbon-node" style="flex-basis:${width}%">
+      const cls = `${node.sequence_ids.length > 1 ? "shared" : ""} ${node.child_ids.length > 1 ? "branch" : ""}`;
+      return `<div class="ribbon-node ${cls}" style="flex-basis:${width}%">
         <span>N${node.node_id}</span>
         <small>${node.num_tokens} tok · ${node.sequence_ids.length} seq</small>
       </div>`;
     })
     .join("");
+}
+
+function sharedNodes(tree) {
+  return (tree.nodes || []).filter((node) => node.sequence_ids.length > 1);
+}
+
+function branchNodes(tree) {
+  return (tree.nodes || []).filter((node) => node.child_ids.length > 1);
 }
 
 function renderMask(mask) {
@@ -536,6 +590,10 @@ function renderMask(mask) {
 
 function bind() {
   $("refresh").addEventListener("click", refreshAll);
+  $("channel").querySelectorAll('input[type="checkbox"]').forEach((input) => input.addEventListener("change", () => {
+    state.eventCursor = 0;
+    refreshAll();
+  }));
   $("applyFilters").addEventListener("click", loadSteps);
   $("applyCuration").addEventListener("click", applyCuration);
   $("previewBatch").addEventListener("click", previewBatch);
@@ -551,12 +609,18 @@ function bind() {
       document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
       button.classList.add("active");
       $(button.dataset.tab).classList.add("active");
+      if (button.dataset.tab === "optimize" && !$("treeSummary").children.length) {
+        previewTree();
+      }
     });
   });
 }
 
 bind();
-loadConfig().then(refreshAll).catch((error) => {
+loadConfig().then((cfg) => {
+  refreshAll();
+  setInterval(refreshAll, cfg.refresh_interval_ms || 2000);
+}).catch((error) => {
   $("connection").textContent = error.message;
 });
 

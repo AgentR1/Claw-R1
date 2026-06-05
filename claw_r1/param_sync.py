@@ -42,6 +42,8 @@ class ParameterSynchronizer:
         self.weights_info = None
         self.sync_group_name = "actor_rollout"
         self.current_version = 0
+        self.sync_count = 0
+        self.last_sync: dict | None = None
 
         self._wait_last_update = None
         self._wait_last_resume = None
@@ -67,6 +69,14 @@ class ParameterSynchronizer:
     def get_current_param_version(self) -> int:
         return self.current_version
 
+    def get_statistics(self) -> dict:
+        return {
+            "current_version": self.current_version,
+            "policy_version": self.current_version,
+            "sync_count": self.sync_count,
+            "last_sync": self.last_sync,
+        }
+
     def sync_weights(self, version: int, validate: bool = False, global_steps: int = 0):
         """Pause rollout, broadcast weights, then resume."""
         start = time.time()
@@ -87,6 +97,18 @@ class ParameterSynchronizer:
             sync_time - pause_time,
             sync_time - start,
         )
+        self.sync_count += 1
+        self.last_sync = {
+            "version": version,
+            "policy_version": version,
+            "sync_count": self.sync_count,
+            "global_steps": global_steps,
+            "validate": validate,
+            "pause_seconds": pause_time - start,
+            "sync_seconds": sync_time - pause_time,
+            "total_seconds": sync_time - start,
+            "synced_at": sync_time,
+        }
 
         self._wait_last_update = self.rollouter.update_param_version.remote(
             version,

@@ -51,21 +51,25 @@ def create_app(config: DashboardConfig) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    client = MockDataPoolClient() if config.mock else RayDataPoolClient(config)
+    client = RayDataPoolClient(config)
     static_dir = Path(__file__).resolve().parents[1] / "frontend"
 
     @app.get("/api/config")
     def get_config() -> dict[str, Any]:
         return {
             "actor_name": config.actor_name,
+            "sync_actor_name": config.sync_actor_name,
             "channel": config.channel,
             "refresh_interval_ms": config.refresh_interval_ms,
-            "mock": config.mock,
         }
 
     @app.get("/api/stats")
     def stats(channel: str | None = None) -> dict[str, Any]:
-        return client.stats(channel or config.channel)
+        return _aggregate_stats(client, _channels(channel or config.channel))
+
+    @app.get("/api/sync")
+    def sync() -> dict[str, Any]:
+        return client.sync_stats()
 
     @app.get("/api/steps")
     def steps(
@@ -82,20 +86,33 @@ def create_app(config: DashboardConfig) -> FastAPI:
         limit: int = Query(200, ge=1, le=1000),
         offset: int = Query(0, ge=0),
     ) -> dict[str, Any]:
-        return client.list_steps(
-            channel or config.channel,
-            prompt_uid=prompt_uid,
-            trajectory_uid=trajectory_uid,
-            agent=agent,
-            quality=quality,
-            trainable=trainable,
-            reward_state=reward_state,
-            min_reward=min_reward,
-            max_reward=max_reward,
-            policy_version=policy_version,
-            limit=limit,
-            offset=offset,
-        )
+        channels = _channels(channel or config.channel)
+        rows: list[dict[str, Any]] = []
+        total = 0
+        for ch in channels:
+            data = client.list_steps(
+                ch,
+                prompt_uid=prompt_uid,
+                trajectory_uid=trajectory_uid,
+                agent=agent,
+                quality=quality,
+                trainable=trainable,
+                reward_state=reward_state,
+                min_reward=min_reward,
+                max_reward=max_reward,
+                policy_version=policy_version,
+                limit=limit,
+                offset=offset,
+            )
+            rows.extend(data["steps"])
+            total += data.get("total", len(data["steps"]))
+        rows.sort(key=lambda r: (r.get("channel", ""), r["prompt_uid"], r["trajectory_uid"], r["step_index"]))
+        return {
+            "channel": ",".join(channels),
+            "channels": channels,
+            "total": total,
+            "steps": rows[:limit],
+        }
 
     @app.get("/api/trajectories")
     def trajectories(
@@ -119,25 +136,48 @@ def create_app(config: DashboardConfig) -> FastAPI:
         cursor: int = Query(0, ge=0),
         limit: int = Query(200, ge=1, le=1000),
     ) -> dict[str, Any]:
-        return client.get_step_events(channel or config.channel, cursor=cursor, limit=limit)
+        channels = _channels(channel or config.channel)
+        events_out: list[dict[str, Any]] = []
+        next_cursor = cursor
+        for ch in channels:
+            data = client.get_step_events(ch, cursor=cursor, limit=limit)
+            for event in data["events"]:
+                event = dict(event)
+                event.setdefault("channel", ch)
+                events_out.append(event)
+            next_cursor = max(next_cursor, data.get("cursor", cursor))
+        events_out.sort(key=lambda e: (e.get("cursor", 0), e.get("channel", "")))
+        return {
+            "channel": ",".join(channels),
+            "channels": channels,
+            "cursor": next_cursor,
+            "events": events_out[-limit:],
+            "has_more": False,
+        }
 
     @app.post("/api/curation")
     def curation(req: CurationRequest) -> dict[str, Any]:
-        return client.update_step_curation(
-            [_model_to_dict(u) for u in req.updates],
-            req.channel or config.channel,
-        )
+        channels = _channels(req.channel or config.channel)
+        results = [client.update_step_curation([_model_to_dict(u) for u in req.updates], ch) for ch in channels]
+        return {
+            "channel": ",".join(channels),
+            "channels": channels,
+            "updated": [item for result in results for item in result.get("updated", [])],
+            "updated_count": sum(result.get("updated_count", 0) for result in results),
+        }
 
     @app.post("/api/batch-preview")
     def batch_preview(req: BatchPreviewRequest) -> dict[str, Any]:
-        channel = req.channel or config.channel
-        data = client.list_steps(
-            channel,
-            trainable=True if req.trainable_only else None,
-            quality=req.quality,
-            limit=1000,
-        )
-        steps = data["steps"]
+        channels = _channels(req.channel or config.channel)
+        steps = []
+        for ch in channels:
+            data = client.list_steps(
+                ch,
+                trainable=True if req.trainable_only else None,
+                quality=req.quality,
+                limit=1000,
+            )
+            steps.extend(data["steps"])
         if req.max_policy_staleness is not None and steps:
             current = max(step["policy_version"] for step in steps)
             steps = [s for s in steps if current - s["policy_version"] <= req.max_policy_staleness]
@@ -168,7 +208,8 @@ def create_app(config: DashboardConfig) -> FastAPI:
         return {
             "mode": "preview_only",
             "algorithm": req.algorithm,
-            "channel": channel,
+            "channel": ",".join(channels),
+            "channels": channels,
             "batch_size": req.batch_size,
             "n_rollouts": req.n_rollouts,
             "max_policy_staleness": req.max_policy_staleness,
@@ -185,7 +226,7 @@ def create_app(config: DashboardConfig) -> FastAPI:
             },
             "manifest": {
                 "algorithm": req.algorithm,
-                "channel": channel,
+                "channel": ",".join(channels),
                 "prompt_uids": selected_prompts,
                 "step_keys": [s["step_key"] for s in selected_steps],
                 "filters": {
@@ -202,13 +243,21 @@ def create_app(config: DashboardConfig) -> FastAPI:
         prompt_uid: str | None = None,
         limit: int = Query(200, ge=1, le=1000),
     ) -> dict[str, Any]:
-        data = client.list_steps(channel or config.channel, prompt_uid=prompt_uid, limit=limit)
-        steps = data["steps"]
+        channels = _channels(channel or config.channel)
+        steps = []
+        for ch in channels:
+            data = client.list_steps(ch, prompt_uid=prompt_uid, limit=limit)
+            steps.extend(data["steps"])
         if not prompt_uid and steps:
             first_prompt = steps[0]["prompt_uid"]
             steps = [step for step in steps if step["prompt_uid"] == first_prompt]
             prompt_uid = first_prompt
-        return {"channel": channel or config.channel, "prompt_uid": prompt_uid, **build_prefix_tree_preview(steps)}
+        return {
+            "channel": ",".join(channels),
+            "channels": channels,
+            "prompt_uid": prompt_uid,
+            **build_prefix_tree_preview(steps),
+        }
 
     @app.get("/")
     def index() -> FileResponse:
@@ -218,10 +267,40 @@ def create_app(config: DashboardConfig) -> FastAPI:
     return app
 
 
+def _channels(value: str | None) -> list[str]:
+    channels = [part.strip() for part in (value or "train").split(",") if part.strip()]
+    return channels or ["train"]
+
+
+def _aggregate_stats(client: Any, channels: list[str]) -> dict[str, Any]:
+    stats_by_channel = {channel: client.stats(channel) for channel in channels}
+    totals: dict[str, Any] = {
+        "channel": ",".join(channels),
+        "channels": channels,
+        "by_channel": stats_by_channel,
+    }
+    numeric_keys = {
+        key
+        for stats in stats_by_channel.values()
+        for key, value in stats.items()
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
+    }
+    for key in numeric_keys:
+        totals[key] = sum(stats.get(key, 0) for stats in stats_by_channel.values())
+    last_fetches = [
+        stats.get("last_fetch")
+        for stats in stats_by_channel.values()
+        if stats.get("last_fetch")
+    ]
+    totals["last_fetch"] = max(last_fetches, key=lambda item: item.get("fetched_at", 0)) if last_fetches else None
+    return totals
+
+
 class RayDataPoolClient:
     def __init__(self, config: DashboardConfig):
         self.config = config
         self._actor = None
+        self._sync_actor = None
 
     def _get_actor(self):
         if self._actor is None:
@@ -253,252 +332,30 @@ class RayDataPoolClient:
     def update_step_curation(self, updates: list[dict[str, Any]], channel: str) -> dict[str, Any]:
         return self._call("update_step_curation", updates, channel)
 
+    def sync_stats(self) -> dict[str, Any]:
+        try:
+            import ray
+
+            if self._sync_actor is None:
+                self._get_actor()
+                self._sync_actor = ray.get_actor(self.config.sync_actor_name)
+            return ray.get(self._sync_actor.get_statistics.remote())
+        except Exception as exc:
+            return {
+                "available": False,
+                "current_version": None,
+                "policy_version": None,
+                "sync_count": 0,
+                "last_sync": None,
+                "error": str(exc),
+            }
+
     def _call(self, method: str, *args: Any, **kwargs: Any) -> Any:
         import ray
 
         actor = self._get_actor()
         remote_method = getattr(actor, method)
         return ray.get(remote_method.remote(*args, **kwargs))
-
-
-class MockDataPoolClient:
-    def __init__(self):
-        self.steps = _mock_steps()
-        self.curation: dict[str, dict[str, Any]] = {}
-        self.events = [
-            {
-                "cursor": i + 1,
-                "type": "step_submitted" if not step["is_last"] else "trajectory_completed",
-                "step_key": step["step_key"],
-                "prompt_uid": step["prompt_uid"],
-                "trajectory_uid": step["trajectory_uid"],
-                "payload": {
-                    "prompt_uid": step["prompt_uid"],
-                    "trajectory_uid": step["trajectory_uid"],
-                    "reward": step["reward"],
-                    "source": step["source"],
-                    "agent": step["agent"],
-                },
-            }
-            for i, step in enumerate(self.steps)
-        ]
-
-    def stats(self, channel: str) -> dict[str, Any]:
-        trajectories = {s["trajectory_uid"] for s in self.steps}
-        prompts = {s["prompt_uid"] for s in self.steps}
-        return {
-            "total_steps": len(self.steps),
-            "total_trajectories": len(trajectories),
-            "complete_trajectories": len(trajectories),
-            "total_prompt_groups": len(prompts),
-            "pending_prompt_groups": len(prompts),
-            "ready_prompt_groups": len(prompts),
-            "curated_steps": len(self.curation),
-            "event_cursor": len(self.events),
-        }
-
-    def list_steps(self, channel: str, **kwargs: Any) -> dict[str, Any]:
-        rows = [self._with_curation(s, channel) for s in self.steps]
-        for key in ("prompt_uid", "trajectory_uid", "agent", "quality", "reward_state", "policy_version"):
-            value = kwargs.get(key)
-            if value is None:
-                continue
-            if key == "quality":
-                rows = [r for r in rows if r["curation"].get("quality") == value]
-            else:
-                rows = [r for r in rows if r.get(key) == value]
-        if kwargs.get("trainable") is not None:
-            rows = [r for r in rows if r["curation"].get("trainable", True) == kwargs["trainable"]]
-        offset = kwargs.get("offset", 0)
-        limit = kwargs.get("limit", 200)
-        return {"channel": channel, "total": len(rows), "steps": rows[offset : offset + limit]}
-
-    def list_trajectories(self, channel: str, **kwargs: Any) -> dict[str, Any]:
-        grouped: dict[str, list[dict[str, Any]]] = {}
-        for step in self.list_steps(channel, limit=1000)["steps"]:
-            grouped.setdefault(step["trajectory_uid"], []).append(step)
-        rows = []
-        for uid, steps in grouped.items():
-            first = steps[0]
-            if kwargs.get("prompt_uid") and first["prompt_uid"] != kwargs["prompt_uid"]:
-                continue
-            rows.append(
-                {
-                    "trajectory_uid": uid,
-                    "prompt_uid": first["prompt_uid"],
-                    "step_count": len(steps),
-                    "complete": True,
-                    "reward_sum": sum(s["reward"] or 0 for s in steps),
-                    "policy_versions": sorted({s["policy_version"] for s in steps}),
-                    "agents": sorted({s["agent"] for s in steps if s["agent"]}),
-                    "metadata": first["metadata"],
-                }
-            )
-        return {"channel": channel, "total": len(rows), "trajectories": rows}
-
-    def get_step_events(self, channel: str, **kwargs: Any) -> dict[str, Any]:
-        cursor = kwargs.get("cursor", 0)
-        events = [e for e in self.events if e["cursor"] > cursor][: kwargs.get("limit", 200)]
-        return {
-            "channel": channel,
-            "cursor": events[-1]["cursor"] if events else cursor,
-            "events": events,
-            "has_more": False,
-        }
-
-    def update_step_curation(self, updates: list[dict[str, Any]], channel: str) -> dict[str, Any]:
-        updated = []
-        for update in updates:
-            key = update.get("step_key") or f"{update.get('trajectory_uid')}:{update.get('step_index')}"
-            existing = dict(self.curation.get(key, {}))
-            existing.update(
-                {
-                    k: v
-                    for k, v in update.items()
-                    if k in {"quality", "trainable", "reward_status", "tags", "note"}
-                }
-            )
-            self.curation[key] = existing
-            self.events.append(
-                {
-                    "cursor": len(self.events) + 1,
-                    "type": "curation_updated",
-                    "step_key": key,
-                    "payload": existing,
-                }
-            )
-            updated.append({"step_key": key, "curation": existing})
-        return {"channel": channel, "updated": updated, "updated_count": len(updated)}
-
-    def _with_curation(self, step: dict[str, Any], channel: str) -> dict[str, Any]:
-        row = dict(step)
-        row["channel"] = channel
-        row["curation"] = {"quality": "unreviewed", "trainable": True, "reward_status": row["reward_state"], "tags": []}
-        row["curation"].update(self.curation.get(row["step_key"], {}))
-        return row
-
-
-def _mock_steps() -> list[dict[str, Any]]:
-    rows = []
-    base_prompt = [1001, 1002, 1003, 1101, 1102, 1201, 1202, 1203, 1301, 1302, 1303, 1304]
-    rubric = [1401, 1402, 1403, 1404]
-    task = [1501, 1502, 1503, 1504, 1505]
-    shared_context = base_prompt + rubric + task
-    service_prompt = [7001, 7002, 7003, 7004, 7011, 7012, 7013]
-    code_prompt = [8101, 8102, 8103, 8104, 8201, 8202, 8203, 8301]
-    samples = [
-        ("prompt-a", "traj-a-0", 0, shared_context, [2101, 2102, 2103, 2104, 2105], 0.32, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
-        (
-            "prompt-a",
-            "traj-a-0",
-            1,
-            shared_context + [2101, 2102, 2103, 2104, 2105, 3001, 3002, 3003],
-            [4101, 4102, 4103, 4104],
-            0.74,
-            "whitebox-rollout",
-            "math-planner",
-            "gsm8k-tool",
-            "calculator",
-        ),
-        (
-            "prompt-a",
-            "traj-a-0",
-            2,
-            shared_context + [2101, 2102, 2103, 2104, 2105, 3001, 3002, 3003, 4101, 4102, 4103, 4104, 5001],
-            [6101, 6102, 6103],
-            0.91,
-            "whitebox-rollout",
-            "math-planner",
-            "gsm8k-tool",
-            "verifier",
-        ),
-        ("prompt-a", "traj-a-1", 0, shared_context, [2101, 2102, 2103, 2104, 2115], 0.28, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
-        (
-            "prompt-a",
-            "traj-a-1",
-            1,
-            shared_context + [2101, 2102, 2103, 2104, 2115, 3001, 3002, 3014],
-            [4101, 4102, 4203],
-            0.63,
-            "whitebox-rollout",
-            "math-planner",
-            "gsm8k-tool",
-            "verifier",
-        ),
-        ("prompt-a", "traj-a-2", 0, shared_context, [2201, 2202, 2203, 2204], 0.18, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
-        (
-            "prompt-a",
-            "traj-a-2",
-            1,
-            shared_context + [2201, 2202, 2203, 2204, 3301, 3302],
-            [4301, 4302, 4303, 4304],
-            0.52,
-            "whitebox-rollout",
-            "math-planner",
-            "gsm8k-tool",
-            "verifier",
-        ),
-        ("prompt-a", "traj-a-3", 0, shared_context, [2101, 2102, 2103, 2104, 2105], 0.35, "whitebox-rollout", "math-planner", "gsm8k-tool", "calculator"),
-        (
-            "prompt-a",
-            "traj-a-3",
-            1,
-            shared_context + [2101, 2102, 2103, 2104, 2105, 3001, 3002, 3003],
-            [4101, 4102, 4103, 4114],
-            0.81,
-            "whitebox-rollout",
-            "math-planner",
-            "gsm8k-tool",
-            "verifier",
-        ),
-        ("prompt-b", "traj-b-0", 0, service_prompt, [7101, 7102, 7103], None, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
-        ("prompt-b", "traj-b-0", 1, service_prompt + [7101, 7102, 7103, 7151, 7152], [7161, 7162, 7163, 7164], 0.66, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
-        ("prompt-b", "traj-b-1", 0, service_prompt, [7201, 7202], 0.11, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
-        ("prompt-b", "traj-b-1", 1, service_prompt + [7201, 7202, 7251], [7261, 7262], 0.24, "blackbox-service", "openclaw-proxy", "calendar-assist", "calendar"),
-        ("prompt-c", "traj-c-0", 0, code_prompt, [9101, 9102, 9103, 9104], 0.79, "human-feedback", "code-agent", "repo-debug", "shell"),
-        ("prompt-c", "traj-c-0", 1, code_prompt + [9101, 9102, 9103, 9104, 9151, 9152, 9153], [9161, 9162, 9163], 0.88, "human-feedback", "code-agent", "repo-debug", "pytest"),
-        ("prompt-c", "traj-c-1", 0, code_prompt, [9201, 9202, 9203], 0.41, "human-feedback", "code-agent", "repo-debug", "shell"),
-        ("prompt-c", "traj-c-1", 1, code_prompt + [9201, 9202, 9203, 9251, 9252], [9261, 9262, 9263, 9264], 0.57, "human-feedback", "code-agent", "repo-debug", "pytest"),
-        ("prompt-c", "traj-c-2", 0, code_prompt, [9301, 9302, 9303, 9304], 0.93, "human-feedback", "code-agent", "repo-debug", "review"),
-    ]
-    last_step_by_trajectory = {}
-    for _prompt_uid, traj_uid, step_index, _prompt_ids, _response_ids, _reward, *_rest in samples:
-        last_step_by_trajectory[traj_uid] = max(last_step_by_trajectory.get(traj_uid, 0), step_index)
-
-    for prompt_uid, traj_uid, step_index, prompt_ids, response_ids, reward, source, agent, task_name, tool in samples:
-        policy_version = 5 if prompt_uid == "prompt-a" else 4 if prompt_uid == "prompt-b" else 6
-        rows.append(
-            {
-                "step_key": f"{traj_uid}:{step_index}",
-                "storage_index": len(rows),
-                "trajectory_uid": traj_uid,
-                "prompt_uid": prompt_uid,
-                "step_index": step_index,
-                "is_last": step_index == last_step_by_trajectory[traj_uid],
-                "complete": True,
-                "reward": reward,
-                "reward_state": "present" if reward is not None else "missing",
-                "policy_version": policy_version,
-                "prompt_len": len(prompt_ids),
-                "response_len": len(response_ids),
-                "token_count": len(prompt_ids) + len(response_ids),
-                "prompt_ids": prompt_ids,
-                "response_ids": response_ids,
-                "action_summary": str(response_ids),
-                "agent": agent,
-                "task": task_name,
-                "source": source,
-                "metadata": {
-                    "agent": agent,
-                    "task": task_name,
-                    "source": source,
-                    "tool": tool,
-                    "reward_model": "rule+verifier" if prompt_uid == "prompt-a" else "implicit-feedback" if prompt_uid == "prompt-b" else "human-preference",
-                    "demo": "multi-branch-shared-prefix" if prompt_uid == "prompt-a" else "online-service" if prompt_uid == "prompt-b" else "code-agent-curation",
-                },
-            }
-        )
-    return rows
 
 
 def _model_to_dict(model: BaseModel) -> dict[str, Any]:

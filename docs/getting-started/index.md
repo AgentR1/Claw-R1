@@ -1,45 +1,44 @@
 # Getting Started
 
+Use this section to set up the runtime environment and launch the first asynchronous training workflow.
+
 <div class="grid cards" markdown>
 
--   :material-download: **Installation**
+-   **Installation**
 
     ---
 
-    环境配置、依赖安装和验证。
+    Prepare the `verl`-compatible Python environment used by Claw-R1.
 
-    [:octicons-arrow-right-24: Installation](installation.md)
+    [Installation](installation.md)
 
--   :material-rocket-launch: **Quick Start**
+-   **Quick Start**
 
     ---
 
-    5 分钟内运行你的第一个异步训练实验。
+    Run a black-box GSM8K training example and inspect it with the dashboard.
 
-    [:octicons-arrow-right-24: Quick Start](quickstart.md)
+    [Quick Start](quickstart.md)
 
 </div>
 
-## 前置条件
+## Requirements
 
-| 依赖 | 最低版本 |
+| Dependency | Recommended baseline |
 |---|---|
 | Python | 3.10+ |
 | PyTorch | 2.0+ |
 | CUDA | 12.1+ |
 | Ray | 2.10+ |
-| GPU | 3 张（2 训练 + 1 推理） |
+| GPU | At least 3 GPUs for the small async example |
 
-## 架构一览
+## Runtime Shape
 
+```text
+Agent -> Gateway -> DataPool -> Trainer
+                     ^             |
+                     |             v
+                  Dashboard <- Parameter Synchronizer
 ```
-┌─────────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│   Agent     │────►│ Gateway  │────►│ DataPool │────►│ Trainer  │
-│ (黑盒/白盒) │◄────│ (:8100)  │     │          │     │          │
-└─────────────┘     └──────────┘     └──────────┘     └────┬─────┘
-                                                           │ 权重同步
-                                                           ▼
-                                                     ┌──────────┐
-                                                     │  vLLM    │
-                                                     └──────────┘
-```
+
+The Gateway receives agent traffic, DataPool stores step-level data, the Trainer consumes curated batches, and the dashboard monitors the live data lifecycle.

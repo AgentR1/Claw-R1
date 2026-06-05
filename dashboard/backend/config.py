@@ -14,11 +14,11 @@ class DashboardConfig:
     ray_address: str | None = "auto"
     ray_namespace: str | None = None
     actor_name: str = "data_pool"
+    sync_actor_name: str = "parameter_synchronizer"
     channel: str = "train"
     refresh_interval_ms: int = 2000
     host: str = "0.0.0.0"
     port: int = 8120
-    mock: bool = False
 
 
 def load_config(argv: list[str] | None = None) -> DashboardConfig:
@@ -27,11 +27,11 @@ def load_config(argv: list[str] | None = None) -> DashboardConfig:
     parser.add_argument("--ray-address", default=os.getenv("CLAW_DASHBOARD_RAY_ADDRESS"))
     parser.add_argument("--ray-namespace", default=os.getenv("CLAW_DASHBOARD_RAY_NAMESPACE"))
     parser.add_argument("--actor-name", default=os.getenv("CLAW_DASHBOARD_ACTOR_NAME"))
+    parser.add_argument("--sync-actor-name", default=os.getenv("CLAW_DASHBOARD_SYNC_ACTOR_NAME"))
     parser.add_argument("--channel", default=os.getenv("CLAW_DASHBOARD_CHANNEL"))
     parser.add_argument("--refresh-interval-ms", type=int, default=None)
     parser.add_argument("--host", default=os.getenv("CLAW_DASHBOARD_HOST"))
     parser.add_argument("--port", type=int, default=None)
-    parser.add_argument("--mock", action="store_true", help="Run against in-process mock data")
     args = parser.parse_args(argv)
 
     data: dict[str, Any] = {}
@@ -39,7 +39,7 @@ def load_config(argv: list[str] | None = None) -> DashboardConfig:
         data.update(_read_yaml(Path(args.config)))
 
     cfg = DashboardConfig(**{k: v for k, v in data.items() if hasattr(DashboardConfig, k)})
-    for key in ("ray_address", "ray_namespace", "actor_name", "channel", "host"):
+    for key in ("ray_address", "ray_namespace", "actor_name", "sync_actor_name", "channel", "host"):
         value = getattr(args, key)
         if value:
             setattr(cfg, key, value)
@@ -47,8 +47,6 @@ def load_config(argv: list[str] | None = None) -> DashboardConfig:
         cfg.refresh_interval_ms = args.refresh_interval_ms
     if args.port is not None:
         cfg.port = args.port
-    if args.mock:
-        cfg.mock = True
     return cfg
 
 

@@ -180,7 +180,7 @@ class AsyncTaskRunner:
         # -- ParameterSynchronizer ----------------------------------------
         from claw_r1.param_sync import ParameterSynchronizer
 
-        ps = ParameterSynchronizer.remote(
+        ps = ParameterSynchronizer.options(name="parameter_synchronizer").remote(
             config=config,
             trainer=trainer,
             rollouter=rollouter,

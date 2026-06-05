@@ -13,13 +13,6 @@ python -m dashboard.backend.server --config dashboard/config.example.yaml
 
 Open `http://127.0.0.1:8120`.
 
-For UI development without a Ray cluster:
-
-```bash
-conda activate steppo
-python -m dashboard.backend.server --mock --port 8120
-```
-
 ## Configuration
 
 The server accepts CLI flags, environment variables, or a YAML file:
@@ -27,10 +20,10 @@ The server accepts CLI flags, environment variables, or a YAML file:
 - `ray_address`: Ray address, usually `auto`.
 - `ray_namespace`: Ray namespace used by the training process, for example `claw_r1_async`.
 - `actor_name`: named DataPool actor, default `data_pool`.
+- `sync_actor_name`: named parameter synchronizer actor, default `parameter_synchronizer`.
 - `channel`: DataPool channel, default `train`.
 - `refresh_interval_ms`: frontend polling cadence.
 - `host` / `port`: dashboard bind address.
-- `mock`: use built-in sample steps instead of Ray.
 
 ## Views
 

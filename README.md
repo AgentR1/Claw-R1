@@ -11,6 +11,8 @@
 
 ## News
 
+- **[2026.06]** **Claw-R1 Demo Technical Report Updated.** We updated the Claw-R1 Demo technical report: [https://arxiv.org/abs/2606.09138](https://arxiv.org/abs/2606.09138).
+
 - **[2026.06]** **Claw-R1 Dashboard Released.** The live dashboard adds Agentic RL data lifestyle management: collection monitoring, step-level representation, curation signals, prefix-tree optimization preview, and training consumption tracking.
 
 - **[2026.04]** 🌲 **Prefix Tree Merge for Agentic RL Training.** A new algorithm that deduplicates shared prefix computation in multi-step agent training via prefix tree packing + FlexAttention. Currently under testing on the [`prefix-tree-merge`](https://github.com/AgentR1/Claw-R1/tree/prefix-tree-merge) branch. See [documentation](https://agentr1.github.io/Claw-R1/components/prefix-tree-merge/).
@@ -67,11 +69,13 @@ We extend our gratitude to [Agent-R1](https://github.com/0russwest0/Agent-R1), [
 ## Citation
 
 ```bibtex
-@misc{clawr1-2026,
-  title={Claw-R1: The Data Foundation for Agentic Reinforcement Learning},
-  author={Wang, Daoyu and Li, Qingchuan and Ouyang, Jie and Yu, Shuo and Cheng, Mingyue and Liu, Qi},
-  year={2025},
-  howpublished={\url{https://github.com/AgentR1/Claw-R1}},
-  note={GitHub repository}
+@misc{wang2026clawr1,
+      title={Claw-R1: A Step-Level Data Middleware System for Agentic Reinforcement Learning},
+      author={Daoyu Wang and Mingyue Cheng and Qingchuan Li and Shuo Yu and Jie Ouyang and Qi Liu},
+      year={2026},
+      eprint={2606.09138},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2606.09138},
 }
 ```

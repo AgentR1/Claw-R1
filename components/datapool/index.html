@@ -29,7 +29,7 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -37,7 +37,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2004,10 +2004,10 @@
 <h2 id="channel">Channel 系统（数据分区）<a class="headerlink" href="#channel" title="Permanent link">&para;</a></h2>
 <p>DataPool 通过 <strong>channel</strong> 对数据进行分区管理。默认 channel 为 <code>"train"</code>，验证流程使用 <code>"val"</code> channel 以隔离数据。</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># 训练数据</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">"train"</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># 验证数据</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">&quot;val&quot;</span><span class="p">)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">data_pool</span><span class="o">.</span><span class="n">submit_step</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="s2">"val"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>每个 channel 拥有独立的存储、索引和 FIFO 队列。</p>
 <h2 id="_2">数据模型<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
@@ -2076,7 +2076,7 @@
 <h2 id="training-backend">Training Backend（数据供给适配）<a class="headerlink" href="#training-backend" title="Permanent link">&para;</a></h2>
 <p>DataPool 通过可插拔的 <code>TrainingBackend</code> 将 <code>list[Step]</code> 转换为任意训练引擎的原生格式，实现数据管理与训练框架的解耦：</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">VerlBackend</span><span class="p">(</span><span class="n">TrainingBackend</span><span class="p">):</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;将 Step 列表转换为 verl DataProto。&quot;&quot;&quot;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="sd">"""将 Step 列表转换为 verl DataProto。"""</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Step</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DataProto</span><span class="p">:</span>
 </span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="c1"># prompt_ids: 左填充到 prompt_length</span>
@@ -2260,7 +2260,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "navigation.footer", "search.highlight", "search.suggest", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

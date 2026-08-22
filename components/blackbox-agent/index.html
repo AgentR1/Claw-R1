@@ -25,15 +25,15 @@
       
       
       <link rel="icon" href="../../assets/logo.jpeg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>Black-box Agent - Claw-R1</title>
+        <title>Black-box agents and recipes - Claw-R1</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -84,7 +84,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#black-box-agent" class="md-skip">
+        <a href="#black-box-agents-and-recipes" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Black-box Agent
+              Black-box agents and recipes
             
           </span>
         </div>
@@ -1587,136 +1587,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        架构概览
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        核心设计
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="核心设计">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        关注点分离
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        注册机制
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        类层次
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="类层次">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#blackboxagentflowbase" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        BlackBoxAgentFlowBase
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#blackboxgsm8kagentflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        BlackBoxGSM8KAgentFlow
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#gsm8kagent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GSM8KAgent
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        添加新的黑盒 Agent
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        文件结构
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1735,163 +1605,24 @@
   
 
 
-<h1 id="black-box-agent">Black-box Agent<a class="headerlink" href="#black-box-agent" title="Permanent link">&para;</a></h1>
-<p>Black-box Agent 系统允许任何使用 OpenAI 兼容 API 的 Agent 接入 Claw-R1 的训练循环，无需修改 Agent 内部逻辑。Agent 只需将 <code>base_url</code> 指向 Gateway，即可透明地收集训练数据。</p>
-<h2 id="_1">架构概览<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│  BlackBoxAgentFlowBase (训练侧编排)                           │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                               │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  1. POST /init_trajectory          → 获取 base_url            │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  2. POST {base_url}/v1/register_trajectory → 注册 metadata    │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  3. 调用 _run_agent(base_url, kwargs)                         │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│     │                                                         │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│     │  ┌─────────────────────────────────┐                    │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│     └──│  具体 Agent (如 GSM8KAgent)      │                    │
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│        │  只知道 base_url，使用 OpenAI API │                    │
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│        │  POST {base_url}/v1/chat/completions (多轮)          │
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│        └─────────────────────────────────┘                    │
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│  4. POST {base_url}/v1/complete_trajectory → 标记完成          │
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>└──────────────────────────────────────────────────────────────┘
+<h1 id="black-box-agents-and-recipes">Black-box agents and recipes<a class="headerlink" href="#black-box-agents-and-recipes" title="Permanent link">&para;</a></h1>
+<p>Claw-R1 records every model request through Gateway and writes the resulting
+token-level <code>Step</code> objects into DataPool. Recipes select an agent integration,
+not a dataset:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>recipes/gsm8k_agent     OpenAI-compatible example
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>recipes/claude_code     Claude Code CLI in an isolated sandbox
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>recipes/codex           Codex CLI in an isolated sandbox
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>recipes/openclaw        OpenClaw CLI in an isolated sandbox
 </span></code></pre></div>
-<h2 id="_2">核心设计<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h3 id="_3">关注点分离<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>BlackBoxAgentFlowBase</strong>：处理与 Gateway 的完整协议（init → register → complete），是训练侧的编排层。</li>
-<li><strong>具体 Agent</strong>（如 <code>GSM8KAgent</code>）：只接收 <code>base_url</code> 和任务参数，使用标准 OpenAI API 完成任务。Agent 完全不知道训练系统的存在。</li>
-</ul>
-<p>这种分离使得：</p>
-<ul>
-<li>同一个 Agent 可以在训练模式和独立服务模式下复用</li>
-<li>新增任务只需实现 Agent + 对应的 Flow 子类</li>
-<li>Agent 可以用任何语言/框架实现，只要支持 OpenAI API</li>
-</ul>
-<h3 id="_4">注册机制<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
-<p>Agent Flow 通过 <code>@register("name")</code> 装饰器注册，并在 YAML 配置中引用：</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># agent_flow_config.yaml</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blackbox_gsm8k_agent</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">claw_r1.blackbox_agent.gsm8k_agent_flow.BlackBoxGSM8KAgentFlow</span>
+<p>For GSM8K:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>actor_rollout_ref.rollout.agent.default_agent_flow<span class="o">=</span>gsm8k_agent
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>actor_rollout_ref.rollout.agent.agent_flow_config_path<span class="o">=</span>recipes/gsm8k_agent/agent_flow_config.yaml
 </span></code></pre></div>
-<h2 id="_5">类层次<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>AgentFlowBase                         (agent_flow/agent_flow.py)
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    │
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    └── BlackBoxAgentFlowBase          (blackbox_agent/blackbox_agent_flow.py)
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>            │
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            └── BlackBoxGSM8KAgentFlow (blackbox_agent/gsm8k_agent_flow.py)
-</span></code></pre></div>
-<h3 id="blackboxagentflowbase">BlackBoxAgentFlowBase<a class="headerlink" href="#blackboxagentflowbase" title="Permanent link">&para;</a></h3>
-<p>所有黑盒 Agent Flow 的基类，实现了完整的 Gateway 协议：</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BlackBoxAgentFlowBase</span><span class="p">(</span><span class="n">AgentFlowBase</span><span class="p">):</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampling_params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        <span class="c1"># 1. 提取 channel、prompt_uid、metadata</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">channel</span><span class="p">,</span> <span class="n">prompt_uid</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_params</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="c1"># 2. init_trajectory → 获取 base_url</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">init_resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">http</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gateway_url</span><span class="si">}</span><span class="s2">/init_trajectory&quot;</span><span class="p">)</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="n">base_url</span> <span class="o">=</span> <span class="o">...</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="c1"># 3. register_trajectory → 注册 channel 和 metadata</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="k">await</span> <span class="n">http</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/v1/register_trajectory&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">})</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="c1"># 4. 调用子类实现的 _run_agent</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>        <span class="n">num_turns</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_agent</span><span class="p">(</span><span class="n">base_url</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
-</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
-</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>        <span class="c1"># 5. complete_trajectory → 标记完成</span>
-</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>        <span class="k">await</span> <span class="n">http</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/v1/complete_trajectory&quot;</span><span class="p">)</span>
-</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
-</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>        <span class="k">return</span> <span class="n">num_turns</span>
-</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>
-</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>    <span class="nd">@abstractmethod</span>
-</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;子类实现：创建并运行具体 Agent。&quot;&quot;&quot;</span>
-</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a>        <span class="o">...</span>
-</span></code></pre></div>
-<p>子类只需实现 <code>_run_agent</code>：从 <code>kwargs</code> 中提取任务参数，创建 Agent 实例，调用 Agent 的执行方法。</p>
-<h3 id="blackboxgsm8kagentflow">BlackBoxGSM8KAgentFlow<a class="headerlink" href="#blackboxgsm8kagentflow" title="Permanent link">&para;</a></h3>
-<p>GSM8K 数学题的具体实现：</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@register</span><span class="p">(</span><span class="s2">&quot;blackbox_gsm8k_agent&quot;</span><span class="p">)</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">BlackBoxGSM8KAgentFlow</span><span class="p">(</span><span class="n">BlackBoxAgentFlowBase</span><span class="p">):</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.blackbox_agent.gsm8k_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">GSM8KAgent</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">question</span> <span class="o">=</span> <span class="o">...</span>   <span class="c1"># 从 kwargs[&quot;raw_prompt&quot;] 提取</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="n">ground_truth</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># 从 kwargs[&quot;reward_model&quot;] 提取</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">max_turns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">rollout</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_turns&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>        <span class="n">agent</span> <span class="o">=</span> <span class="n">GSM8KAgent</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">)</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>            <span class="n">question</span><span class="o">=</span><span class="n">question</span><span class="p">,</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>            <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>            <span class="n">max_turns</span><span class="o">=</span><span class="n">max_turns</span><span class="p">,</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="p">)</span>
-</span></code></pre></div>
-<h2 id="gsm8kagent">GSM8KAgent<a class="headerlink" href="#gsm8kagent" title="Permanent link">&para;</a></h2>
-<p>一个训练无关的 Agent，使用 OpenAI 兼容 API 解决 GSM8K 数学题：</p>
-<ul>
-<li>接收 <code>base_url</code>（指向 Gateway）和任务参数</li>
-<li>使用 tool calling（<code>check_answer</code> 工具）进行多轮推理</li>
-<li>支持 Qwen 风格的 tool call 解析（<code>✿FUNCTION✿</code> 格式）</li>
-<li>返回使用的轮次数</li>
-</ul>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">agent</span> <span class="o">=</span> <span class="n">GSM8KAgent</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;http://gateway:8100/traj123/1&quot;</span><span class="p">)</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">num_turns</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">question</span><span class="o">=</span><span class="s2">&quot;What is 15 * 23?&quot;</span><span class="p">,</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">ground_truth</span><span class="o">=</span><span class="s2">&quot;345&quot;</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">max_turns</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">)</span>
-</span></code></pre></div>
-<h2 id="agent">添加新的黑盒 Agent<a class="headerlink" href="#agent" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>实现 Agent 类</strong>（训练无关）：</li>
-</ol>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># claw_r1/blackbox_agent/my_agent.py</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyAgent</span><span class="p">:</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">AsyncOpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="c1"># 使用 self.client 进行多轮对话</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        <span class="c1"># 返回使用的轮次数</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="o">...</span>
-</span></code></pre></div>
-<ol>
-<li><strong>实现 Flow 子类</strong>：</li>
-</ol>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># claw_r1/blackbox_agent/my_agent_flow.py</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.agent_flow.agent_flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.blackbox_agent.blackbox_agent_flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBoxAgentFlowBase</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nd">@register</span><span class="p">(</span><span class="s2">&quot;blackbox_my_agent&quot;</span><span class="p">)</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">BlackBoxMyAgentFlow</span><span class="p">(</span><span class="n">BlackBoxAgentFlowBase</span><span class="p">):</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_run_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_url</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="kn">from</span><span class="w"> </span><span class="nn">claw_r1.blackbox_agent.my_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyAgent</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        <span class="n">task</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>        <span class="n">agent</span> <span class="o">=</span> <span class="n">MyAgent</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">)</span>
-</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
-</span></code></pre></div>
-<ol>
-<li><strong>注册到配置</strong>：</li>
-</ol>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># agent_flow_config.yaml</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blackbox_my_agent</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">_target_</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">claw_r1.blackbox_agent.my_agent_flow.BlackBoxMyAgentFlow</span>
-</span></code></pre></div>
-<ol>
-<li><strong>在训练脚本中使用</strong>：</li>
-</ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>claw_r1.async_main<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span>actor_rollout_ref.rollout.agent.default_agent_flow<span class="o">=</span>blackbox_my_agent<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span>actor_rollout_ref.rollout.agent.agent_flow_config_path<span class="o">=</span>claw_r1/blackbox_agent/agent_flow_config.yaml<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span>...
-</span></code></pre></div>
-<h2 id="_6">文件结构<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>claw_r1/blackbox_agent/
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├── blackbox_agent_flow.py      # BlackBoxAgentFlowBase 基类
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>├── gsm8k_agent_flow.py         # GSM8K Flow 子类
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>├── gsm8k_agent.py              # GSM8K Agent（训练无关）
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>└── agent_flow_config.yaml      # Agent Flow 注册配置
-</span></code></pre></div>
+<p>CLI recipes use <code>CLAW_R1_SANDBOX_PROVIDER=local_bwrap</code> or <code>e2b</code>. Samples may
+provide <code>files</code>, <code>before_agent_commands</code>, <code>after_agent_commands</code>,
+<code>grader_command</code>, and <code>backend_options</code>. The grader prints JSON with an
+<code>overall_score</code> field. See <a href="../../recipes/README.md"><code>recipes/README.md</code></a> for
+the metadata contract.</p>
 
 
 
@@ -2023,7 +1754,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "navigation.footer", "search.highlight", "search.suggest", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

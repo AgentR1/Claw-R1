@@ -1,0 +1,2 @@
+- name: codex
+  _target_: recipes.codex.flow.CodexFlow

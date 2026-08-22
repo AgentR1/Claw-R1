@@ -39,8 +39,8 @@ The dashboard uses real Ray actors and shows collection events, step representat
 ```bash
 trainer.n_gpus_per_node=2
 rollout.n_gpus_per_node=1
-actor_rollout_ref.rollout.agent.default_agent_flow=blackbox_gsm8k_agent
-actor_rollout_ref.rollout.agent.agent_flow_config_path=claw_r1/blackbox_agent/agent_flow_config.yaml
+actor_rollout_ref.rollout.agent.default_agent_flow=gsm8k_agent
+actor_rollout_ref.rollout.agent.agent_flow_config_path=recipes/gsm8k_agent/agent_flow_config.yaml
 async_training.trigger_parameter_sync_step=1
 actor_rollout_ref.rollout.n=5
 ```

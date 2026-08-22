@@ -133,8 +133,8 @@ class MyAgentFlow(AgentFlowBase):
 
 ```yaml
 # agent_flow_config.yaml
-- name: blackbox_gsm8k_agent
-  _target_: claw_r1.blackbox_agent.gsm8k_agent_flow.BlackBoxGSM8KAgentFlow
+- name: gsm8k_agent
+  _target_: recipes.gsm8k_agent.flow.GSM8KAgentFlow
 ```
 
 ## AgentFlowManager 和 AgentFlowWorker
@@ -155,7 +155,7 @@ AsyncRollouter
 
 ```bash
 python3 -m claw_r1.async_main \
-    actor_rollout_ref.rollout.agent.default_agent_flow=blackbox_gsm8k_agent \
-    actor_rollout_ref.rollout.agent.agent_flow_config_path=claw_r1/blackbox_agent/agent_flow_config.yaml \
+    actor_rollout_ref.rollout.agent.default_agent_flow=gsm8k_agent \
+    actor_rollout_ref.rollout.agent.agent_flow_config_path=recipes/gsm8k_agent/agent_flow_config.yaml \
     ...
 ```

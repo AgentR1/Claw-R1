@@ -1,0 +1,2 @@
+- name: alfworld_agent
+  _target_: recipes.alfworld_agent.flow.ALFWorldAgentFlow

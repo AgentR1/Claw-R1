@@ -1,0 +1,2 @@
+- name: gsm8k_agent
+  _target_: recipes.gsm8k_agent.flow.GSM8KAgentFlow

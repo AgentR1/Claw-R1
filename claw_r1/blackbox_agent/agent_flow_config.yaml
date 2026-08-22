@@ -1,2 +1,0 @@
-- name: blackbox_gsm8k_agent
-  _target_: claw_r1.blackbox_agent.gsm8k_agent_flow.BlackBoxGSM8KAgentFlow

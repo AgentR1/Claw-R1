@@ -31,6 +31,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
+from claw_r1.blackbox_runtime.protocol import parse_tool_calls
 from claw_r1.data_pool.data_model import Step
 from claw_r1.gateway.models import (
     CompleteTrajectoryRequest,
@@ -158,7 +159,6 @@ async def generate(req: GenerateRequest):
     data = resp.json()
     choice = data["choices"][0]
     response_text = choice.get("text", "")
-
     token_ids: list[int] = _tokenizer.encode(response_text, add_special_tokens=False)
 
     log_probs: Optional[list[float]] = None
@@ -322,6 +322,7 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str, request: 
     data = resp.json()
     choice = data["choices"][0]
     response_text = choice.get("text", "")
+    assistant_content, tool_calls = parse_tool_calls(response_text)
     finish_reason = choice.get("finish_reason", "stop")
 
     response_ids: list[int] = _tokenizer.encode(response_text, add_special_tokens=False)
@@ -365,7 +366,10 @@ async def chat_completions_proxy(trajectory_uid: str, prompt_uid: str, request: 
                     "index": 0,
                     "message": {
                         "role": "assistant",
-                        "content": response_text,
+                        "content": assistant_content,
+                        # CLI adapters require OpenAI's structured form while
+                        # training still consumes the original response_ids.
+                        **({"tool_calls": tool_calls} if tool_calls else {}),
                     },
                     "finish_reason": finish_reason,
                 }
